@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:mason/mason.dart';
@@ -6,6 +7,11 @@ Future<void> run(HookContext context) async {
   final androidPackageName = context.vars['android_package_name'] as String;
   final iosBundleId = context.vars['ios_bundle_id'] as String;
 
+  context.logger.info(
+    '\n🚀 Bootstrapping project architecture...\n'
+    '   Package resolution and setup are starting. This step may take 30–60 seconds.\n',
+  );
+
   /// Runs a shell command, logs progress, and exits on failure.
   Future<void> runCmd(
     String executable,
@@ -13,14 +19,17 @@ Future<void> run(HookContext context) async {
     String description,
   ) async {
     final progress = context.logger.progress(description);
-    final result = await Process.run(
+    final process = await Process.start(
       executable,
       args,
       runInShell: true,
     );
-    if (result.exitCode != 0) {
+
+    final exitCode = await process.exitCode;
+    if (exitCode != 0) {
+      final stderr = await process.stderr.transform(utf8.decoder).join();
       progress.fail();
-      context.logger.err('$description failed:\n${result.stderr}');
+      context.logger.err('$description failed:\n$stderr');
       exit(1);
     }
     progress.complete();
@@ -32,16 +41,15 @@ Future<void> run(HookContext context) async {
   await runCmd(
     'flutter',
     ['pub', 'add', '--dev', 'change_app_package_name'],
-    'Adding change_app_package_name',
+    '[1/6] Installing package rename utility',
   );
 
   await runCmd(
     'dart',
     ['run', 'change_app_package_name:main', androidPackageName],
-    'Renaming app package to $androidPackageName',
+    '[2/6] Renaming app package to $androidPackageName',
   );
 
-  // If iOS bundle ID differs from Android, update iOS separately
   if (iosBundleId != androidPackageName) {
     context.logger.info(
       'iOS bundle ID ($iosBundleId) differs from Android package name. '
@@ -52,12 +60,7 @@ Future<void> run(HookContext context) async {
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // Steps 2-3: File copy + main.dart replacement handled by __brick__/
-  // Mason's template engine copies __brick__/ contents to the target.
-  // ═══════════════════════════════════════════════════════════════════════
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // Step 4: Add core dependencies (UNPINNED — no hardcoded versions)
+  // Step 3: Add core dependencies in logical groups with step progress
   // ═══════════════════════════════════════════════════════════════════════
   await runCmd(
     'flutter',
@@ -72,40 +75,51 @@ Future<void> run(HookContext context) async {
       'redux',
       'flutter_redux',
       'meta',
-      'flutter_screenutil',
-      'shared_preferences',
-      'snug_logger',
+    ],
+    '[3/6] Adding networking & state management packages',
+  );
+
+  await runCmd(
+    'flutter',
+    [
+      'pub', 'add',
       'firebase_core',
       'firebase_crashlytics',
       'firebase_messaging',
       'flutter_local_notifications',
+      'snug_logger',
+      'device_info_plus',
+    ],
+    '[4/6] Adding Firebase & device services',
+  );
+
+  await runCmd(
+    'flutter',
+    [
+      'pub', 'add',
+      'flutter_screenutil',
+      'shared_preferences',
       'cached_network_image',
       'flutter_svg',
       'url_launcher',
       'share_plus',
       'path_provider',
       'permission_handler',
-      'device_info_plus',
       'file_picker',
       'intl',
       'characters',
       'overlay_support',
     ],
-    'Adding core dependencies (unpinned)',
+    '[5/6] Adding UI, storage & utility dependencies',
   );
 
   // ═══════════════════════════════════════════════════════════════════════
-  // Step 5: Add flutter_localizations (SDK package — manual pubspec edit)
-  //
-  // This is the ONE documented exception to "always use flutter pub add."
-  // flutter_localizations is an SDK package and `flutter pub add` doesn't
-  // handle `sdk: flutter` dependencies.
+  // Step 4: Add flutter_localizations (SDK package — manual pubspec edit)
   // ═══════════════════════════════════════════════════════════════════════
   {
     final pubspecFile = File('pubspec.yaml');
     var content = pubspecFile.readAsStringSync();
 
-    // Insert flutter_localizations after the flutter SDK dependency
     if (!content.contains('flutter_localizations')) {
       final sdkLine = RegExp(
         r'(  flutter:\n    sdk: flutter\n)',
@@ -119,9 +133,7 @@ Future<void> run(HookContext context) async {
       );
     }
 
-    // Set generate: true under the root-level flutter: key
     if (!content.contains('generate: true')) {
-      // Match root-level flutter: (not indented, i.e. at start of line)
       content = content.replaceFirstMapped(
         RegExp(r'^(flutter:\s*)$', multiLine: true),
         (m) => '${m.group(1)}\n  generate: true',
@@ -130,35 +142,27 @@ Future<void> run(HookContext context) async {
 
     pubspecFile.writeAsStringSync(content);
     context.logger.success(
-      'Updated pubspec.yaml with flutter_localizations and generate: true',
+      'Updated pubspec.yaml with flutter_localizations & generate: true',
     );
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // Step 6: Add dev dependencies
-  // (change_app_package_name was already added in Step 1)
+  // Step 5: Add dev dependencies & run pub get
   // ═══════════════════════════════════════════════════════════════════════
   await runCmd(
     'flutter',
     ['pub', 'add', '--dev', 'flutter_native_splash'],
-    'Adding flutter_native_splash (dev)',
+    '[6/6] Adding dev dependencies & finalizing pub resolution',
   );
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // Step 7: l10n.yaml and ARB files are generated by __brick__/ templates
-  // ═══════════════════════════════════════════════════════════════════════
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // Step 8: Run flutter pub get
-  // ═══════════════════════════════════════════════════════════════════════
   await runCmd(
     'flutter',
     ['pub', 'get'],
-    'Running flutter pub get',
+    'Running final flutter pub get',
   );
 
-  context.logger.success('🎉 project complete!');
+  context.logger.success('\n🎉 Project bootstrap complete!');
   context.logger.info(
-    'Run `mason make bloc` next to scaffold your first real screen.',
+    'Run `mason make bloc` next to scaffold your first feature module.\n',
   );
 }
