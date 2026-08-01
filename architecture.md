@@ -96,32 +96,6 @@ Feature screens instantiate per-screen BLoCs using RxDart primitives (`BehaviorS
   ```
 - **Decoupled Exception Mapping**: Handled via `exception.userFacingMessage` extension (`lib/utils/extensions/exception_ext.dart`).
 
-### 2.3 Networking Layer (`lib/networking/`)
-
-The network layer uses a 5-step Dio interceptor pipeline in `lib/networking/dio_client.dart`:
-
-1. **`ConnectivityInterceptor`**: Rejects requests immediately if offline (`NoInternetException`).
-2. **`AuthInterceptor`**: Reads `AppStore.authToken` and injects `Authorization: Bearer <token>`.
-3. **`PlatformInjectorInterceptor`**: Appends `{"platform": "app"}` or headers to request payloads.
-4. **`RetryInterceptor`** *(from `dio_smart_retry`)*: Automatically retries failed requests under transient network conditions (3 retries with exponential backoff).
-5. **`ErrorMappingInterceptor`**: Converts raw `DioException` instances into strongly-typed `ApiException` subtypes.
-
-#### Sealed Exception Hierarchy (`ApiException`)
-- `NoInternetException`
-- `BadRequestException`
-- `UnauthorizedException`
-- `NotFoundException`
-- `ConflictException`
-- `RequestTimeoutException`
-- `InternalServerErrorException`
-- `BusinessLogicException`
-
-#### Sealed Response State Hierarchy (`ApiResponse<T>`)
-- `Initial`
-- `Loading`
-- `Completed(T data)`
-- `Error(ApiException exception)`
-
 ---
 
 ## 3. Mason Bricks Specification
@@ -141,6 +115,7 @@ mason make bloc
 ```
 lib/my_feature/
 ├── bloc/my_feature_bloc.dart          # Clean BLoC skeleton with AI-guidance header
+├── model/                             # Empty model directory for feature models
 ├── repo/my_feature_repo.dart          # Injectable repository (ApiBaseHelper DI)
 ├── widgets/my_feature_content_widget.dart # Decoupled content widget
 └── my_feature_page.dart               # StatefulWidget with standard Scaffold
@@ -152,6 +127,6 @@ lib/my_feature/
 
 ### 🟢 Advantages
 1. **Zero Friction Generation**: Generated feature files contain minimal clean skeletons with top-of-file AI-guidance headers, eliminating dummy code deletion overhead.
-2. **Unconstrained BLoC Flexibility**: BLoCs are free to expose multiple stream sinks, side-effect triggers (`PublishSubject`), and multi-state streams.
-3. **Decoupled UI Formatting**: Exception UI copy mapping is centralized in `ApiExceptionUIExt`.
-4. **Compile-Time Exhaustiveness**: Sealed `ApiResponse<T>` and `ApiException` ensure unhandled state bugs are caught at compile time.
+2. **Pre-scaffolded Model Directory**: Scaffolds an empty `model/` folder so you don't have to create directory structures manually when adding feature models.
+3. **Unconstrained BLoC Flexibility**: BLoCs are free to expose multiple stream sinks, side-effect triggers (`PublishSubject`), and multi-state streams.
+4. **Decoupled UI Formatting**: Exception UI copy mapping is centralized in `ApiExceptionUIExt`.

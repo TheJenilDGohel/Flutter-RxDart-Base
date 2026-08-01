@@ -48,7 +48,7 @@ mason make bloc
 | Brick | Command | Execution Frequency | Key Responsibilities |
 |-------|---------|---------------------|----------------------|
 | **`project`** | `mason make project` | **Once** per app | Scaffolds Redux store, Dio HTTP/2 engine with 5 interceptors, `ApiExceptionUIExt`, AppRouter, Toast helper (`ShowMessage`), CommonUtils, ResColors, AppTypography, L10n, and Showcase Demo. |
-| **`bloc`** | `mason make bloc` | **Repeatedly** per feature | Generates BLoC, Repo, Page, and Content Widget with AI-friendly architecture guidance headers. |
+| **`bloc`** | `mason make bloc` | **Repeatedly** per feature | Generates BLoC, Repo, Model folder, Page, and Content Widget with AI-friendly architecture guidance headers. |
 
 ---
 
@@ -121,17 +121,6 @@ lib/
 ### 3. Sealed Hierarchy & Exhaustive Pattern Matching
 - **`ApiResponse<T>`**: `Initial`, `Loading`, `Completed(T data)`, and `Error(ApiException exception)`.
 - **`ApiException`**: `NoInternetException`, `BadRequestException`, `UnauthorizedException`, `NotFoundException`, `ConflictException`, `RequestTimeoutException`, `InternalServerErrorException`, and `BusinessLogicException`.
-- Flutter 3 `switch` expression pattern matching enforces compile-time exhaustiveness:
-  ```dart
-  return switch (state) {
-    Initial() || Loading() => const AppLoadingState(),
-    Error(:final exception) => AppErrorState(
-        message: exception.userFacingMessage,
-        onRetry: _bloc.fetchData,
-      ),
-    Completed(:final data) => ContentWidget(data: data),
-  };
-  ```
 
 ---
 
@@ -142,6 +131,7 @@ Running `mason make bloc` creates a self-contained feature folder under `lib/`:
 ```
 lib/my_feature/
 ├── bloc/my_feature_bloc.dart          # Clean BLoC skeleton with AI-guidance header
+├── model/                             # Empty model folder for feature response models
 ├── repo/my_feature_repo.dart          # Constructor-injectable repository
 ├── widgets/my_feature_content_widget.dart # Decoupled UI content widget
 └── my_feature_page.dart               # Clean StatefulWidget with standard Scaffold
