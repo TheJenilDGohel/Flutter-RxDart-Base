@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:mason/mason.dart';
@@ -19,17 +18,15 @@ Future<void> run(HookContext context) async {
     String description,
   ) async {
     final progress = context.logger.progress(description);
-    final process = await Process.start(
+    final result = await Process.run(
       executable,
       args,
       runInShell: true,
     );
 
-    final exitCode = await process.exitCode;
-    if (exitCode != 0) {
-      final stderr = await process.stderr.transform(utf8.decoder).join();
+    if (result.exitCode != 0) {
       progress.fail();
-      context.logger.err('$description failed:\n$stderr');
+      context.logger.err('$description failed:\n${result.stderr}');
       exit(1);
     }
     progress.complete();
