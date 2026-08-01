@@ -4,24 +4,33 @@ import 'package:mason/mason.dart';
 
 Future<void> run(HookContext context) async {
   final androidPackageName = context.vars['android_package_name'] as String;
-  final iosBundleId = context.vars['ios_bundle_id'] as String;
+  final rawIosBundleId = (context.vars['ios_bundle_id'] as String?)?.trim() ?? '';
+  final iosBundleId = rawIosBundleId.isEmpty ? androidPackageName : rawIosBundleId;
 
   final progress = context.logger.progress('Configuring pubspec.yaml & resolving dependencies');
 
   final pubspecFile = File('pubspec.yaml');
-  if (pubspecFile.existsSync()) {
-    var content = pubspecFile.readAsStringSync();
+  if (!pubspecFile.existsSync()) {
+    progress.fail();
+    context.logger.err(
+      'No Flutter project detected in current directory.\n'
+      'Please run `flutter create <app_name>` first, `cd` into the project directory, and re-run `mason make project`.',
+    );
+    exit(1);
+  }
 
-    // 1. Ensure generate: true is set under root-level flutter:
-    if (!content.contains('generate: true')) {
-      content = content.replaceFirstMapped(
-        RegExp(r'^(flutter:\s*)$', multiLine: true),
-        (m) => '${m.group(1)}\n  generate: true',
-      );
-    }
+  var content = pubspecFile.readAsStringSync();
 
-    // 2. Core dependencies to inject
-    const coreDeps = '''  flutter_localizations:
+  // 1. Ensure generate: true is set under root-level flutter:
+  if (!content.contains('generate: true')) {
+    content = content.replaceFirstMapped(
+      RegExp(r'^(flutter:\s*)$', multiLine: true),
+      (m) => '${m.group(1)}\n  generate: true',
+    );
+  }
+
+  // 2. Core dependencies to inject
+  const coreDeps = '''  flutter_localizations:
     sdk: flutter
   dio: ^5.7.0
   dio_smart_retry: ^7.0.1
@@ -52,27 +61,26 @@ Future<void> run(HookContext context) async {
   overlay_support: ^2.1.0
 ''';
 
-    // 3. Dev dependencies to inject
-    const devDeps = '''  change_app_package_name: ^1.4.0
+  // 3. Dev dependencies to inject
+  const devDeps = '''  change_app_package_name: ^1.4.0
   flutter_native_splash: ^2.4.4
 ''';
 
-    if (!content.contains('dio:')) {
-      content = content.replaceFirst(
-        'dependencies:\n  flutter:\n    sdk: flutter\n',
-        'dependencies:\n  flutter:\n    sdk: flutter\n$coreDeps',
-      );
-    }
-
-    if (!content.contains('change_app_package_name:')) {
-      content = content.replaceFirst(
-        'dev_dependencies:\n',
-        'dev_dependencies:\n$devDeps',
-      );
-    }
-
-    pubspecFile.writeAsStringSync(content);
+  if (!content.contains('dio:')) {
+    content = content.replaceFirst(
+      'dependencies:\n  flutter:\n    sdk: flutter\n',
+      'dependencies:\n  flutter:\n    sdk: flutter\n$coreDeps',
+    );
   }
+
+  if (!content.contains('change_app_package_name:')) {
+    content = content.replaceFirst(
+      'dev_dependencies:\n',
+      'dev_dependencies:\n$devDeps',
+    );
+  }
+
+  pubspecFile.writeAsStringSync(content);
 
   // 4. Single instant pub get
   final pubGetResult = await Process.run(
