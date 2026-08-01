@@ -120,7 +120,18 @@ lib/
 
 ### 3. Sealed Hierarchy & Exhaustive Pattern Matching
 - **`ApiResponse<T>`**: `Initial`, `Loading`, `Completed(T data)`, and `Error(ApiException exception)`.
-- **`ApiException`**: `NoInternet`, `BadRequest`, `Unauthorized`, `NotFound`, `Conflict`, `RequestTimeout`, `InternalServerError`, and `BusinessLogicException`.
+- **`ApiException`**: `NoInternetException`, `BadRequestException`, `UnauthorizedException`, `NotFoundException`, `ConflictException`, `RequestTimeoutException`, `InternalServerErrorException`, and `BusinessLogicException`.
+- Flutter 3 `switch` expression pattern matching enforces compile-time exhaustiveness:
+  ```dart
+  return switch (state) {
+    Initial() || Loading() => const AppLoadingState(),
+    Error(:final exception) => AppErrorState(
+        message: exception.userFacingMessage,
+        onRetry: _bloc.fetchData,
+      ),
+    Completed(:final data) => ContentWidget(data: data),
+  };
+  ```
 
 ---
 
