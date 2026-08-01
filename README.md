@@ -75,15 +75,16 @@ lib/
 ├── l10n/                                 # Localization ARB files (en, hi)
 ├── networking/                           # Network engine layer
 │   ├── interceptors/                     # 5-step Dio interceptor chain
-│   │   ├── connectivity_interceptor.dart # 1. Offline network rejection
-│   │   ├── auth_interceptor.dart         # 2. Bearer token injection
-│   │   ├── platform_injector_interceptor.dart # 3. {"platform": "app"} payload injection
-│   │   └── error_mapping_interceptor.dart # 4. DioException -> ApiException mapping
+│   │   ├── connectivity_interceptor.dart # 1. ConnectivityInterceptor (offline check)
+│   │   ├── auth_interceptor.dart         # 2. AuthInterceptor (token injection)
+│   │   ├── platform_injector_interceptor.dart # 3. PlatformInjectorInterceptor (header/body injection)
+│   │   │                                 # 4. RetryInterceptor (from dio_smart_retry package)
+│   │   └── error_mapping_interceptor.dart # 5. ErrorMappingInterceptor (DioException mapping)
 │   ├── api_base_helper.dart              # Testable API facade
 │   ├── api_constants.dart                # Base URL & endpoint registry
 │   ├── api_exceptions.dart               # Sealed ApiException hierarchy (8 subtypes)
 │   ├── api_response.dart                 # Sealed ApiResponse<T> (Initial, Loading, Completed, Error)
-│   └── dio_client.dart                   # HTTP/2 Dio client configuration
+│   └── dio_client.dart                   # HTTP/2 Dio client configuration with 5-step chain
 ├── redux/                                # Global session persistence layer
 │   ├── middleware/                       # Logging & SharedPreferences persistence middleware
 │   ├── reducers/                         # Pure reducer with exhaustive switch matching

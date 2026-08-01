@@ -59,7 +59,7 @@ Before diving into components, internalize the core decision rule:
 ┌────────────────────────────────────┴───────────────────────────────────┐
 │                      NETWORKING LAYER (Dio Engine)                     │
 │   • ApiBaseHelper (injectable facade constructible for tests)           │
-│   • DioClient (HTTP/2 Engine)                                          │
+│   • DioClient (HTTP/2 Engine with 5-step Interceptor chain)            │
 │   • Interceptors: Connectivity → Auth → Platform → Retry → ErrorMap    │
 │   • Sealed ApiException Hierarchy (8 subtypes) + safe UI mapping       │
 └────────────────────────────────────────────────────────────────────────┘
@@ -95,6 +95,32 @@ Feature screens instantiate per-screen BLoCs using RxDart primitives (`BehaviorS
   }
   ```
 - **Decoupled Exception Mapping**: Handled via `exception.userFacingMessage` extension (`lib/utils/extensions/exception_ext.dart`).
+
+### 2.3 Networking Layer (`lib/networking/`)
+
+The network layer uses a 5-step Dio interceptor pipeline in `lib/networking/dio_client.dart`:
+
+1. **`ConnectivityInterceptor`**: Rejects requests immediately if offline (`NoInternetException`).
+2. **`AuthInterceptor`**: Reads `AppStore.authToken` and injects `Authorization: Bearer <token>`.
+3. **`PlatformInjectorInterceptor`**: Appends `{"platform": "app"}` or headers to request payloads.
+4. **`RetryInterceptor`** *(from `dio_smart_retry`)*: Automatically retries failed requests under transient network conditions (3 retries with exponential backoff).
+5. **`ErrorMappingInterceptor`**: Converts raw `DioException` instances into strongly-typed `ApiException` subtypes.
+
+#### Sealed Exception Hierarchy (`ApiException`)
+- `NoInternetException`
+- `BadRequestException`
+- `UnauthorizedException`
+- `NotFoundException`
+- `ConflictException`
+- `RequestTimeoutException`
+- `InternalServerErrorException`
+- `BusinessLogicException`
+
+#### Sealed Response State Hierarchy (`ApiResponse<T>`)
+- `Initial`
+- `Loading`
+- `Completed(T data)`
+- `Error(ApiException exception)`
 
 ---
 
