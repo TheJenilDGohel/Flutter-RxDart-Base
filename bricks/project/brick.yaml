@@ -24,4 +24,4 @@ vars:
     type: string
     description: iOS bundle identifier in reverse-domain notation
     default: ""
-    prompt: "iOS bundle identifier (leave blank to use Android package name):"
+    prompt: "iOS bundle identifier (press Enter to use Android package name):"
