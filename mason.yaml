@@ -1,5 +1,9 @@
 bricks:
   project:
-    path: bricks/project
+    git:
+      url: https://github.com/TheJenilDGohel/Flutter-RxDart-Base.git
+      path: bricks/project
   bloc:
-    path: bricks/bloc
+    git:
+      url: https://github.com/TheJenilDGohel/Flutter-RxDart-Base.git
+      path: bricks/bloc

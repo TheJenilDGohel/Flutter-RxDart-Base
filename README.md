@@ -15,10 +15,10 @@ A production-grade, two-brick **Mason Workspace** for bootstrapping robust Flutt
 
 ## 🚀 Quick Start
 
-### 1. Register Bricks in Workspace Root
-From the root of this Mason workspace:
+### 1. Install Bricks Globally via Mason CLI (from GitHub)
 ```bash
-mason get
+mason add -g project --git-url https://github.com/TheJenilDGohel/Flutter-RxDart-Base.git --git-path bricks/project
+mason add -g bloc --git-url https://github.com/TheJenilDGohel/Flutter-RxDart-Base.git --git-path bricks/bloc
 ```
 
 ### 2. Create Your Flutter Project
