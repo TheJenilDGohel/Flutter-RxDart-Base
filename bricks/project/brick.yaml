@@ -1,0 +1,27 @@
+name: project
+description: >-
+  Scaffolds a full Flutter architecture onto an existing project:
+  Redux (auth/session persistence), RxDart BLoCs (per-screen ephemeral state),
+  Dio networking with interceptor chain, design tokens, localization, and
+  a showcase demo. Run once per project.
+version: 1.0.0
+
+environment:
+  mason: ">=0.1.0-dev.52 <0.2.0"
+
+vars:
+  project_name:
+    type: string
+    description: Project name in snake_case (must match flutter create name)
+    prompt: "Enter project name in snake_case (should match what you used with flutter create, e.g. my_app):"
+
+  android_package_name:
+    type: string
+    description: Android package name in reverse-domain notation
+    prompt: "Android package name (e.g. com.example.myapp):"
+
+  ios_bundle_id:
+    type: string
+    description: iOS bundle identifier in reverse-domain notation
+    default: ""
+    prompt: "iOS bundle identifier (leave blank to use Android package name):"

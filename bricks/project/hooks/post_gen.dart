@@ -1,0 +1,164 @@
+import 'dart:io';
+
+import 'package:mason/mason.dart';
+
+Future<void> run(HookContext context) async {
+  final androidPackageName = context.vars['android_package_name'] as String;
+  final iosBundleId = context.vars['ios_bundle_id'] as String;
+
+  /// Runs a shell command, logs progress, and exits on failure.
+  Future<void> runCmd(
+    String executable,
+    List<String> args,
+    String description,
+  ) async {
+    final progress = context.logger.progress(description);
+    final result = await Process.run(
+      executable,
+      args,
+      runInShell: true,
+    );
+    if (result.exitCode != 0) {
+      progress.fail();
+      context.logger.err('$description failed:\n${result.stderr}');
+      exit(1);
+    }
+    progress.complete();
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Step 1: Add change_app_package_name and run rename
+  // ═══════════════════════════════════════════════════════════════════════
+  await runCmd(
+    'flutter',
+    ['pub', 'add', '--dev', 'change_app_package_name'],
+    'Adding change_app_package_name',
+  );
+
+  await runCmd(
+    'dart',
+    ['run', 'change_app_package_name:main', androidPackageName],
+    'Renaming app package to $androidPackageName',
+  );
+
+  // If iOS bundle ID differs from Android, update iOS separately
+  if (iosBundleId != androidPackageName) {
+    context.logger.info(
+      'iOS bundle ID ($iosBundleId) differs from Android package name. '
+      'You may need to manually update the iOS bundle identifier in '
+      'ios/Runner.xcodeproj/project.pbxproj if change_app_package_name '
+      'does not support per-platform overrides.',
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Steps 2-3: File copy + main.dart replacement handled by __brick__/
+  // Mason's template engine copies __brick__/ contents to the target.
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Step 4: Add core dependencies (UNPINNED — no hardcoded versions)
+  // ═══════════════════════════════════════════════════════════════════════
+  await runCmd(
+    'flutter',
+    [
+      'pub', 'add',
+      'dio',
+      'dio_smart_retry',
+      'dio_http2_adapter',
+      'connectivity_plus',
+      'rxdart',
+      'rxdart_flutter',
+      'redux',
+      'flutter_redux',
+      'meta',
+      'flutter_screenutil',
+      'shared_preferences',
+      'snug_logger',
+      'firebase_core',
+      'firebase_crashlytics',
+      'firebase_messaging',
+      'flutter_local_notifications',
+      'cached_network_image',
+      'flutter_svg',
+      'url_launcher',
+      'share_plus',
+      'path_provider',
+      'permission_handler',
+      'device_info_plus',
+      'file_picker',
+      'intl',
+      'characters',
+      'overlay_support',
+    ],
+    'Adding core dependencies (unpinned)',
+  );
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Step 5: Add flutter_localizations (SDK package — manual pubspec edit)
+  //
+  // This is the ONE documented exception to "always use flutter pub add."
+  // flutter_localizations is an SDK package and `flutter pub add` doesn't
+  // handle `sdk: flutter` dependencies.
+  // ═══════════════════════════════════════════════════════════════════════
+  {
+    final pubspecFile = File('pubspec.yaml');
+    var content = pubspecFile.readAsStringSync();
+
+    // Insert flutter_localizations after the flutter SDK dependency
+    if (!content.contains('flutter_localizations')) {
+      final sdkLine = RegExp(
+        r'(  flutter:\n    sdk: flutter\n)',
+      );
+      content = content.replaceFirstMapped(
+        sdkLine,
+        (m) =>
+            '${m.group(1)}'
+            '  flutter_localizations:\n'
+            '    sdk: flutter\n',
+      );
+    }
+
+    // Set generate: true under the root-level flutter: key
+    if (!content.contains('generate: true')) {
+      // Match root-level flutter: (not indented, i.e. at start of line)
+      content = content.replaceFirstMapped(
+        RegExp(r'^(flutter:\s*)$', multiLine: true),
+        (m) => '${m.group(1)}\n  generate: true',
+      );
+    }
+
+    pubspecFile.writeAsStringSync(content);
+    context.logger.success(
+      'Updated pubspec.yaml with flutter_localizations and generate: true',
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Step 6: Add dev dependencies
+  // (change_app_package_name was already added in Step 1)
+  // ═══════════════════════════════════════════════════════════════════════
+  await runCmd(
+    'flutter',
+    ['pub', 'add', '--dev', 'flutter_native_splash'],
+    'Adding flutter_native_splash (dev)',
+  );
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Step 7: l10n.yaml and ARB files are generated by __brick__/ templates
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Step 8: Run flutter pub get
+  // ═══════════════════════════════════════════════════════════════════════
+  await runCmd(
+    'flutter',
+    ['pub', 'get'],
+    'Running flutter pub get',
+  );
+
+  context.logger.success('🎉 project complete!');
+  context.logger.info(
+    'Run `mason make bloc` next to scaffold your first real screen.',
+  );
+}

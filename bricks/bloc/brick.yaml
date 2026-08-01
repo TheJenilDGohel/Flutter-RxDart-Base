@@ -1,0 +1,15 @@
+name: bloc
+description: >-
+  Generates a feature folder with BLoC (RxDart), repository (injectable),
+  response model, content widget, and page (exhaustive switch on sealed ApiResponse).
+  Run once per feature/screen.
+version: 1.0.0
+
+environment:
+  mason: ">=0.1.0-dev.52 <0.2.0"
+
+vars:
+  feature_name:
+    type: string
+    description: Feature name in snake_case
+    prompt: "Feature name in snake_case (e.g. user_profile):"

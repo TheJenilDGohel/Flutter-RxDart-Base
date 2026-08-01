@@ -1,0 +1,5 @@
+bricks:
+  project:
+    path: bricks/project
+  bloc:
+    path: bricks/bloc

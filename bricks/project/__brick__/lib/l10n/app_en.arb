@@ -1,0 +1,14 @@
+{
+  "appTitle": "App",
+  "greeting": "Welcome to the app!",
+  "toggleLocale": "Switch to Hindi",
+  "@appTitle": {
+    "description": "Application title shown in the app bar"
+  },
+  "@greeting": {
+    "description": "Greeting shown on the showcase home page"
+  },
+  "@toggleLocale": {
+    "description": "Label for the locale toggle button"
+  }
+}
