@@ -6,130 +6,13 @@ Future<void> run(HookContext context) async {
   final androidPackageName = context.vars['android_package_name'] as String;
   final iosBundleId = context.vars['ios_bundle_id'] as String;
 
-  context.logger.info(
-    '\n🚀 Bootstrapping project architecture...\n'
-    '   Package resolution and setup are starting. This step may take 30–60 seconds.\n',
-  );
+  final progress = context.logger.progress('Configuring pubspec.yaml & resolving dependencies');
 
-  /// Runs a shell command, logs progress, and exits on failure.
-  Future<void> runCmd(
-    String executable,
-    List<String> args,
-    String description,
-  ) async {
-    final progress = context.logger.progress(description);
-    final result = await Process.run(
-      executable,
-      args,
-      runInShell: true,
-    );
-
-    if (result.exitCode != 0) {
-      progress.fail();
-      context.logger.err('$description failed:\n${result.stderr}');
-      exit(1);
-    }
-    progress.complete();
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // Step 1: Add change_app_package_name and run rename
-  // ═══════════════════════════════════════════════════════════════════════
-  await runCmd(
-    'flutter',
-    ['pub', 'add', '--dev', 'change_app_package_name'],
-    '[1/6] Installing package rename utility',
-  );
-
-  await runCmd(
-    'dart',
-    ['run', 'change_app_package_name:main', androidPackageName],
-    '[2/6] Renaming app package to $androidPackageName',
-  );
-
-  if (iosBundleId != androidPackageName) {
-    context.logger.info(
-      'iOS bundle ID ($iosBundleId) differs from Android package name. '
-      'You may need to manually update the iOS bundle identifier in '
-      'ios/Runner.xcodeproj/project.pbxproj if change_app_package_name '
-      'does not support per-platform overrides.',
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // Step 3: Add core dependencies in logical groups with step progress
-  // ═══════════════════════════════════════════════════════════════════════
-  await runCmd(
-    'flutter',
-    [
-      'pub', 'add',
-      'dio',
-      'dio_smart_retry',
-      'dio_http2_adapter',
-      'connectivity_plus',
-      'rxdart',
-      'rxdart_flutter',
-      'redux',
-      'flutter_redux',
-      'meta',
-    ],
-    '[3/6] Adding networking & state management packages',
-  );
-
-  await runCmd(
-    'flutter',
-    [
-      'pub', 'add',
-      'firebase_core',
-      'firebase_crashlytics',
-      'firebase_messaging',
-      'flutter_local_notifications',
-      'snug_logger',
-      'device_info_plus',
-    ],
-    '[4/6] Adding Firebase & device services',
-  );
-
-  await runCmd(
-    'flutter',
-    [
-      'pub', 'add',
-      'flutter_screenutil',
-      'shared_preferences',
-      'cached_network_image',
-      'flutter_svg',
-      'url_launcher',
-      'share_plus',
-      'path_provider',
-      'permission_handler',
-      'file_picker',
-      'intl',
-      'characters',
-      'overlay_support',
-    ],
-    '[5/6] Adding UI, storage & utility dependencies',
-  );
-
-  // ═══════════════════════════════════════════════════════════════════════
-  // Step 4: Add flutter_localizations (SDK package — manual pubspec edit)
-  // ═══════════════════════════════════════════════════════════════════════
-  {
-    final pubspecFile = File('pubspec.yaml');
+  final pubspecFile = File('pubspec.yaml');
+  if (pubspecFile.existsSync()) {
     var content = pubspecFile.readAsStringSync();
 
-    if (!content.contains('flutter_localizations')) {
-      final sdkLine = RegExp(
-        r'(  flutter:\n    sdk: flutter\n)',
-      );
-      content = content.replaceFirstMapped(
-        sdkLine,
-        (m) =>
-            '${m.group(1)}'
-            '  flutter_localizations:\n'
-            '    sdk: flutter\n',
-      );
-    }
-
+    // 1. Ensure generate: true is set under root-level flutter:
     if (!content.contains('generate: true')) {
       content = content.replaceFirstMapped(
         RegExp(r'^(flutter:\s*)$', multiLine: true),
@@ -137,26 +20,88 @@ Future<void> run(HookContext context) async {
       );
     }
 
+    // 2. Core dependencies to inject
+    const coreDeps = '''  flutter_localizations:
+    sdk: flutter
+  dio: ^5.7.0
+  dio_smart_retry: ^7.0.1
+  dio_http2_adapter: ^2.0.0
+  connectivity_plus: ^6.1.1
+  rxdart: ^0.28.0
+  rxdart_flutter: ^0.2.1
+  redux: ^5.0.0
+  flutter_redux: ^0.10.0
+  meta: ^1.16.0
+  flutter_screenutil: ^5.9.3
+  shared_preferences: ^2.3.5
+  snug_logger: ^1.0.4
+  firebase_core: ^3.10.1
+  firebase_crashlytics: ^4.3.1
+  firebase_messaging: ^15.2.1
+  flutter_local_notifications: ^18.0.1
+  cached_network_image: ^3.4.1
+  flutter_svg: ^2.0.17
+  url_launcher: ^6.3.1
+  share_plus: ^10.1.3
+  path_provider: ^2.1.5
+  permission_handler: ^11.3.1
+  device_info_plus: ^11.2.0
+  file_picker: ^8.1.7
+  intl: ^0.19.0
+  characters: ^1.3.0
+  overlay_support: ^2.1.0
+''';
+
+    // 3. Dev dependencies to inject
+    const devDeps = '''  change_app_package_name: ^1.4.0
+  flutter_native_splash: ^2.4.4
+''';
+
+    if (!content.contains('dio:')) {
+      content = content.replaceFirst(
+        'dependencies:\n  flutter:\n    sdk: flutter\n',
+        'dependencies:\n  flutter:\n    sdk: flutter\n$coreDeps',
+      );
+    }
+
+    if (!content.contains('change_app_package_name:')) {
+      content = content.replaceFirst(
+        'dev_dependencies:\n',
+        'dev_dependencies:\n$devDeps',
+      );
+    }
+
     pubspecFile.writeAsStringSync(content);
-    context.logger.success(
-      'Updated pubspec.yaml with flutter_localizations & generate: true',
-    );
   }
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // Step 5: Add dev dependencies & run pub get
-  // ═══════════════════════════════════════════════════════════════════════
-  await runCmd(
-    'flutter',
-    ['pub', 'add', '--dev', 'flutter_native_splash'],
-    '[6/6] Adding dev dependencies & finalizing pub resolution',
-  );
-
-  await runCmd(
+  // 4. Single instant pub get
+  final pubGetResult = await Process.run(
     'flutter',
     ['pub', 'get'],
-    'Running final flutter pub get',
+    runInShell: true,
   );
+
+  if (pubGetResult.exitCode != 0) {
+    progress.fail();
+    context.logger.err('flutter pub get failed:\n${pubGetResult.stderr}');
+    exit(1);
+  }
+
+  // 5. Package rename execution
+  await Process.run(
+    'dart',
+    ['run', 'change_app_package_name:main', androidPackageName],
+    runInShell: true,
+  );
+
+  progress.complete('Dependencies configured & package renamed in seconds!');
+
+  if (iosBundleId != androidPackageName) {
+    context.logger.info(
+      'iOS bundle ID ($iosBundleId) differs from Android package name. '
+      'You may need to update ios/Runner.xcodeproj/project.pbxproj if needed.',
+    );
+  }
 
   context.logger.success('\n🎉 Project bootstrap complete!');
   context.logger.info(
