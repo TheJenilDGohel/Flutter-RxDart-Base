@@ -2,8 +2,7 @@ import 'package:{{project_name}}/redux/app_state.dart';
 import 'package:{{project_name}}/redux/actions.dart';
 
 /// Pure reducer function. Exhaustive switch over the sealed [AppAction] type.
-/// Uses strongly-typed [Object] to avoid dynamic typing.
-AppState appReducer(AppState state, Object action) {
+AppState appReducer(AppState state, dynamic action) {
   if (action is! AppAction) return state;
 
   return switch (action) {

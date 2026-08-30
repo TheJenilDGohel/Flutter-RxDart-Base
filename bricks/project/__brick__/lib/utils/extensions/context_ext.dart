@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:{{project_name}}/l10n/generated/app_localizations.dart';
 
 /// Context extension helpers for quick access to theme and localizations.
 extension ContextExtensions on BuildContext {

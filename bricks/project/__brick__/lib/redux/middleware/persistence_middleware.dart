@@ -9,7 +9,7 @@ import 'package:{{project_name}}/redux/actions.dart';
 /// relevant mutation. Fire-and-forget — does not block the dispatch chain.
 void persistenceMiddleware(
   Store<AppState> store,
-  Object action,
+  dynamic action,
   NextDispatcher next,
 ) {
   next(action);

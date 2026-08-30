@@ -5,7 +5,7 @@ import 'package:{{project_name}}/redux/app_state.dart';
 /// Logs every dispatched action and the resulting state using [snugLog].
 void loggingMiddleware(
   Store<AppState> store,
-  Object action,
+  dynamic action,
   NextDispatcher next,
 ) {
   snugLog('Redux Action: ${action.runtimeType}', logType: LogType.info);

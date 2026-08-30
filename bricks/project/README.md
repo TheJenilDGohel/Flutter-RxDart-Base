@@ -37,15 +37,12 @@ mason make project
 
 ## ⚙️ Hook Execution Summary
 
-### `pre_gen.dart`
-- Verifies `pubspec.yaml` exists and contains a `flutter:` key.
-- Validates `project_name` is strict `snake_case`.
-- Cross-checks `project_name` against the `name:` field in `pubspec.yaml`.
-- Validates reverse-domain notation for package identifiers.
+All dependencies (`dio`, `redux`, `rxdart`, `flutter_localizations`, `generate: true`,
+dev-deps like `change_app_package_name`, etc.) ship pre-declared in `__brick__/pubspec.yaml` —
+no dependency injection happens at generation time.
 
 ### `post_gen.dart`
-- Runs package rename via `change_app_package_name`.
-- Adds 26 unpinned core dependencies via `flutter pub add`.
-- Edits `pubspec.yaml` for `flutter_localizations` SDK package and sets `generate: true`.
-- Adds dev dependencies (`flutter_native_splash`).
+- Verifies `android/` and `ios/` directories exist (confirms `flutter create` was run first).
 - Runs `flutter pub get`.
+- Runs package rename via `change_app_package_name` using `android_package_name`.
+- Warns if `ios_bundle_id` differs from `android_package_name` (manual `project.pbxproj` follow-up).
