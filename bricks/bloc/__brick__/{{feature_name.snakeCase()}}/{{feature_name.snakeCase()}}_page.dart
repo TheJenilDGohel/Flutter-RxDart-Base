@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:{{project_name}}/utils/widgets/ui/ui_components.dart';
-import 'bloc/{{feature_name.snakeCase()}}_bloc.dart';
-import 'widgets/{{feature_name.snakeCase()}}_content_widget.dart';
+import 'package:{{project_name}}/{{#feature_path}}{{feature_path}}/{{/feature_path}}{{^feature_path}}features/{{/feature_path}}{{feature_name.snakeCase()}}/bloc/{{feature_name.snakeCase()}}_bloc.dart';
+import 'package:{{project_name}}/{{#feature_path}}{{feature_path}}/{{/feature_path}}{{^feature_path}}features/{{/feature_path}}{{feature_name.snakeCase()}}/widgets/{{feature_name.snakeCase()}}_content_widget.dart';
 
 /// Page widget for {{feature_name.titleCase()}}.
 class {{feature_name.pascalCase()}}Page extends StatefulWidget {

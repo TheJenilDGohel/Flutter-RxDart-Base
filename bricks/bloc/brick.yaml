@@ -17,3 +17,8 @@ vars:
     type: string
     description: Project name in snake_case (must match pubspec name)
     prompt: "Project name in snake_case (e.g. my_app):"
+  feature_path:
+    type: string
+    description: Directory path under lib (defaults to features)
+    default: "features"
+    prompt: "Directory path under lib (e.g. features, features/auth):"
