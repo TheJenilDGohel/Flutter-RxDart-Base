@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:{{project_name}}/screens/non_auth/showcase/showcase_home_page.dart';
+import 'package:{{project_name}}/features/showcase/showcase_home_page.dart';
 import 'package:{{project_name}}/utils/router/routes.dart';
 
 /// App router configuration with [onGenerateRoute] and global [navigatorKey].

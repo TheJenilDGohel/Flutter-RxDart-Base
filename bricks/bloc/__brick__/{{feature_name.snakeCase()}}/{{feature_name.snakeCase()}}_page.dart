@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:{{project_name}}/utils/widgets/ui/ui_components.dart';
 import 'bloc/{{feature_name.snakeCase()}}_bloc.dart';
+import 'widgets/{{feature_name.snakeCase()}}_content_widget.dart';
 
 /// Page widget for {{feature_name.titleCase()}}.
 class {{feature_name.pascalCase()}}Page extends StatefulWidget {
@@ -27,10 +29,9 @@ class _{{feature_name.pascalCase()}}PageState extends State<{{feature_name.pasca
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: const Center(
-        child: Text('{{feature_name.titleCase()}} Screen'),
-      ),
+    return AppScaffold(
+      appBarTitle: '{{feature_name.titleCase()}}',
+      body: const {{feature_name.pascalCase()}}ContentWidget(),
     );
   }
 }

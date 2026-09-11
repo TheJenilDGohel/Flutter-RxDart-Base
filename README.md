@@ -72,6 +72,8 @@ mason make bloc
 
 ```
 lib/
+├── features/                             # Feature-first modules
+│   └── showcase/                         # Architecture & UI toolkit showcase page
 ├── l10n/                                 # Localization ARB files (en, hi)
 ├── networking/                           # Network engine layer
 │   ├── interceptors/                     # 5-step Dio interceptor chain
@@ -80,10 +82,11 @@ lib/
 │   │   ├── platform_injector_interceptor.dart # 3. PlatformInjectorInterceptor (header/body injection)
 │   │   │                                 # 4. RetryInterceptor (from dio_smart_retry package)
 │   │   └── error_mapping_interceptor.dart # 5. ErrorMappingInterceptor (DioException mapping)
-│   ├── api_base_helper.dart              # Testable API facade
+│   ├── api_base_helper.dart              # Facade with GET/POST/PUT/DELETE & postFormData/putFormData
 │   ├── api_constants.dart                # Base URL & endpoint registry
 │   ├── api_exceptions.dart               # Sealed ApiException hierarchy (8 subtypes)
-│   ├── api_response.dart                 # Sealed ApiResponse<T> (Initial, Loading, Completed, Error)
+│   ├── api_response.dart                 # Sealed ApiResponse<T> with error, retry, and .data accessor
+│   ├── cancel_token_owner.dart           # CancelTokenOwner mixin for lifecycle request cancellation
 │   └── dio_client.dart                   # HTTP/2 Dio client configuration with 5-step chain
 ├── redux/                                # Global session persistence layer
 │   ├── middleware/                       # Logging & SharedPreferences persistence middleware
@@ -93,17 +96,26 @@ lib/
 │   └── app_store.dart                    # Store hydration & token provider for Dio
 ├── resources/                            # Design tokens
 │   ├── app_typography.dart               # Material 3 Type Scale with ScreenUtil .sp
-│   └── res_colors.dart                   # Clean 20-token color palette
-├── screens/                              # App screens & showcase demo
-│   └── non_auth/showcase/                # Interactive architecture showcase page
+│   └── res_colors.dart                   # Clean 23-token color palette (with disabled & card tokens)
 ├── services/                             # Background & device stubs
 │   ├── device_info_service.dart          # Device info plugin stub
 │   └── notification_service.dart        # Push & local notification stub
 ├── utils/                                # Universal utilities & routing
-│   ├── extensions/                       # exception.userFacingMessage, context.l10n, context.textTheme
+│   ├── extensions/                       # error.userMessage, context.l10n, context.textTheme
 │   ├── router/                           # AppRouter, Routes registry, navigatorKey
-│   ├── widgets/                          # AppScaffold, AppLoadingState, AppErrorState, AppEmptyState
-│   ├── common_utils.dart                 # hideKeyboard, url launchers, showCommonDialog
+│   ├── widgets/                          # Design system & interactive components
+│   │   ├── app_scaffold.dart             # Standard scaffold with AppBar & background
+│   │   └── ui/                           # Reusable UI component library
+│   │       ├── ui_components.dart        # Barrel export for clean imports
+│   │       ├── app_response_builder.dart # Declarative ApiResponse stream builder
+│   │       ├── common_button.dart        # Production button with built-in loading spinner
+│   │       ├── app_textformfield.dart    # Styled input with password visibility eye toggle
+│   │       ├── app_dialog.dart           # Confirmation, status, & async confirm dialogs
+│   │       ├── app_card.dart             # Styled card container
+│   │       ├── app_empty_state.dart      # Empty state placeholder
+│   │       ├── app_error_state.dart      # Error state with retry button
+│   │       └── app_loading_state.dart    # Centered loading spinner
+│   ├── common_utils.dart                 # hideKeyboard, launcher recipes, showCommonDialog
 │   └── show_message.dart                 # ShowMessage.success / error / info / warning toasts
 └── main.dart                             # Entry point: Store hydration, AppRouter, ScreenUtil, OverlaySupport
 ```
@@ -112,29 +124,35 @@ lib/
 
 ## ⚡ Key Technical Features & Standards
 
-### 1. Decoupled UI Error Mapping (`ApiExceptionUIExt`)
-- Centralized `exception.userFacingMessage` extension formats error copy cleanly without requiring artificial BaseBloc inheritance constraints.
+### 1. Declarative UI Binding (`AppResponseBuilder<T>`)
+- Eliminates 30–50 lines of boilerplate `StreamBuilder` + `switch` per screen by declaratively handling `loadingWidget`, `AppErrorState` with retry callback, and typed `builder(context, data)`.
 
-### 2. Zero Friction AI-Guided Feature Generation
-- Brick templates scaffold clean, minimal skeletons with top-of-file architecture guidance docstrings so developers and AI coding assistants immediately understand project conventions when generating feature code.
+### 2. Form & Action Toolkit (`CommonButton` & `AppTextFormField`)
+- **`CommonButton`**: Handles loading state out of the box (disables taps and shows spinner), prefix/suffix icons, and custom styling.
+- **`AppTextFormField`**: Form input with labels, hints, prefixes/suffixes, built-in password visibility toggle (`obscureText`), and ScreenUtil responsive scaling.
 
-### 3. Sealed Hierarchy & Exhaustive Pattern Matching
-- **`ApiResponse<T>`**: `Initial`, `Loading`, `Completed(T data)`, and `Error(ApiException exception)`.
-- **`ApiException`**: `NoInternetException`, `BadRequestException`, `UnauthorizedException`, `NotFoundException`, `ConflictException`, `RequestTimeoutException`, `InternalServerErrorException`, and `BusinessLogicException`.
+### 3. Lifecycle-Safe Cancellation (`CancelTokenOwner`)
+- BLoCs mix in `CancelTokenOwner` to manage Dio `CancelToken`s. Pending network calls automatically abort on screen `dispose()` or pull-to-refresh without memory leaks.
+
+### 4. Interactive Dialog Shells (`AppDialog`)
+- Static helpers `AppDialog.showConfirmation`, `AppDialog.showStatus`, and `AppDialog.showAsyncConfirm` (keeps dialog open with spinner during async mutation).
+
+### 5. Multipart & Form-Data Ready (`ApiBaseHelper`)
+- Built-in `postFormData` and `putFormData` with `FormData.fromMap` and `onSendProgress` progress callbacks.
 
 ---
 
 ## 🛠️ Generated Feature Module Structure (`mason make bloc`)
 
-Running `mason make bloc` creates a self-contained feature folder under `lib/`:
+Running `mason make bloc` creates a self-contained feature folder under `lib/features/`:
 
 ```
-lib/my_feature/
-├── bloc/my_feature_bloc.dart          # Clean BLoC skeleton with AI-guidance header
+lib/features/my_feature/
+├── bloc/my_feature_bloc.dart          # Clean BLoC with CancelTokenOwner & $ stream convention
 ├── model/                             # Empty model folder for feature response models
-├── repo/my_feature_repo.dart          # Constructor-injectable repository
+├── repo/my_feature_repo.dart          # Constructor-injectable repository (with CancelToken support)
 ├── widgets/my_feature_content_widget.dart # Decoupled UI content widget
-└── my_feature_page.dart               # Clean StatefulWidget with standard Scaffold
+└── my_feature_page.dart               # Clean StatefulWidget with AppScaffold & ui_components
 ```
 
 ---

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:{{project_name}}/networking/api_base_helper.dart';
 
 /// Repository for {{feature_name.titleCase()}}.
@@ -10,5 +11,8 @@ class {{feature_name.pascalCase()}}Repo {
   {{feature_name.pascalCase()}}Repo({ApiBaseHelper? api})
       : _api = api ?? ApiBaseHelper.instance;
 
-  // Add data fetch methods using _api.get(), _api.post(), etc.
+  // Example data fetch method with CancelToken support:
+  // Future<Map<String, dynamic>> fetch{{feature_name.pascalCase()}}({CancelToken? cancelToken}) async {
+  //   return await _api.get('/endpoint', cancelToken: cancelToken);
+  // }
 }

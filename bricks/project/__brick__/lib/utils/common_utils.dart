@@ -34,81 +34,75 @@ class CommonUtils {
     FocusManager.instance.primaryFocus?.unfocus();
   }
 
-  /// Opens the device phone dialer.
-  static Future<bool> launchPhone(BuildContext context, String? phone) async {
-    if (phone == null || phone.trim().isEmpty) return false;
-
-    final sanitized = phone.replaceAll(RegExp(r'[^\d+]'), '');
-    if (sanitized.isEmpty) return false;
-
-    final uri = Uri(scheme: 'tel', path: sanitized);
-    return _launchUrl(uri, fallbackMessage: 'Could not open phone dialer.');
-  }
-
-  /// Opens the default email client.
-  static Future<bool> launchEmail(BuildContext context, String? email) async {
-    if (email == null || email.trim().isEmpty) return false;
-
-    final address = email.replaceFirst(RegExp(r'^mailto:'), '').trim();
-    if (address.isEmpty) return false;
-
-    final uri = Uri(
-      scheme: 'mailto',
-      path: address,
-      query: _encodeMailtoQuery({'subject': 'Support Request'}),
-    );
-
-    return _launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-      fallbackMessage: 'Could not open email client.',
-    );
-  }
-
-  /// Opens a website URL in an external browser.
-  static Future<bool> launchWebsite(BuildContext context, String? website) async {
-    if (website == null || website.trim().isEmpty) return false;
-
-    var url = website.trim();
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      url = 'https://$url';
-    }
-
-    final uri = Uri.tryParse(url);
-    if (uri == null) return false;
-
-    return _launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-      fallbackMessage: 'Could not open website.',
-    );
-  }
-
-  static String? _encodeMailtoQuery(Map<String, String> params) {
-    final parts = <String>[];
-    params.forEach((key, value) {
-      parts.add('${Uri.encodeComponent(key)}=${Uri.encodeComponent(value)}');
-    });
-    return parts.isEmpty ? null : parts.join('&');
-  }
-
-  static Future<bool> _launchUrl(
-    Uri uri, {
-    LaunchMode mode = LaunchMode.platformDefault,
-    String? fallbackMessage,
-  }) async {
-    try {
-      final launched = await launchUrl(uri, mode: mode);
-      if (launched) return true;
-    } catch (e) {
-      snugLog('launchUrl failed for $uri: $e', logType: LogType.error);
-    }
-
-    if (fallbackMessage != null && fallbackMessage.isNotEmpty) {
-      ShowMessage.error(fallbackMessage);
-    }
-    return false;
-  }
+  // ── Example Recipes (Uncomment if needed by your project) ───────────────
+  // Note: Requires `url_launcher` package in pubspec.yaml.
+  //
+  // /// Opens the device phone dialer.
+  // static Future<bool> launchPhone(BuildContext context, String? phone) async {
+  //   if (phone == null || phone.trim().isEmpty) return false;
+  //   final sanitized = phone.replaceAll(RegExp(r'[^\d+]'), '');
+  //   if (sanitized.isEmpty) return false;
+  //   final uri = Uri(scheme: 'tel', path: sanitized);
+  //   return _launchUrl(uri, fallbackMessage: 'Could not open phone dialer.');
+  // }
+  //
+  // /// Opens the default email client.
+  // static Future<bool> launchEmail(BuildContext context, String? email) async {
+  //   if (email == null || email.trim().isEmpty) return false;
+  //   final address = email.replaceFirst(RegExp(r'^mailto:'), '').trim();
+  //   if (address.isEmpty) return false;
+  //   final uri = Uri(
+  //     scheme: 'mailto',
+  //     path: address,
+  //     query: _encodeMailtoQuery({'subject': 'Support Request'}),
+  //   );
+  //   return _launchUrl(
+  //     uri,
+  //     mode: LaunchMode.externalApplication,
+  //     fallbackMessage: 'Could not open email client.',
+  //   );
+  // }
+  //
+  // /// Opens a website URL in an external browser.
+  // static Future<bool> launchWebsite(BuildContext context, String? website) async {
+  //   if (website == null || website.trim().isEmpty) return false;
+  //   var url = website.trim();
+  //   if (!url.startsWith('http://') && !url.startsWith('https://')) {
+  //     url = 'https://$url';
+  //   }
+  //   final uri = Uri.tryParse(url);
+  //   if (uri == null) return false;
+  //   return _launchUrl(
+  //     uri,
+  //     mode: LaunchMode.externalApplication,
+  //     fallbackMessage: 'Could not open website.',
+  //   );
+  // }
+  //
+  // static String? _encodeMailtoQuery(Map<String, String> params) {
+  //   final parts = <String>[];
+  //   params.forEach((key, value) {
+  //     parts.add('${Uri.encodeComponent(key)}=${Uri.encodeComponent(value)}');
+  //   });
+  //   return parts.isEmpty ? null : parts.join('&');
+  // }
+  //
+  // static Future<bool> _launchUrl(
+  //   Uri uri, {
+  //   LaunchMode mode = LaunchMode.platformDefault,
+  //   String? fallbackMessage,
+  // }) async {
+  //   try {
+  //     final launched = await launchUrl(uri, mode: mode);
+  //     if (launched) return true;
+  //   } catch (e) {
+  //     snugLog('launchUrl failed for $uri: $e', logType: LogType.error);
+  //   }
+  //   if (fallbackMessage != null && fallbackMessage.isNotEmpty) {
+  //     ShowMessage.error(fallbackMessage);
+  //   }
+  //   return false;
+  // }
 
   /// Generic reusable dialog shell with ScreenUtil responsive scaling.
   static Future<T?> showCommonDialog<T>(

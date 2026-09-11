@@ -13,3 +13,7 @@ vars:
     type: string
     description: Feature name in snake_case
     prompt: "Feature name in snake_case (e.g. user_profile):"
+  project_name:
+    type: string
+    description: Project name in snake_case (must match pubspec name)
+    prompt: "Project name in snake_case (e.g. my_app):"

@@ -12,4 +12,7 @@ extension ApiExceptionUIExt on ApiException {
         BusinessLogicException(:final message) => message,
         _ => 'Something went wrong. Please try again.',
       };
+
+  /// Convenient alias for [userFacingMessage].
+  String get userMessage => userFacingMessage;
 }

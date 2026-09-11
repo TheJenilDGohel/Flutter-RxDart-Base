@@ -1,5 +1,7 @@
 import 'package:{{project_name}}/networking/api_exceptions.dart';
 
+typedef RetryCallback = void Function();
+
 /// Sealed response wrapper for API calls.
 ///
 /// TRUE sealed class hierarchy — not an enum with nullable data/error fields.
@@ -8,7 +10,7 @@ import 'package:{{project_name}}/networking/api_exceptions.dart';
 /// ```dart
 /// return switch (state) {
 ///   Initial() || Loading() => const AppLoadingState(),
-///   Error(:final exception) => AppErrorState(...),
+///   Error(:final error) => AppErrorState(...),
 ///   Completed(:final data) => ContentWidget(data: data),
 /// };
 /// ```
@@ -18,7 +20,14 @@ sealed class ApiResponse<T> {
   const factory ApiResponse.initial() = Initial<T>;
   const factory ApiResponse.loading() = Loading<T>;
   const factory ApiResponse.completed(T data) = Completed<T>;
-  const factory ApiResponse.error(ApiException exception) = Error<T>;
+  const factory ApiResponse.error(ApiException error, {RetryCallback? retry}) =
+      Error<T>;
+
+  /// Returns the data if the response is [Completed], otherwise null.
+  T? get data => switch (this) {
+        Completed<T>(:final data) => data,
+        _ => null,
+      };
 }
 
 /// No request has been made yet.
@@ -37,8 +46,13 @@ final class Completed<T> extends ApiResponse<T> {
   final T data;
 }
 
-/// Request failed with a typed [exception].
+/// Request failed with a typed [error] and optional [retry] action.
 final class Error<T> extends ApiResponse<T> {
-  const Error(this.exception);
-  final ApiException exception;
+  const Error(this.error, {this.retry});
+
+  final ApiException error;
+  final RetryCallback? retry;
+
+  /// Backward-compatible alias for [error].
+  ApiException get exception => error;
 }

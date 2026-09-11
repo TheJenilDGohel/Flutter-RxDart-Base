@@ -28,28 +28,30 @@ Before diving into components, internalize the core decision rule:
 
 ---
 
-## 1. Architectural Layers & Data Flow
-
-```
+## 1. Architectural Layers & Data```
 ┌────────────────────────────────────────────────────────────────────────┐
 │                   PRESENTATION LAYER (UI / Widgets)                    │
 │   • Views (StatefulWidget / StatelessWidget)                            │
-│   • Responsive Scaling (flutter_screenutil .w, .h, .r, .sp)             │
-│   • Design System Tokens (ResColors, AppTypography, AppScaffold)       │
+│   • Declarative Binding: AppResponseBuilder<T> (ApiResponse stream)    │
+│   • Form & Action Toolkit: CommonButton (loading state), AppTextFormField│
+│   • Overlays: AppDialog (confirm, status, async confirm with spinner)   │
+│   • Design System Tokens: ResColors, AppTypography, AppScaffold, AppCard│
+│   • Responsive Scaling: flutter_screenutil (.w, .h, .r, .sp)            │
 └───────────────────▲────────────────────────────────▲───────────────────┘
                     │                                │
           Stream Subscription /                    StoreConnector /
-          StreamBuilder (RxDart)                   StoreBuilder (Redux)
+          AppResponseBuilder (RxDart)              StoreBuilder (Redux)
                     │                                │
 ┌───────────────────┴──────────────────┐  ┌──────────┴──────────────────┐
 │   LOCAL STATE (RxDart, ephemeral)    │  │  GLOBAL STATE (Redux,        │
 │   • Feature BLoC (BehaviorSubject)   │  │  persistence-only)           │
-│   • Form Validation & UI Lifecycle   │  │  • authToken, userData       │
-│   • CompositeSubscription disposal    │  │  • synced to SharedPrefs     │
+│   • CancelTokenOwner lifecycle mixin │  │  • authToken, userData       │
+│   • Reactive $ stream convention     │  │  • synced to SharedPrefs     │
+│   • CompositeSubscription disposal   │  │                              │
 └───────────────────▲──────────────────┘  └──────────▲──────────────────┘
                     │                                │
                     └────────────────┬───────────────┘
-                                     │ Constructor-injected repo calls
+                                     │ Constructor-injected repo calls (with CancelToken)
 ┌────────────────────────────────────┴───────────────────────────────────┐
 │                       REPOSITORIES & SERVICES                          │
 │   • Feature Repositories (injected ApiBaseHelper)                       │
@@ -58,7 +60,8 @@ Before diving into components, internalize the core decision rule:
                                      │ Requests raw JSON / Throws ApiException
 ┌────────────────────────────────────┴───────────────────────────────────┐
 │                      NETWORKING LAYER (Dio Engine)                     │
-│   • ApiBaseHelper (injectable facade constructible for tests)           │
+│   • ApiBaseHelper (GET, POST, PUT, DELETE, postFormData, putFormData)  │
+│   • CancelTokenOwner (lifecycle-safe request cancellation)             │
 │   • DioClient (HTTP/2 Engine with 5-step Interceptor chain)            │
 │   • Interceptors: Connectivity → Auth → Platform → Retry → ErrorMap    │
 │   • Sealed ApiException Hierarchy (8 subtypes) + safe UI mapping       │
@@ -82,11 +85,13 @@ Global state is strictly scoped to session persistence data (`authToken`, `userD
 - **`persistenceMiddleware`**: Automatically serializes state changes to `SharedPreferences`.
 - **`loggingMiddleware`**: Logs state transitions in debug mode for auditable session tracking.
 
-### 2.2 Local State: RxDart Stream BLoCs
+### 2.2 Local State: RxDart Stream BLoCs with Lifecycle Cancellation
 
-Feature screens instantiate per-screen BLoCs using RxDart primitives (`BehaviorSubject`, `CompositeSubscription`).
+Feature screens instantiate per-screen BLoCs using RxDart primitives (`BehaviorSubject`, `CompositeSubscription`) and the `CancelTokenOwner` mixin.
 
 - **Lifecycle**: Created in `initState()`, disposed in `dispose()`.
+- **Stream Naming Convention**: Public streams exposed by BLoCs use the reactive `$` suffix (e.g., `state$`, `data$`).
+- **Request Cancellation**: `CancelTokenOwner` mixin ties Dio requests to the BLoC lifecycle. Calling `cancelRequests()` in `dispose()` aborts running network requests cleanly on page pop.
 - **Subscription Safety**: Uses RxDart's native `CompositeSubscription` to collect and cancel reactive stream subscriptions cleanly upon disposal.
 - **Thread Safety (`isClosed` Guards)**: Every post-`await` emission is guarded:
   ```dart
@@ -94,7 +99,8 @@ Feature screens instantiate per-screen BLoCs using RxDart primitives (`BehaviorS
     subject.add(ApiResponse.completed(data));
   }
   ```
-- **Decoupled Exception Mapping**: Handled via `exception.userFacingMessage` extension (`lib/utils/extensions/exception_ext.dart`).
+- **Declarative UI Binding**: `AppResponseBuilder<T>` binds BLoC streams to the widget tree with automatic loading indicators and error states with retry buttons.
+- **Decoupled Exception Mapping**: Handled via `error.userMessage` / `error.userFacingMessage` extension (`lib/utils/extensions/exception_ext.dart`).
 
 ---
 
@@ -113,12 +119,12 @@ mason make bloc
 ### 3.2 Feature Brick Output (`mason make bloc`)
 
 ```
-lib/my_feature/
-├── bloc/my_feature_bloc.dart          # Clean BLoC skeleton with AI-guidance header
+lib/features/my_feature/
+├── bloc/my_feature_bloc.dart          # Clean BLoC with CancelTokenOwner & $ stream convention
 ├── model/                             # Empty model directory for feature models
-├── repo/my_feature_repo.dart          # Injectable repository (ApiBaseHelper DI)
+├── repo/my_feature_repo.dart          # Injectable repository (ApiBaseHelper DI + CancelToken)
 ├── widgets/my_feature_content_widget.dart # Decoupled content widget
-└── my_feature_page.dart               # StatefulWidget with standard Scaffold
+└── my_feature_page.dart               # StatefulWidget with AppScaffold & ui_components
 ```
 
 ---
@@ -126,7 +132,8 @@ lib/my_feature/
 ## 4. Architectural Tradeoffs & Guarantees
 
 ### 🟢 Advantages
-1. **Zero Friction Generation**: Generated feature files contain minimal clean skeletons with top-of-file AI-guidance headers, eliminating dummy code deletion overhead.
-2. **Pre-scaffolded Model Directory**: Scaffolds an empty `model/` folder so you don't have to create directory structures manually when adding feature models.
-3. **Unconstrained BLoC Flexibility**: BLoCs are free to expose multiple stream sinks, side-effect triggers (`PublishSubject`), and multi-state streams.
-4. **Decoupled UI Formatting**: Exception UI copy mapping is centralized in `ApiExceptionUIExt`.
+1. **Production-Ready UI Primitives**: Includes `CommonButton` (with built-in loading spinner), `AppTextFormField` (with password visibility toggle), `AppDialog` (with async confirm spinner), and `AppCard`.
+2. **Zero-Boilerplate Reactive Streams**: `AppResponseBuilder<T>` removes repetitive `StreamBuilder` + `switch` blocks across screens.
+3. **Automatic Request Cancellation**: In-flight HTTP requests are automatically aborted via `CancelTokenOwner` when screens are popped or re-fetched.
+4. **Multipart & File Upload Ready**: Built-in `postFormData` and `putFormData` in `ApiBaseHelper`.
+5. **Feature-First Clean Architecture**: Scalable, modular `lib/features/` organization.
