@@ -31,14 +31,27 @@ Future<void> run(HookContext context) async {
     exit(1);
   }
 
-  // 2. Package rename execution
+  // 2. Generate localization files
+  final l10nResult = await Process.run(
+    'flutter',
+    ['gen-l10n'],
+    runInShell: true,
+  );
+
+  if (l10nResult.exitCode != 0) {
+    progress.fail();
+    context.logger.err('flutter gen-l10n failed:\n${l10nResult.stderr}');
+    exit(1);
+  }
+
+  // 3. Package rename execution
   await Process.run(
     'dart',
     ['run', 'change_app_package_name:main', androidPackageName],
     runInShell: true,
   );
 
-  progress.complete('Dependencies configured & package renamed in seconds!');
+  progress.complete('Dependencies configured, localizations generated & package renamed!');
 
   if (iosBundleId != androidPackageName) {
     context.logger.info(

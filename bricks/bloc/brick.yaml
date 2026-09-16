@@ -1,7 +1,7 @@
 name: bloc
 description: >-
-  Generates a feature folder with BLoC (RxDart), repository (injectable),
-  response model, content widget, and page (exhaustive switch on sealed ApiResponse).
+  Generates a feature folder under lib/features/ with BLoC (RxDart), repository (injectable),
+  response model, content widget, and page.
   Run once per feature/screen.
 version: 1.0.0
 
@@ -13,12 +13,3 @@ vars:
     type: string
     description: Feature name in snake_case
     prompt: "Feature name in snake_case (e.g. user_profile):"
-  project_name:
-    type: string
-    description: Project name in snake_case (must match pubspec name)
-    prompt: "Project name in snake_case (e.g. my_app):"
-  feature_path:
-    type: string
-    description: Directory path under lib (defaults to features)
-    default: "features"
-    prompt: "Directory path under lib (e.g. features, features/auth):"
