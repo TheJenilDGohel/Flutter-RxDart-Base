@@ -6,14 +6,14 @@ import 'package:{{project_name}}/features/{{feature_name.snakeCase()}}/repo/{{fe
 
 /// BLoC for {{feature_name.titleCase()}}.
 ///
-/// **Architecture Rules & Conventions:**
-/// - Use [BehaviorSubject] for persistent state snapshots or [PublishSubject] for one-off events (toasts/navigation).
+/// **Architecture Rules & Invariants:**
 /// - Suffix public streams with `$` (e.g. `state$`, `data$`).
-/// - Store stream subscriptions in [subscriptions] and cancel them in [dispose].
-/// - Guard post-await emissions with `if (!subject.isClosed)`.
-/// - Wrap UI states in [ApiResponse<T>] (`initial()`, `loading()`, `completed()`, `error()`).
-/// - Use [CancelTokenOwner] to auto-cancel pending requests in [dispose] or on pull-to-refresh.
-/// - Use `error.userMessage` from `exception_ext.dart` for UI error display.
+/// - Use [BehaviorSubject] for persistent state snapshots or [PublishSubject] for one-off events.
+/// - NEVER use RxDart subjects outside BLoC — widgets only consume standard [Stream] / [ApiResponse].
+/// - Parse raw response from Repo here via `Model.fromJson(json)` and emit into [ApiResponse<T>] streams.
+/// - Guard all post-await emissions with `if (!subject.isClosed)`.
+/// - Always mix in [CancelTokenOwner], call `createNewToken()` before requests, and `cancelRequests()` in [dispose].
+/// - Store subscriptions in [subscriptions] and cancel them in [dispose].
 final class {{feature_name.pascalCase()}}Bloc with CancelTokenOwner {
   final {{feature_name.pascalCase()}}Repo _repo;
 

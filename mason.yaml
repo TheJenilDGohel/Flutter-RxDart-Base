@@ -3,3 +3,5 @@ bricks:
     path: bricks/project
   bloc:
     path: bricks/bloc
+  harness:
+    path: bricks/harness

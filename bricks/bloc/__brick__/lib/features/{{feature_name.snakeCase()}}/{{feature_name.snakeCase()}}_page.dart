@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:{{project_name}}/utils/widgets/ui/ui_components.dart';
 import 'package:{{project_name}}/features/{{feature_name.snakeCase()}}/bloc/{{feature_name.snakeCase()}}_bloc.dart';
 import 'package:{{project_name}}/features/{{feature_name.snakeCase()}}/widgets/{{feature_name.snakeCase()}}_content_widget.dart';
 
@@ -29,8 +28,10 @@ class _{{feature_name.pascalCase()}}PageState extends State<{{feature_name.pasca
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      appBarTitle: '{{feature_name.titleCase()}}',
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('{{feature_name.titleCase()}}'),
+      ),
       body: const {{feature_name.pascalCase()}}ContentWidget(),
     );
   }

@@ -41,3 +41,14 @@ lib/features/{feature_name}/
 3. **Pre-scaffolded Model Folder**: Includes an empty `model/` folder so feature models can be added immediately.
 4. **Constructor Injection**: Repositories use `FeatureRepo({ApiBaseHelper? api}) : _api = api ?? ApiBaseHelper.instance;` for easy unit testing.
 5. **AppScaffold Shell**: Uses `AppScaffold` with consistent styling, app bar title, and design tokens.
+
+---
+
+## 🔌 Wiring the Route
+
+If the [`harness` brick](../harness/README.md) is installed, skip `mason make bloc` entirely and
+run one command instead — it scaffolds the feature (if missing) *and* wires the route:
+
+```bash
+dart run scripts/agent/wire_route.dart <feature_name> [route_path]
+```

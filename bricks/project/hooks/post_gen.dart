@@ -60,6 +60,31 @@ Future<void> run(HookContext context) async {
     );
   }
 
+  // 4. Optionally scaffold AI Agent Harness
+  final includeHarness = context.vars['include_harness'] as bool? ?? true;
+  if (includeHarness) {
+    final harnessProgress =
+        context.logger.progress('Scaffolding AI Agent Harness');
+    final harnessResult = await Process.run(
+      'mason',
+      [
+        'make',
+        'harness',
+        '--project_name',
+        context.vars['project_name'] as String,
+      ],
+      runInShell: true,
+    );
+
+    if (harnessResult.exitCode == 0) {
+      harnessProgress.complete('AI Agent Harness installed.');
+    } else {
+      harnessProgress.complete(
+        'Note: AI Agent Harness can be installed anytime via `mason make harness`.',
+      );
+    }
+  }
+
   context.logger.success('\n🎉 Project bootstrap complete!');
   context.logger.info(
     'Run `mason make bloc` next to scaffold your first feature module.\n',
