@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:mason/mason.dart';
+import 'assets.dart';
 
 Future<void> run(HookContext context) async {
   final progress = context.logger.progress('Formatting harness scripts');
@@ -8,15 +9,15 @@ Future<void> run(HookContext context) async {
 
   final lintWired = _wireLintPlugin(context);
 
-  final harnessDir = Directory('.harness');
-  if (!harnessDir.existsSync()) {
-    harnessDir.createSync();
-    context.logger.info('  ✔ Created .harness directory for cross-session AI context.');
-  }
+  // Generate .harness/ files programmatically to prevent Mason template walk issues on Windows.
+  _generateHarnessFiles(context);
 
-  // Mirror the universal skill into Cursor's discovery path so both
+  // Generate universal skill files in .agents/skills/flutter-senior-dev/ programmatically.
+  _generateSkillFiles(context);
+
+  // Explicitly mirror the skill into Cursor's discovery path file-by-file so both
   // .agents/skills/ (Antigravity, Gemini, universal) and .cursor/skills/
-  // (Cursor IDE) auto-discover the same content from one source.
+  // (Cursor IDE) auto-discover the same content from one source without recursive scanning.
   _mirrorSkill(context);
 
   context.logger.success('\n🤖 AI Agent Harness installed successfully!');
@@ -101,27 +102,50 @@ bool _wireLintPlugin(HookContext context) {
   return changed;
 }
 
-/// Mirrors `.agents/skills/flutter-senior-dev/` into `.cursor/skills/` so
-/// Cursor IDE auto-discovers the same skill that Antigravity, Gemini and
-/// other `.agents/`-aware tools already see. Skips silently if the source
-/// directory is missing (e.g. when only AGENTS.md is used).
+/// Initializes `.harness/` directory and writes `active-context.md` and
+/// `progress.md` programmatically if they do not already exist.
+void _generateHarnessFiles(HookContext context) {
+  var created = false;
+  for (final entry in harnessFiles.entries) {
+    final file = File('.harness/${entry.key}');
+    if (!file.existsSync()) {
+      file.parent.createSync(recursive: true);
+      file.writeAsStringSync(entry.value);
+      created = true;
+    }
+  }
+  if (created) {
+    context.logger.info(
+        '  ✔ Initialized .harness/ context store (active-context.md, progress.md).');
+  }
+}
+
+/// Generates the universal skill files at `.agents/skills/flutter-senior-dev/`
+/// programmatically.
+void _generateSkillFiles(HookContext context) {
+  const skillName = 'flutter-senior-dev';
+  for (final entry in skillFiles.entries) {
+    final file = File('.agents/skills/$skillName/${entry.key}');
+    file.parent.createSync(recursive: true);
+    file.writeAsStringSync(entry.value);
+  }
+  context.logger
+      .info('  ✔ Generated universal skill at .agents/skills/$skillName/');
+}
+
+/// Mirrors `.agents/skills/flutter-senior-dev/` into `.cursor/skills/`
+/// explicitly file-by-file without recursive filesystem scanning.
 void _mirrorSkill(HookContext context) {
   const skillName = 'flutter-senior-dev';
-  final source = Directory('.agents/skills/$skillName');
-  final target = Directory('.cursor/skills/$skillName');
-
-  if (!source.existsSync()) return;
-
-  target.createSync(recursive: true);
-
-  for (final entity in source.listSync(recursive: true)) {
-    final relativePath = entity.path.substring(source.path.length);
-    if (entity is File) {
-      final destFile = File('${target.path}$relativePath');
-      destFile.parent.createSync(recursive: true);
-      entity.copySync(destFile.path);
+  for (final relativePath in skillFiles.keys) {
+    final source = File('.agents/skills/$skillName/$relativePath');
+    final dest = File('.cursor/skills/$skillName/$relativePath');
+    if (source.existsSync()) {
+      dest.parent.createSync(recursive: true);
+      source.copySync(dest.path);
     }
   }
 
-  context.logger.info('  ✔ Mirrored skill to .cursor/skills/$skillName/ for Cursor IDE.');
+  context.logger
+      .info('  ✔ Mirrored skill to .cursor/skills/$skillName/ for Cursor IDE.');
 }

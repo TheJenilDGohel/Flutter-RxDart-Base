@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.3.1
+
+- Fix Windows `mason upgrade` / `mason get` failure caused by hidden dot-directories
+  (`.agents/`, `.harness/`) in the brick template tree and recursive directory scanning.
+- Moved `.harness/` context store files and `.agents/skills/flutter-senior-dev/` skill
+  files into self-contained hook assets (`hooks/assets.dart`), generated programmatically
+  by `post_gen.dart`.
+- `__brick__/` now contains zero dot-prefixed directories, avoiding Windows wildcard
+  expansion errors (`references\*`).
+- `post_gen.dart` now mirrors skill files to `.cursor/skills/` using explicit file-by-file
+  copy instead of recursive filesystem listing.
+
 ## 1.3.0
 
 - Added `.agents/skills/flutter-senior-dev/` — a universal skill that acts as a
