@@ -2,7 +2,16 @@
 ///
 /// Storing these in hook assets rather than inside `__brick__/` prevents
 /// Mason from failing on Windows during `mason get` / `mason upgrade` due to
-/// dot-directory traversal and wildcard path expansion (`references\*`).
+/// dot-directory traversal and wildcard path expansion (`references\*`), and
+/// prevents conflict prompts when projects already have an existing CLAUDE.md.
+
+const String claudeMdContent = '''@AGENTS.md
+@.harness/system-snapshot.md
+@.harness/active-context.md
+@.agents/skills/flutter-senior-dev/SKILL.md
+@.agents/skills/flutter-senior-dev/references/planning-checklist.md
+@.agents/skills/flutter-senior-dev/references/base-gaps.md
+''';
 
 const Map<String, String> harnessFiles = {
   'active-context.md': r'''# Active Context

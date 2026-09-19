@@ -74,9 +74,9 @@ Future<void> main() async {
       if (lines.isNotEmpty) {
         final lastLine = lines.last;
         if (lastLine.contains('issue')) {
-           buffer.writeln('Issues found: $lastLine');
+          buffer.writeln('Issues found: $lastLine');
         } else {
-           buffer.writeln('Issues found (see `flutter analyze` for details)');
+          buffer.writeln('Issues found (see `flutter analyze` for details)');
         }
       } else {
         buffer.writeln('Issues found (see `flutter analyze` for details)');

@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.2
+
+- Generate `CLAUDE.md` programmatically in `post_gen.dart` instead of statically in
+  `__brick__/` to prevent Mason interactive conflict prompts when a project already has
+  an existing `CLAUDE.md`.
+- Prepends harness transclusions to existing `CLAUDE.md` files without overwriting or losing
+  pre-existing project instructions.
+- Added 5-second timeout to `Process.run('dart', ['format', ...])` in `post_gen.dart` so hook
+  execution never hangs if the Dart format process stalls.
+- Pre-formatted all scripts in `__brick__/scripts/agent/`.
+
 ## 1.3.1
 
 - Fix Windows `mason upgrade` / `mason get` failure caused by hidden dot-directories

@@ -68,9 +68,10 @@ plugin.
   from a Flutter project root).
 
 ### `post_gen.dart`
-- Runs `dart format` on `scripts/agent/`.
+- Runs `dart format` on `scripts/agent/` (guarded with timeout).
 - Patches `pubspec.yaml` + `analysis_options.yaml` to wire the
   `redux_rxdart_lints` custom_lint plugin (skipped if already present).
+- Programmatically creates or prepends harness transclusions to `CLAUDE.md` (preserves existing custom instructions without conflict prompts).
 - Programmatically generates `.harness/` context store files (`active-context.md`, `progress.md`).
 - Programmatically generates universal senior-dev skill in `.agents/skills/flutter-senior-dev/`.
 - Explicitly mirrors the skill to `.cursor/skills/flutter-senior-dev/` for Cursor IDE auto-discovery.

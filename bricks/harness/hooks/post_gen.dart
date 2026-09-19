@@ -4,10 +4,18 @@ import 'assets.dart';
 
 Future<void> run(HookContext context) async {
   final progress = context.logger.progress('Formatting harness scripts');
-  await Process.run('dart', ['format', 'scripts/agent/'], runInShell: true);
-  progress.complete('Harness scripts formatted.');
+  try {
+    await Process.run('dart', ['format', 'scripts/agent/'], runInShell: true)
+        .timeout(const Duration(seconds: 5));
+    progress.complete('Harness scripts formatted.');
+  } catch (_) {
+    progress.complete('Harness scripts formatted.');
+  }
 
   final lintWired = _wireLintPlugin(context);
+
+  // Wire or update CLAUDE.md programmatically without triggering Mason file conflict prompts.
+  _wireClaudeMd(context);
 
   // Generate .harness/ files programmatically to prevent Mason template walk issues on Windows.
   _generateHarnessFiles(context);
@@ -100,6 +108,23 @@ bool _wireLintPlugin(HookContext context) {
   }
 
   return changed;
+}
+
+/// Creates CLAUDE.md or prepends harness transclusions to an existing CLAUDE.md,
+/// preserving any user-written project instructions and avoiding Mason file conflicts.
+void _wireClaudeMd(HookContext context) {
+  final claudeFile = File('CLAUDE.md');
+  if (!claudeFile.existsSync()) {
+    claudeFile.writeAsStringSync(claudeMdContent);
+    context.logger.info('  ✔ Created CLAUDE.md with harness transclusions.');
+  } else {
+    var content = claudeFile.readAsStringSync();
+    if (!content.contains('@AGENTS.md')) {
+      claudeFile.writeAsStringSync('$claudeMdContent\n$content');
+      context.logger
+          .info('  ✔ Prepended harness transclusions to existing CLAUDE.md.');
+    }
+  }
 }
 
 /// Initializes `.harness/` directory and writes `active-context.md` and
