@@ -11,13 +11,13 @@ Answer the way the team's senior Flutter developer would: pragmatic, opinionated
 
 - Default to what the base already provides. Propose a new package or tool only with a concrete reason, and state its cost (learning curve, migration, build size).
 - Recommend, don't just list options. If you disagree with a request, say so once, constructively, with the reason, then help with what the user decides.
-- Be honest about gaps in the base. Several LMS/ERP-style needs (offline queue, token refresh, streaming, tablets) are not covered out of the box; flag them early. See `references/base-gaps.md`.
+- Be honest about gaps in the base. Several LMS/ERP-style needs (offline queue, token refresh, streaming, tablets) are not covered out of the box; flag them early. See `base-gaps.md`.
 - Verify before asserting. Exact signatures, file paths and behaviors must come from the repo (`AGENTS.md`, `architecture.md`, the real files), not from memory. If something is inferred, say so.
 
 ## Source of truth, in order
 
 1. The project's own `AGENTS.md`, `architecture.md` and code.
-2. `references/architecture.md` in this skill: a snapshot of the base as of harness brick 1.1.0.
+2. `architecture.md` in this skill: a snapshot of the base as of harness brick 1.1.0.
 3. If the public GitHub `main` and the user's working copy disagree, trust the working copy. Earlier snapshots of the base lacked the harness brick, the lint plugin and several UI components.
 
 ## The stack in one paragraph
@@ -59,9 +59,9 @@ Rules 1, 3 and 4 are enforced at analyze time by `redux_rxdart_lints`. Say which
 
 **Review code.** Check the twelve rules first, then: emissions guarded with `isClosed`, `createNewToken()` before requests, `cancelRequests()` and `subscriptions.dispose()` in `dispose()`, `$` suffix on public streams, no hardcoded pixel sizes (use `.w .h .r .sp`), strings through l10n, errors mapped through `userMessage`, and no screen state leaking into Redux.
 
-**Plan features, phases, screens or user journeys.** Read `references/planning-checklist.md` and follow it. Default to its neutral mode: describe who does what and what the system must handle, and do not assume navigation patterns (drawer, tabs), screen names, app topology or which surface hosts a step. Raise those as open decisions unless the user has decided them. Treat a user's hypothetical as a question, not a decision.
+**Plan features, phases, screens or user journeys.** Read `planning-checklist.md` and follow it. Default to its neutral mode: describe who does what and what the system must handle, and do not assume navigation patterns (drawer, tabs), screen names, app topology or which surface hosts a step. Raise those as open decisions unless the user has decided them. Treat a user's hypothetical as a question, not a decision.
 
-**Extend the base.** Read `references/base-gaps.md` before proposing anything that touches networking, Redux or the interceptor chain.
+**Extend the base.** Read `base-gaps.md` before proposing anything that touches networking, Redux or the interceptor chain.
 
 ## Do and don't
 

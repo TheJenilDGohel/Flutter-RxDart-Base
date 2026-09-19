@@ -4,7 +4,7 @@ description: >-
   AGENTS.md universal cognitive contract, CLAUDE.md native import,
   .agents/skills/ universal senior-dev skill (mirrored to .cursor/skills/),
   and scripts/agent/ deterministic CLI verification and route wiring tools.
-version: 1.4.0
+version: 1.4.1
 
 environment:
   mason: ">=0.1.0-dev.52 <0.2.0"

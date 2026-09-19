@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.1
+
+- Flattened skill files directly into `.agents/skills/flutter-senior-dev/` and
+  `.cursor/skills/flutter-senior-dev/` (removed nested `references/` directory).
+- Prevents Windows 260-character path overflow (`references\*`) during Mason template scanning.
+- Pure template brick (zero hooks), deterministic, works out of the box on Windows.
+
 ## 1.4.0
 
 - Converted harness to a pure, zero-hook brick by placing `.agents/`, `.cursor/`,
