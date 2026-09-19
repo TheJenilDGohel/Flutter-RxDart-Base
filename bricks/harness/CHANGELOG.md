@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.0
+
+- Converted harness to a pure, zero-hook brick by placing `.agents/`, `.cursor/`,
+  and `.harness/` directly into `__brick__/`.
+- Eliminates hook compilation in Mason git cache, completely bypassing the Windows
+  260-character `MAX_PATH` limit (OS error 122) and eliminating terminal hangs.
+- Instant, deterministic generation across all platforms in under 100ms.
+
 ## 1.3.2
 
 - Generate `CLAUDE.md` programmatically in `post_gen.dart` instead of statically in

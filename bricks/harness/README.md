@@ -60,21 +60,11 @@ plugin.
 
 ---
 
-## ⚙️ Hook Execution Summary
+## ⚙️ Generation Architecture
 
-### `pre_gen.dart`
-- Auto-detects `project_name` from the current directory's `pubspec.yaml` if
-  not passed as a var. Errors out if no `pubspec.yaml` is found (must be run
-  from a Flutter project root).
-
-### `post_gen.dart`
-- Runs `dart format` on `scripts/agent/` (guarded with timeout).
-- Patches `pubspec.yaml` + `analysis_options.yaml` to wire the
-  `redux_rxdart_lints` custom_lint plugin (skipped if already present).
-- Programmatically creates or prepends harness transclusions to `CLAUDE.md` (preserves existing custom instructions without conflict prompts).
-- Programmatically generates `.harness/` context store files (`active-context.md`, `progress.md`).
-- Programmatically generates universal senior-dev skill in `.agents/skills/flutter-senior-dev/`.
-- Explicitly mirrors the skill to `.cursor/skills/flutter-senior-dev/` for Cursor IDE auto-discovery.
-- Prints a quick-start summary.
+`harness` v1.4.0 is a pure-template brick (zero hooks):
+- Templates for `.agents/skills/`, `.cursor/skills/`, `.harness/`, `scripts/agent/`, `AGENTS.md`, and `CLAUDE.md` are rendered directly from `__brick__/`.
+- No hook compilation or sub-process execution occurs during `mason make`, eliminating Windows path-length (`MAX_PATH`) and directory-scanning issues.
+- Generation completes deterministically in ~50ms across all platforms.
 
 See [`CHANGELOG.md`](CHANGELOG.md) for version history.
