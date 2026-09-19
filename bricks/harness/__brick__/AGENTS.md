@@ -61,6 +61,18 @@ Rules #1, #3, #4 (repo-transport-only, zero setState, zero RxDart outside BLoC) 
 in the base repo). Violations are compile-gate errors, not just prose — the quality gate above
 will already catch them.
 
-## 6. Git Commit Policy (Pattern B)
-- ❌ NEVER auto-commit unprompted. Only commit when explicitly instructed by the user.
-- Format: Conventional Commits (`feat(feature): ...`, `fix(bloc): ...`) with clear rationale.
+## 6. Git Commit Policy
+- Always run `verify.ps1` (or `verify.sh`) locally before proposing a commit.
+- Use Conventional Commits format (`feat:`, `fix:`, `refactor:`, `chore:`).
+- For scaffolded code, use `feat(<feature_name>): scaffold initial architecture`.
+
+## 7. Project Context (.harness/)
+- **Before starting**: read `.harness/active-context.md` (current state) and `.harness/system-snapshot.md` (project scan).
+- **After completing a task**: update `.harness/active-context.md`:
+  - `Current Focus`: what you just finished + what's next.
+  - `Recent Tasks`: prepend entry with proof (`commit:a1b2c3d` or `file:lib/features/chat/...`). Cap at 5 — move overflow to `progress.md`.
+  - `Key Decisions`: only add if you made an architectural or pattern choice.
+  - `Known Issues`: only add if you found something broken you didn't fix.
+- **Never** edit `.harness/system-snapshot.md` — it is script-generated only.
+- **Never** read `.harness/progress.md` unless explicitly asked for historical context.
+- Regenerate snapshot: `dart run scripts/agent/snapshot.dart`.

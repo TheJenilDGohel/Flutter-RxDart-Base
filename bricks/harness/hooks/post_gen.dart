@@ -8,10 +8,24 @@ Future<void> run(HookContext context) async {
 
   final lintWired = _wireLintPlugin(context);
 
+  final harnessDir = Directory('.harness');
+  if (!harnessDir.existsSync()) {
+    harnessDir.createSync();
+    context.logger.info('  ✔ Created .harness directory for cross-session AI context.');
+  }
+
+  // Mirror the universal skill into Cursor's discovery path so both
+  // .agents/skills/ (Antigravity, Gemini, universal) and .cursor/skills/
+  // (Cursor IDE) auto-discover the same content from one source.
+  _mirrorSkill(context);
+
   context.logger.success('\n🤖 AI Agent Harness installed successfully!');
   context.logger.info(
     '  - AGENTS.md: Universal cognitive contract for all AI tools (Cursor, Claude Code, Copilot, etc.)\n'
-    '  - CLAUDE.md: 1-line native transclusion pointing to @AGENTS.md\n'
+    '  - .harness/: Token-efficient cross-session project context (snapshot + handoff log)\n'
+    '  - CLAUDE.md: Native transclusion pointing to @AGENTS.md and @.harness/ files\n'
+    '  - .agents/skills/flutter-senior-dev/: Universal skill (senior Flutter dev, auto-discovered)\n'
+    '  - .cursor/skills/flutter-senior-dev/: Mirrored for Cursor IDE auto-discovery\n'
     '  - scripts/agent/wire_route.dart: Automated route wiring CLI (auto-scaffolds via `mason make bloc`)\n'
     '  - scripts/agent/verify.ps1 / verify.sh: Deterministic quality gate (format + analyze)\n'
     '\n'
@@ -85,4 +99,29 @@ bool _wireLintPlugin(HookContext context) {
   }
 
   return changed;
+}
+
+/// Mirrors `.agents/skills/flutter-senior-dev/` into `.cursor/skills/` so
+/// Cursor IDE auto-discovers the same skill that Antigravity, Gemini and
+/// other `.agents/`-aware tools already see. Skips silently if the source
+/// directory is missing (e.g. when only AGENTS.md is used).
+void _mirrorSkill(HookContext context) {
+  const skillName = 'flutter-senior-dev';
+  final source = Directory('.agents/skills/$skillName');
+  final target = Directory('.cursor/skills/$skillName');
+
+  if (!source.existsSync()) return;
+
+  target.createSync(recursive: true);
+
+  for (final entity in source.listSync(recursive: true)) {
+    final relativePath = entity.path.substring(source.path.length);
+    if (entity is File) {
+      final destFile = File('${target.path}$relativePath');
+      destFile.parent.createSync(recursive: true);
+      entity.copySync(destFile.path);
+    }
+  }
+
+  context.logger.info('  ✔ Mirrored skill to .cursor/skills/$skillName/ for Cursor IDE.');
 }

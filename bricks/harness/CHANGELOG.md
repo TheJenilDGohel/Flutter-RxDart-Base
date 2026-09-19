@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.3.0
+
+- Added `.agents/skills/flutter-senior-dev/` — a universal skill that acts as a
+  senior Flutter developer for projects on this stack. The skill summarises the
+  golden rules, architecture, planning checklist (neutral-mode-first) and known
+  base gaps. Auto-discovered by any tool reading `.agents/skills/`.
+- `post_gen.dart` mirrors the skill into `.cursor/skills/` for Cursor IDE
+  auto-discovery. One canonical source, two discovery paths.
+- `CLAUDE.md` now transcluds the skill and its planning/gap references alongside
+  `AGENTS.md` and `.harness/` context, so Claude Code gets the full depth.
+- The harness now scaffolds agent contracts for three ecosystems from one source:
+  universal (`AGENTS.md` + `.agents/skills/`), Claude Code (`CLAUDE.md`), and
+  Cursor IDE (`.cursor/skills/` mirror).
+
+## 1.2.0
+
+- Added token-efficient cross-session context memory for AI agents via a new `.harness/` directory.
+- `scripts/agent/snapshot.dart`: New script that deterministically scans the project (features, routes, commits, analysis) and generates `system-snapshot.md` without using LLMs.
+- `verify.ps1` and `verify.sh`: Now automatically run the snapshot script as the final quality gate step.
+- `AGENTS.md`: Added Section 7 with strict rules for agents to read `system-snapshot.md` and maintain `active-context.md` with proof-of-work (commit hashes/file paths) to prevent context hallucination.
+
 ## 1.1.0
 
 - `wire_route.dart` now auto-scaffolds the feature via `mason make bloc --feature_name <name>`
