@@ -10,7 +10,7 @@
    - MUST ONLY call `ApiBaseHelper` and return raw `Map<String, dynamic>`.
    - ❌ NEVER call `Model.fromJson` in Repository.
 2. **BLoC is Business Logic & State Owner**:
-   - Awaits raw response from repo, parses via `Model.fromJson(json)`, catches errors, and emits `ApiResponse<T>` (`loading`, `completed`, `error`).
+   - Awaits raw response from repo, parses via `Model.fromJson(json)`, catches errors, and emits `ApiResponse<T>` (`LoadingResponse`, `SuccessResponse`, `ErrorResponse`).
    - Use `e.userMessage` from `exception_ext.dart` for UI errors.
 3. **Zero `setState`**: Strictly forbidden in all widgets. Use stream builders (`AppResponseBuilder`, `StreamBuilder`).
 4. **Zero RxDart Outside BLoC**:

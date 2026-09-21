@@ -24,9 +24,9 @@ The core design is sound: sealed `ApiException` / `ApiResponse`, per-screen BLoC
    - `verify` runs `flutter analyze --fatal-infos`.
 4. **A cancelled request surfaces as an error.** `lib/networking/interceptors/error_mapping_interceptor.dart` maps `DioExceptionType.cancel` to `InternalServerErrorException`, and `ApiBaseHelper._extractException` does the same. Golden Rule 8 (`createNewToken()` on refetch) cancels the previous call, so the BLoC can emit a stale error for a superseded request.
 5. **Non-object bodies escape as `TypeError`.** `response.data as Map<String, dynamic>` in `lib/networking/api_base_helper.dart` throws a raw `TypeError` for a list body or an empty 204, which no BLoC catches as `ApiException`. `base-gaps.md` documents the list case but no code handles it.
-6. **`ApiResponse` subtype names collide.** `Error<T>` in `lib/networking/api_response.dart` shadows `dart:core` `Error` in every file that imports it. `Initial`, `Loading` and `Completed` are similarly generic.
-7. **`AppStore` cannot be re-initialised.** `static late final Store<AppState> _store` throws on a second `init()` (tests, hot restart), and `AuthInterceptor` depends on that global so it cannot be unit tested.
-8. **The SDK constraint is hard-pinned.** `pubspec.yaml` sets `sdk: ^3.12.2`, overwriting what `flutter create` wrote. Teams on an older Flutter cannot run `pub get`.
+6. ~~**`ApiResponse` subtype names collide.** `Error<T>` in `lib/networking/api_response.dart` shadows `dart:core` `Error` in every file that imports it. `Initial`, `Loading` and `Completed` are similarly generic.~~ *(Fixed: Renamed to `ErrorResponse`, `InitialResponse`, `LoadingResponse`, `SuccessResponse`)*
+7. ~~**`AppStore` cannot be re-initialised.** `static late final Store<AppState> _store` throws on a second `init()` (tests, hot restart), and `AuthInterceptor` depends on that global so it cannot be unit tested.~~ *(Fixed: Removed `final` keyword)*
+8. ~~**The SDK constraint is hard-pinned.** `pubspec.yaml` sets `sdk: ^3.12.2`, overwriting what `flutter create` wrote. Teams on an older Flutter cannot run `pub get`.~~ *(Fixed: Relaxed to `>=3.0.0 <4.0.0`)*
 
 ### P1: drift, hygiene, developer experience
 
