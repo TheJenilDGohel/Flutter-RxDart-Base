@@ -16,7 +16,7 @@ The core design is sound: sealed `ApiException` / `ApiResponse`, per-screen BLoC
    - Harness 1.4.x removed the hooks that patched `pubspec.yaml` and `analysis_options.yaml`. No template now contains `custom_lint` or `redux_rxdart_lints`.
    - `bricks/harness/__brick__/AGENTS.md:59`, `bricks/harness/README.md:52-57` and the skill's `SKILL.md` still say Rules 1, 3 and 4 are analyzer-enforced.
    - Even when wired, `custom_lint` results normally come from `dart run custom_lint`, not `flutter analyze` **[confirm]**.
-2. **The base breaks its own Rule 3 (zero `setState`).** `setState` is called in `lib/features/showcase/showcase_home_page.dart:204`, `lib/utils/widgets/ui/app_dialog.dart:185` and `lib/utils/widgets/ui/app_textformfield.dart:84`. The `no_setstate_in_widget` rule flags any `setState` call in any file. `no_rxdart_in_ui` exempts everything under `/utils/`, which is where UI widgets live, so it is too loose.
+2. ~~**The base breaks its own Rule 3 (zero `setState`).** `setState` is called in `lib/features/showcase/showcase_home_page.dart:204`, `lib/utils/widgets/ui/app_dialog.dart:185` and `lib/utils/widgets/ui/app_textformfield.dart:84`.~~ *(Fixed: Migrated to RxDart BLoC pattern with BehaviorSubjects)*
 3. **Freshly generated `bloc` output probably fails the quality gate [confirm].**
    - The BLoC template has unused imports (`api_exceptions`, `api_response`) and an unused `_repo` field; the page template has an unused `_bloc` field.
    - `bricks/bloc/README.md` says the page uses `AppScaffold`; it uses plain `Scaffold`.
@@ -31,9 +31,9 @@ The core design is sound: sealed `ApiException` / `ApiResponse`, per-screen BLoC
 ### P1: drift, hygiene, developer experience
 
 - **Doc drift.**
-  - `AGENTS.md:6` names `CurlLoggerInterceptor`, which does not exist.
-  - `AGENTS.md:15` says `ApiResponseBuilder`; the class is `AppResponseBuilder`.
-  - `AGENTS.md:20` and `SKILL.md` point to `utils/widgets/common/`; the folder is `ui/`.
+  - ~~`AGENTS.md:6` names `CurlLoggerInterceptor`, which does not exist.~~ *(Fixed)*
+  - ~~`AGENTS.md:15` says `ApiResponseBuilder`; the class is `AppResponseBuilder`.~~ *(Fixed)*
+  - ~~`AGENTS.md:20` and `SKILL.md` point to `utils/widgets/common/`; the folder is `ui/`.~~ *(Fixed)*
   - `bricks/harness/README.md:35` says a `post_gen` hook mirrors `.cursor/` (there are no hooks now); line 66 says v1.4.0 while the brick is 1.4.1.
   - `SKILL.md` references `references/architecture.md`, which was flattened away.
   - `bricks/project/README.md` says `lib/screens/`; it is `lib/features/`.
@@ -41,7 +41,7 @@ The core design is sound: sealed `ApiException` / `ApiResponse`, per-screen BLoC
   - Root `architecture.md` has a broken code fence (`## 1. ... Data```) and differs from the skill's copy.
   - `CONTRIBUTING.md` says `project` has no CHANGELOG; it does.
   - `bricks/harness/__brick__/.harness/active-context.md` has corrupted encoding.
-- **No tests and no CI.** There is no `.github/`. Nothing tests the bricks, the hooks, `wire_route.dart` or the lint package (no `test/`). The history contains a hooks-then-no-hooks flip-flop driven by a Windows-only path problem that a CI matrix would have caught. The `CONTRIBUTING.md` rules (version bump, README sync) are enforced only by memory.
+- ~~**No tests and no CI.** There is no `.github/`.~~ *(Fixed: Added Nightly Dependency Audit & PR Gate to `.github/workflows/`)* Nothing tests the bricks, the hooks, `wire_route.dart` or the lint package (no `test/`). The history contains a hooks-then-no-hooks flip-flop driven by a Windows-only path problem that a CI matrix would have caught. The `CONTRIBUTING.md` rules (version bump, README sync) are enforced only by memory.
 - **Duplicated skill and heavy context.**
   - The `.agents/` and `.cursor/` skill copies are byte-identical (4 files each), and `AGENTS.md` and `SKILL.md` both list the 12 rules.
   - `CLAUDE.md` `@`-imports about 24 KB (roughly 6K tokens) into every Claude Code session, which defeats on-demand skill loading.

@@ -3,7 +3,7 @@
 ## 1. Architecture: Hybrid Redux + RxDart + Dio
 - **Redux (Global)**: App-wide session, auth token, user profile, persistence.
 - **RxDart BLoC (Ephemeral)**: Screen-level state, forms, pagination, searches.
-- **Dio (Networking)**: HTTP/2 with interceptor chain (`AuthInterceptor`, `ErrorMappingInterceptor`, `CurlLoggerInterceptor`).
+- **Dio (Networking)**: HTTP/2 with interceptor chain (`AuthInterceptor`, `ErrorMappingInterceptor`).
 
 ## 2. Inviolable Golden Rules
 1. **Repository is Transport ONLY**:
@@ -12,12 +12,12 @@
 2. **BLoC is Business Logic & State Owner**:
    - Awaits raw response from repo, parses via `Model.fromJson(json)`, catches errors, and emits `ApiResponse<T>` (`loading`, `completed`, `error`).
    - Use `e.userMessage` from `exception_ext.dart` for UI errors.
-3. **Zero `setState`**: Strictly forbidden in all widgets. Use stream builders (`ApiResponseBuilder`, `StreamBuilder`).
+3. **Zero `setState`**: Strictly forbidden in all widgets. Use stream builders (`AppResponseBuilder`, `StreamBuilder`).
 4. **Zero RxDart Outside BLoC**:
    - UI widgets MUST NEVER import or use RxDart (`BehaviorSubject`, `PublishSubject`).
    - UI widgets ONLY consume standard Dart `Stream<T>` / `ApiResponse<T>`.
 5. **Rule of 2 for Widgets**:
-   - If a widget or layout is used in $\ge 2$ places, extract it to `utils/widgets/common/`.
+   - If a widget or layout is used in $\ge 2$ places, extract it to `utils/widgets/ui/`.
    - If an existing widget can be reused with parameter tweaks, reuse it. NEVER duplicate widget trees.
 6. **Universal Presentation**:
    - Baseline is standard `Scaffold` (do not force specialized wrappers unless requested).
