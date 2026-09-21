@@ -10,7 +10,7 @@ import 'package:{{project_name}}/redux/middleware/persistence_middleware.dart';
 
 /// Redux [Store] helper & token provider for non-widget layers (e.g., Dio interceptors).
 abstract final class AppStore {
-  static late final Store<AppState> _store;
+  static late Store<AppState> _store;
 
   /// Exposes the underlying store instance if needed.
   static Store<AppState> get store => _store;

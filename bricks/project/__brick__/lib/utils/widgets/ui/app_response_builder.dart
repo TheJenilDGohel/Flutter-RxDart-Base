@@ -8,7 +8,7 @@ import 'package:{{project_name}}/utils/widgets/ui/app_loading_state.dart';
 ///
 /// Automatically handles:
 /// - Initial & Loading states -> [loadingWidget] or [AppLoadingState]
-/// - Error state -> [errorBuilder] or [AppErrorState] (with auto-retry button if [onRetry] or [Error.retry] is present)
+/// - Error state -> [errorBuilder] or [AppErrorState] (with auto-retry button if [onRetry] or [ErrorResponse.retry] is present)
 /// - Completed state -> calls your [builder] with non-null typed data
 ///
 /// ```dart
@@ -36,7 +36,7 @@ class AppResponseBuilder<T> extends StatelessWidget {
   /// Builder invoked when the response is [Completed].
   final Widget Function(BuildContext context, T data) builder;
 
-  /// Optional widget displayed for [Initial] state before any request starts.
+  /// Optional widget displayed for [InitialResponse] state before any request starts.
   final Widget? initialWidget;
 
   /// Optional custom widget displayed while [Loading]. Defaults to [AppLoadingState].
@@ -64,11 +64,11 @@ class AppResponseBuilder<T> extends StatelessWidget {
 
         return switch (response) {
           null ||
-          Initial<T>() =>
+          InitialResponse<T>() =>
             initialWidget ?? loadingWidget ?? const AppLoadingState(),
-          Loading<T>() => loadingWidget ?? const AppLoadingState(),
-          Completed<T>(:final data) => builder(context, data),
-          Error<T>(:final error, :final retry) => errorBuilder != null
+          LoadingResponse<T>() => loadingWidget ?? const AppLoadingState(),
+          SuccessResponse<T>(:final data) => builder(context, data),
+          ErrorResponse<T>(:final error, :final retry) => errorBuilder != null
               ? errorBuilder!(
                   context,
                   error.userMessage,
