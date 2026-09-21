@@ -56,37 +56,41 @@ jobs:
           
           if [ -n "$MAJOR" ]; then
             PR_BODY="${PR_BODY}### 🚨 Major Updates (Manual action required)\nThese updates contain breaking changes and have NOT been automatically bumped in \`pubspec.yaml\`.\n\n| Package | Current | Latest |\n|---|---|---|\n"
-            echo "$MAJOR" | while read -r row; do
-              PKG=$(echo "$row" | jq -r '.package')
-              CURRENT=$(echo "$row" | jq -r '.current')
-              LATEST=$(echo "$row" | jq -r '.latest')
-              PR_BODY="${PR_BODY}| $PKG | $CURRENT | $LATEST |\n"
-            done
+            while read -r row; do
+              if [ -n "$row" ] && [ "$row" != "null" ]; then
+                PKG=$(echo "$row" | jq -r '.package')
+                CURRENT=$(echo "$row" | jq -r '.current')
+                LATEST=$(echo "$row" | jq -r '.latest')
+                PR_BODY="${PR_BODY}| $PKG | $CURRENT | $LATEST |\n"
+              fi
+            done <<< "$MAJOR"
             PR_BODY="${PR_BODY}\n---\n\n"
           fi
           
           PR_BODY="${PR_BODY}### 🔼 Minor & Patch Updates\nThese have been automatically updated in \`pubspec.yaml\`.\n\n| Package | Current | Latest | Level | Flagged |\n|---|---|---|---|---|\n"
           
-          echo "$MINOR_PATCH" | while read -r row; do
-            PKG=$(echo "$row" | jq -r '.package')
-            CURRENT=$(echo "$row" | jq -r '.current')
-            LATEST=$(echo "$row" | jq -r '.latest')
-            LEVEL=$(echo "$row" | jq -r '.level')
-            FLAGGED=$(echo "$row" | jq -r '.hasPotentialBreakingChange')
-            
-            if [ -n "$PKG" ] && [ "$PKG" != "null" ]; then
-              FLAG_EMOJI="🟢"
-              if [ "$FLAGGED" == "true" ]; then
-                FLAG_EMOJI="⚠️ Breaking keywords found"
+          while read -r row; do
+            if [ -n "$row" ] && [ "$row" != "null" ]; then
+              PKG=$(echo "$row" | jq -r '.package')
+              CURRENT=$(echo "$row" | jq -r '.current')
+              LATEST=$(echo "$row" | jq -r '.latest')
+              LEVEL=$(echo "$row" | jq -r '.level')
+              FLAGGED=$(echo "$row" | jq -r '.hasPotentialBreakingChange')
+              
+              if [ -n "$PKG" ] && [ "$PKG" != "null" ]; then
+                FLAG_EMOJI="🟢"
+                if [ "$FLAGGED" == "true" ]; then
+                  FLAG_EMOJI="⚠️ Breaking keywords found"
+                fi
+                
+                # Use sed to update pubspec.yaml in place
+                # Matches:   package_name: ^x.y.z
+                sed -i -E "s/^([[:space:]]*)$PKG:[[:space:]]*\^?[0-9]+\.[0-9]+\.[0-9]+.*$/\1$PKG: ^$LATEST/" bricks/project/__brick__/pubspec.yaml
+                
+                PR_BODY="$PR_BODY| $PKG | $CURRENT | $LATEST | $LEVEL | $FLAG_EMOJI |\n"
               fi
-              
-              # Use sed to update pubspec.yaml in place
-              # Matches:   package_name: ^x.y.z
-              sed -i -E "s/^([[:space:]]*)$PKG:[[:space:]]*\^?[0-9]+\.[0-9]+\.[0-9]+.*$/\1$PKG: ^$LATEST/" bricks/project/__brick__/pubspec.yaml
-              
-              PR_BODY="$PR_BODY| $PKG | $CURRENT | $LATEST | $LEVEL | $FLAG_EMOJI |\n"
             fi
-          done
+          done <<< "$MINOR_PATCH"
           
           git add bricks/project/__brick__/pubspec.yaml
           
