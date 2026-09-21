@@ -72,7 +72,7 @@ dev_dependencies:
   custom_lint: ^0.6.4
   redux_rxdart_lints:
     git:
-      url: git@github.com:TheJenilDGohel/Flutter-RxDart-Base.git
+      url: https://github.com/TheJenilDGohel/Flutter-RxDart-Base.git
       path: packages/redux_rxdart_lints
 
 # For information on the generic Dart part of this file, see the
