@@ -7,6 +7,10 @@ on:
     paths:
       - 'bricks/project/__brick__/pubspec.yaml'
 
+permissions:
+  pull-requests: write
+  contents: read
+
 jobs:
   check-deps:
     runs-on: ubuntu-latest
@@ -34,11 +38,17 @@ jobs:
           script: |
             const fs = require('fs');
             const advisory = fs.readFileSync('advisory.md', 'utf8');
+            console.log("Advisory content length:", advisory.length);
+            console.log("Advisory content preview:", advisory.substring(0, 100));
+            
             if (advisory.includes('⚠️')) {
+              console.log("Found warning emoji, posting comment to PR...");
               await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 body: advisory
               });
+            } else {
+              console.log("No warning emoji found in the advisory.");
             }
