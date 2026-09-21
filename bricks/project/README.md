@@ -29,7 +29,7 @@ mason make project
 - **`lib/networking/`**: `ApiBaseHelper`, `DioClient`, 5-interceptor chain, sealed `ApiException`, sealed `ApiResponse<T>`.
 - **`lib/resources/`**: Design tokens (`ResColors`, Material 3 `AppTypography` with ScreenUtil `.sp`).
 - **`lib/utils/`**: `AppScaffold`, core UI states (`AppLoadingState`, `AppErrorState`, `AppEmptyState`), `AppRouter`, `ShowMessage` toasts, `CommonUtils`, context & string extensions.
-- **`lib/screens/`**: Interactive architecture showcase demo page.
+- **`lib/features/`**: The home for your actual app features (generated via `mason make bloc`).
 - **`lib/services/`**: Notification and device info stubs.
 - **`lib/l10n/`**: Localization setup (`app_en.arb`, `app_hi.arb`, `l10n.yaml`).
 - **`lib/main.dart`**: Complete entry point with Redux hydration, ScreenUtil, AppRouter, and OverlaySupport.

@@ -45,9 +45,22 @@ Future<void> run(HookContext context) async {
   }
 
   // 3. Package rename execution
-  await Process.run(
+  final renameResult = await Process.run(
     'dart',
     ['run', 'change_app_package_name:main', androidPackageName],
+    runInShell: true,
+  );
+
+  if (renameResult.exitCode != 0) {
+    progress.fail();
+    context.logger.err('change_app_package_name failed:\n${renameResult.stderr}');
+    exit(1);
+  }
+
+  // 4. Remove one-shot package rename dependency
+  await Process.run(
+    'flutter',
+    ['pub', 'remove', 'change_app_package_name'],
     runInShell: true,
   );
 
@@ -79,8 +92,8 @@ Future<void> run(HookContext context) async {
     if (harnessResult.exitCode == 0) {
       harnessProgress.complete('AI Agent Harness installed.');
     } else {
-      harnessProgress.complete(
-        'Note: AI Agent Harness can be installed anytime via `mason make harness`.',
+      harnessProgress.fail(
+        'Note: AI Agent Harness failed to scaffold. You can install it anytime via `mason make harness`.',
       );
     }
   }

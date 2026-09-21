@@ -28,7 +28,9 @@ Before diving into components, internalize the core decision rule:
 
 ---
 
-## 1. Architectural Layers & Data```
+## 1. Architectural Layers & Dataflow
+
+```text
 ┌────────────────────────────────────────────────────────────────────────┐
 │                   PRESENTATION LAYER (UI / Widgets)                    │
 │   • Views (StatefulWidget / StatelessWidget)                            │

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:{{project_name}}/networking/api_response.dart';
+import 'package:{{project_name}}/utils/extensions/context_ext.dart';
 import 'package:{{project_name}}/utils/extensions/exception_ext.dart';
 import 'package:{{project_name}}/utils/widgets/ui/app_error_state.dart';
 import 'package:{{project_name}}/utils/widgets/ui/app_loading_state.dart';
@@ -71,12 +72,12 @@ class AppResponseBuilder<T> extends StatelessWidget {
           ErrorResponse<T>(:final error, :final retry) => errorBuilder != null
               ? errorBuilder!(
                   context,
-                  error.userMessage,
+                  error.userMessage(context),
                   retry ?? onRetry,
                 )
               : AppErrorState(
-                  title: errorTitle ?? 'Error',
-                  message: error.userMessage,
+                  title: errorTitle ?? context.l10n.errorTitle,
+                  message: error.userMessage(context),
                   onRetry: retry ?? onRetry,
                 ),
         };

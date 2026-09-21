@@ -63,9 +63,6 @@ void main(List<String> args) {
     exit(1);
   }
 
-  final constantName = _deriveConstantName(routePath, featureCamel);
-  _injectRouteConstant(routesFile, constantName, routePath);
-
   final routerFile = _findRouterFile(routePath);
   if (routerFile == null) {
     print(
@@ -73,6 +70,9 @@ void main(List<String> args) {
     );
     exit(1);
   }
+
+  final constantName = _deriveConstantName(routePath, featureCamel);
+  _injectRouteConstant(routesFile, constantName, routePath);
 
   final pageClassName = _detectPageClassName(featureSnake, featurePascal);
 
