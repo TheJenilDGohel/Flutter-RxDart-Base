@@ -43,6 +43,8 @@ Future<void> main(List<String> args) async {
     final pkgName = entry.key as String;
     final versionConstraintStr = entry.value as String;
 
+    stderr.writeln('[${i + 1}/${entries.length}] Checking $pkgName...');
+
     // Parse constraint. Extract the lower bound if it's a range.
     Version? currentVersion;
     try {
