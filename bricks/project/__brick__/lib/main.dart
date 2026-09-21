@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:{{project_name}}/l10n/generated/app_localizations.dart';
-import 'package:overlay_support/overlay_support.dart';
+import 'package:toastification/toastification.dart';
 import 'package:redux/redux.dart';
 import 'package:{{project_name}}/networking/api_base_helper.dart';
 import 'package:{{project_name}}/redux/app_state.dart';
@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
           return ScreenUtilInit(
             designSize: const Size(375, 812),
             minTextAdapt: true,
-            builder: (_, __) => OverlaySupport.global(
+            builder: (_, __) => ToastificationWrapper(
               child: MaterialApp(
                 debugShowCheckedModeBanner: false,
                 navigatorKey: AppRouter.navigatorKey,

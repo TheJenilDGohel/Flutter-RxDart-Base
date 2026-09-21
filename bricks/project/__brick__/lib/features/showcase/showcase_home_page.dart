@@ -12,6 +12,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:{{project_name}}/features/showcase/bloc/showcase_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:{{project_name}}/redux/app_state.dart';
 import 'package:{{project_name}}/redux/actions.dart';
@@ -33,10 +34,17 @@ class ShowcaseHomePage extends StatefulWidget {
 class _ShowcaseHomePageState extends State<ShowcaseHomePage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isButtonLoading = false;
+  late final ShowcaseBloc _bloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc = ShowcaseBloc();
+  }
 
   @override
   void dispose() {
+    _bloc.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -195,18 +203,22 @@ class _ShowcaseHomePageState extends State<ShowcaseHomePage> {
                     prefixIcon: const Icon(Icons.lock_outline, color: ResColors.textSecondary),
                   ),
                   SizedBox(height: 20.h),
-                  CommonButton(
-                    text: 'Submit with Loading State',
-                    loading: _isButtonLoading,
-                    prefix: const Icon(Icons.send, size: 18, color: ResColors.white),
-                    onPressed: () async {
-                      CommonUtils.hideKeyboard();
-                      setState(() => _isButtonLoading = true);
-                      await Future.delayed(const Duration(seconds: 2));
-                      if (mounted) {
-                        setState(() => _isButtonLoading = false);
-                        ShowMessage.success('Form submitted successfully!');
-                      }
+                  StreamBuilder<bool>(
+                    stream: _bloc.isButtonLoading$,
+                    initialData: _bloc.currentIsButtonLoading,
+                    builder: (context, snapshot) {
+                      return CommonButton(
+                        text: 'Submit with Loading State',
+                        loading: snapshot.data!,
+                        prefix: const Icon(Icons.send, size: 18, color: ResColors.white),
+                        onPressed: () async {
+                          CommonUtils.hideKeyboard();
+                          final success = await _bloc.simulateSubmit();
+                          if (mounted && success) {
+                            ShowMessage.success('Form submitted successfully!');
+                          }
+                        },
+                      );
                     },
                   ),
                 ],

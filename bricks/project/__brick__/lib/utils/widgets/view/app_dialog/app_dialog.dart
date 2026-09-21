@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:{{project_name}}/resources/app_typography.dart';
 import 'package:{{project_name}}/resources/res_colors.dart';
 import 'package:{{project_name}}/utils/widgets/ui/common_button.dart';
+import 'package:{{project_name}}/utils/widgets/view/app_dialog/bloc/app_dialog_bloc.dart';
 
 enum _AppDialogKind { confirmation, status, confirmAsync }
 
@@ -177,23 +178,26 @@ class AppDialog extends StatefulWidget {
 }
 
 class _AppDialogState extends State<AppDialog> {
-  bool _isLoading = false;
+  late final AppDialogBloc _bloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc = AppDialogBloc();
+  }
+
+  @override
+  void dispose() {
+    _bloc.dispose();
+    super.dispose();
+  }
 
   Future<void> _handleAsyncConfirm() async {
-    if (_isLoading || widget.onConfirmAsync == null) return;
+    if (widget.onConfirmAsync == null) return;
 
-    setState(() => _isLoading = true);
-    try {
-      final success = await widget.onConfirmAsync!();
-      if (mounted && success) {
-        Navigator.of(context).pop(true);
-      }
-    } catch (_) {
-      // Caller or global exception handler can display message
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    final success = await _bloc.runAsync(widget.onConfirmAsync!);
+    if (mounted && success) {
+      Navigator.of(context).pop(true);
     }
   }
 
@@ -273,53 +277,61 @@ class _AppDialogState extends State<AppDialog> {
                 },
               )
             else
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () {
-                              if (widget.onCancel != null) {
-                                widget.onCancel!();
-                              } else {
-                                Navigator.of(context).pop(false);
-                              }
-                            },
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: ResColors.textSecondary,
-                        side: const BorderSide(color: ResColors.border),
-                        padding: EdgeInsets.symmetric(vertical: 14.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
+              StreamBuilder<bool>(
+                stream: _bloc.isLoading$,
+                initialData: _bloc.currentIsLoading,
+                builder: (context, snapshot) {
+                  final isLoading = snapshot.data!;
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  if (widget.onCancel != null) {
+                                    widget.onCancel!();
+                                  } else {
+                                    Navigator.of(context).pop(false);
+                                  }
+                                },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: ResColors.textSecondary,
+                            side: const BorderSide(color: ResColors.border),
+                            padding: EdgeInsets.symmetric(vertical: 14.h),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                          ),
+                          child: Text(
+                            widget.cancelLabel ?? 'Cancel',
+                            style: AppTypography.button()
+                                .copyWith(color: ResColors.textSecondary),
+                          ),
                         ),
                       ),
-                      child: Text(
-                        widget.cancelLabel ?? 'Cancel',
-                        style: AppTypography.button()
-                            .copyWith(color: ResColors.textSecondary),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: CommonButton(
+                          text: widget.confirmLabel ?? 'Confirm',
+                          loading: isLoading,
+                          backgroundColor:
+                              widget.confirmColor ?? ResColors.primary,
+                          onPressed:
+                              widget._kind == _AppDialogKind.confirmAsync
+                                  ? _handleAsyncConfirm
+                                  : () {
+                                      if (widget.onConfirm != null) {
+                                        widget.onConfirm!();
+                                      } else {
+                                        Navigator.of(context).pop(true);
+                                      }
+                                    },
+                        ),
                       ),
-                    ),
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: CommonButton(
-                      text: widget.confirmLabel ?? 'Confirm',
-                      loading: _isLoading,
-                      backgroundColor:
-                          widget.confirmColor ?? ResColors.primary,
-                      onPressed: widget._kind == _AppDialogKind.confirmAsync
-                          ? _handleAsyncConfirm
-                          : () {
-                              if (widget.onConfirm != null) {
-                                widget.onConfirm!();
-                              } else {
-                                Navigator.of(context).pop(true);
-                              }
-                            },
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                },
               ),
           ],
         ),
