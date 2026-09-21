@@ -1,0 +1,67 @@
+name: Dependency Audit (Nightly)
+
+on:
+  schedule:
+    - cron: '0 18 * * *' # 18:00 UTC = 11:30 PM IST
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install Tool Dependencies
+        run: cd tool && dart pub get
+
+      - name: Run Dependency Audit
+        id: audit
+        run: |
+          # The script will output JSON. We capture it and store it in an environment variable or file.
+          dart run tool/check_deps.dart --mode=audit > audit_result.json
+          cat audit_result.json
+
+      - name: Process Audit Results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const data = JSON.parse(fs.readFileSync('audit_result.json', 'utf8'));
+            const outdated = data.outdated || [];
+            
+            if (outdated.length === 0) {
+              console.log('All dependencies are up to date.');
+              return;
+            }
+            
+            const majorUpdates = outdated.filter(p => p.level === 'major');
+            const minorUpdates = outdated.filter(p => p.level === 'minor');
+            const patchUpdates = outdated.filter(p => p.level === 'patch');
+            
+            // 1. Create Issue for Major Updates
+            if (majorUpdates.length > 0) {
+              let issueBody = 'The following major dependency updates are available on pub.dev:\n\n| Package | Current | Latest |\n|---|---|---|\n';
+              for (const pkg of majorUpdates) {
+                issueBody += `| ${pkg.package} | ${pkg.current} | ${pkg.latest} |\n`;
+              }
+              
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🚨 Action Required: Major Dependency Updates Available',
+                body: issueBody,
+                labels: ['priority:high', 'breaking-change']
+              });
+            }
+            
+            // 2. We can handle PR creation via script or subsequent steps. 
+            // For simplicity in a bash/node script combo, you would clone, create a branch, edit pubspec, commit, and push.
+            // But since this is a demonstration of the CI pipeline, we'll log the actions that would be taken.
+            console.log('Minor Updates:', minorUpdates);
+            console.log('Patch Updates:', patchUpdates);
+            
+            // We can output these to step outputs to be processed by a create-pull-request action if desired.
