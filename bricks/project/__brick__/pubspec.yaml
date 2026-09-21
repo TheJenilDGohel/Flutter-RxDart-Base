@@ -69,11 +69,13 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   change_app_package_name: ^1.4.0
-  custom_lint: ^0.6.4
+  {{#include_harness}}
+  custom_lint: ^0.7.6
   redux_rxdart_lints:
     git:
       url: https://github.com/TheJenilDGohel/Flutter-RxDart-Base.git
       path: packages/redux_rxdart_lints
+  {{/include_harness}}
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

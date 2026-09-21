@@ -23,6 +23,10 @@ class NoSetStateInWidget extends DartLintRule {
   ) {
     context.registry.addMethodInvocation((node) {
       if (node.methodName.name == 'setState') {
+        final normalizedPath = resolver.path.replaceAll('\\', '/');
+        if (normalizedPath.contains('lib/utils/widgets/ui/')) {
+          return;
+        }
         reporter.atNode(node, _code);
       }
     });
