@@ -1,6 +1,9 @@
 name: Dependency Audit (Nightly)
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     - cron: '0 18 * * *' # 18:00 UTC = 11:30 PM IST
   workflow_dispatch: # Allow manual trigger
