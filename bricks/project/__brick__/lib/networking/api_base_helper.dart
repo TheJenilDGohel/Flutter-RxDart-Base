@@ -38,6 +38,13 @@ class ApiBaseHelper {
     );
   }
 
+  /// Parses the raw response body safely.
+  Map<String, dynamic> _parseResponse(dynamic data) {
+    if (data == null || data == '') return {};
+    if (data is List) return {'items': data};
+    return data as Map<String, dynamic>;
+  }
+
   /// HTTP GET.
   Future<Map<String, dynamic>> get(
     String url, {
@@ -50,7 +57,7 @@ class ApiBaseHelper {
         queryParameters: queryParameters,
         cancelToken: cancelToken,
       );
-      return response.data as Map<String, dynamic>;
+      return _parseResponse(response.data);
     } on DioException catch (e) {
       throw _extractException(e);
     }
@@ -70,7 +77,7 @@ class ApiBaseHelper {
         queryParameters: queryParameters,
         cancelToken: cancelToken,
       );
-      return response.data as Map<String, dynamic>;
+      return _parseResponse(response.data);
     } on DioException catch (e) {
       throw _extractException(e);
     }
@@ -92,7 +99,7 @@ class ApiBaseHelper {
         cancelToken: cancelToken,
         onSendProgress: onSendProgress,
       );
-      return response.data as Map<String, dynamic>;
+      return _parseResponse(response.data);
     } on DioException catch (e) {
       throw _extractException(e);
     }
@@ -112,7 +119,7 @@ class ApiBaseHelper {
         queryParameters: queryParameters,
         cancelToken: cancelToken,
       );
-      return response.data as Map<String, dynamic>;
+      return _parseResponse(response.data);
     } on DioException catch (e) {
       throw _extractException(e);
     }
@@ -134,7 +141,7 @@ class ApiBaseHelper {
         cancelToken: cancelToken,
         onSendProgress: onSendProgress,
       );
-      return response.data as Map<String, dynamic>;
+      return _parseResponse(response.data);
     } on DioException catch (e) {
       throw _extractException(e);
     }
@@ -154,7 +161,7 @@ class ApiBaseHelper {
         queryParameters: queryParameters,
         cancelToken: cancelToken,
       );
-      return response.data as Map<String, dynamic>;
+      return _parseResponse(response.data);
     } on DioException catch (e) {
       throw _extractException(e);
     }

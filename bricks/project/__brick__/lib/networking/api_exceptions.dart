@@ -62,3 +62,8 @@ final class InternalServerErrorException extends ApiException {
 final class BusinessLogicException extends ApiException {
   const BusinessLogicException([super.message = 'Business logic error']);
 }
+
+/// HTTP request was cancelled by the client.
+final class RequestCancelledException extends ApiException {
+  const RequestCancelledException([super.message = 'Request cancelled']);
+}

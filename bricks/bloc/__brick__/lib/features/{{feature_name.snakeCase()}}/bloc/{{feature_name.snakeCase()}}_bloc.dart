@@ -1,6 +1,4 @@
 import 'package:rxdart/rxdart.dart';
-import 'package:{{project_name}}/networking/api_exceptions.dart';
-import 'package:{{project_name}}/networking/api_response.dart';
 import 'package:{{project_name}}/networking/cancel_token_owner.dart';
 import 'package:{{project_name}}/features/{{feature_name.snakeCase()}}/repo/{{feature_name.snakeCase()}}_repo.dart';
 
@@ -15,6 +13,7 @@ import 'package:{{project_name}}/features/{{feature_name.snakeCase()}}/repo/{{fe
 /// - Always mix in [CancelTokenOwner], call `createNewToken()` before requests, and `cancelRequests()` in [dispose].
 /// - Store subscriptions in [subscriptions] and cancel them in [dispose].
 final class {{feature_name.pascalCase()}}Bloc with CancelTokenOwner {
+  // ignore: unused_field
   final {{feature_name.pascalCase()}}Repo _repo;
 
   /// Holds stream subscriptions for clean disposal.

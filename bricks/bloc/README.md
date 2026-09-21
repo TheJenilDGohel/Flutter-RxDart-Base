@@ -29,7 +29,7 @@ lib/features/{feature_name}/
 ├── model/                                 # Empty model directory for feature models (.gitkeep)
 ├── repo/{feature_name}_repo.dart          # Injectable repository (ApiBaseHelper DI + CancelToken)
 ├── widgets/{feature_name}_content_widget.dart # Decoupled dumb UI content widget
-└── {feature_name}_page.dart               # StatefulWidget managing BLoC lifecycle with AppScaffold
+└── {feature_name}_page.dart               # StatefulWidget managing BLoC lifecycle with Scaffold
 ```
 
 ---
@@ -40,7 +40,7 @@ lib/features/{feature_name}/
 2. **Lifecycle Safety**: BLoC mixes in `CancelTokenOwner` to auto-abort pending HTTP requests in `dispose()`.
 3. **Pre-scaffolded Model Folder**: Includes an empty `model/` folder so feature models can be added immediately.
 4. **Constructor Injection**: Repositories use `FeatureRepo({ApiBaseHelper? api}) : _api = api ?? ApiBaseHelper.instance;` for easy unit testing.
-5. **AppScaffold Shell**: Uses `AppScaffold` with consistent styling, app bar title, and design tokens.
+5. **Scaffold Shell**: Uses `Scaffold` with consistent styling, app bar title, and design tokens.
 
 ---
 

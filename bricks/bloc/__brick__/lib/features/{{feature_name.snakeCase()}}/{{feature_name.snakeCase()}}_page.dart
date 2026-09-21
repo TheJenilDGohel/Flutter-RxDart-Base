@@ -32,7 +32,7 @@ class _{{feature_name.pascalCase()}}PageState extends State<{{feature_name.pasca
       appBar: AppBar(
         title: const Text('{{feature_name.titleCase()}}'),
       ),
-      body: const {{feature_name.pascalCase()}}ContentWidget(),
+      body: {{feature_name.pascalCase()}}ContentWidget(bloc: _bloc),
     );
   }
 }

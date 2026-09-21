@@ -73,6 +73,8 @@ class ErrorMappingInterceptor extends Interceptor {
         RequestTimeoutException(err.message ?? 'Request timeout'),
       DioExceptionType.connectionError =>
         NoInternetException(err.message ?? 'No internet connection'),
+      DioExceptionType.cancel =>
+        RequestCancelledException(err.message ?? 'Request cancelled'),
       _ => InternalServerErrorException(
           err.message ?? 'Something went wrong',
         ),
