@@ -142,7 +142,8 @@ Future<void> main(List<String> args) async {
 
     // Wait 60 seconds between API calls to avoid rate limiting, except for the last item.
     if (i < entries.length - 1) {
-      await Future.delayed(const Duration(seconds: 60));
+      // for now will avoid delay will add it when its too much and pub.dev fails mostly
+      // await Future.delayed(const Duration(seconds: 30));
     }
   }
 
