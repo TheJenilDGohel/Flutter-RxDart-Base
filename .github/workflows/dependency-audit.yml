@@ -5,6 +5,11 @@ on:
     - cron: '0 18 * * *' # 18:00 UTC = 11:30 PM IST
   workflow_dispatch: # Allow manual trigger
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
 jobs:
   audit:
     runs-on: ubuntu-latest
@@ -21,11 +26,10 @@ jobs:
       - name: Run Dependency Audit
         id: audit
         run: |
-          # The script will output JSON. We capture it and store it in an environment variable or file.
           dart run tool/check_deps.dart --mode=audit > audit_result.json
           cat audit_result.json
 
-      - name: Process Audit Results
+      - name: Process Audit Results (Create Issues for Major)
         uses: actions/github-script@v7
         with:
           script: |
@@ -33,16 +37,8 @@ jobs:
             const data = JSON.parse(fs.readFileSync('audit_result.json', 'utf8'));
             const outdated = data.outdated || [];
             
-            if (outdated.length === 0) {
-              console.log('All dependencies are up to date.');
-              return;
-            }
-            
             const majorUpdates = outdated.filter(p => p.level === 'major');
-            const minorUpdates = outdated.filter(p => p.level === 'minor');
-            const patchUpdates = outdated.filter(p => p.level === 'patch');
             
-            // 1. Create Issue for Major Updates
             if (majorUpdates.length > 0) {
               let issueBody = 'The following major dependency updates are available on pub.dev:\n\n| Package | Current | Latest |\n|---|---|---|\n';
               for (const pkg of majorUpdates) {
@@ -57,11 +53,56 @@ jobs:
                 labels: ['priority:high', 'breaking-change']
               });
             }
+
+      - name: Create PR for Minor and Patch Updates
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Parse JSON with jq to get minor/patch packages
+          MINOR_PATCH=$(jq -c '.outdated[] | select(.level == "minor" or .level == "patch")' audit_result.json)
+          
+          if [ -z "$MINOR_PATCH" ]; then
+            echo "No minor or patch updates found."
+            exit 0
+          fi
+          
+          # Configure Git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          BRANCH_NAME="deps/update-minor-patch-$(date +%s)"
+          git checkout -b "$BRANCH_NAME"
+          
+          PR_BODY="## Dependency Update: Minor & Patch Versions\n\n| Package | Current | Latest | Level | Flagged |\n|---|---|---|---|---|\n"
+          
+          echo "$MINOR_PATCH" | while read -r row; do
+            PKG=$(echo "$row" | jq -r '.package')
+            CURRENT=$(echo "$row" | jq -r '.current')
+            LATEST=$(echo "$row" | jq -r '.latest')
+            LEVEL=$(echo "$row" | jq -r '.level')
+            FLAGGED=$(echo "$row" | jq -r '.hasPotentialBreakingChange')
             
-            // 2. We can handle PR creation via script or subsequent steps. 
-            // For simplicity in a bash/node script combo, you would clone, create a branch, edit pubspec, commit, and push.
-            // But since this is a demonstration of the CI pipeline, we'll log the actions that would be taken.
-            console.log('Minor Updates:', minorUpdates);
-            console.log('Patch Updates:', patchUpdates);
+            FLAG_EMOJI="🟢"
+            if [ "$FLAGGED" == "true" ]; then
+              FLAG_EMOJI="⚠️ Breaking keywords found"
+            fi
             
-            // We can output these to step outputs to be processed by a create-pull-request action if desired.
+            # Use sed to update pubspec.yaml in place
+            # Matches:   package_name: ^x.y.z
+            sed -i -E "s/^([[:space:]]*)$PKG:[[:space:]]*\^?[0-9]+\.[0-9]+\.[0-9]+.*$/\1$PKG: ^$LATEST/" bricks/project/__brick__/pubspec.yaml
+            
+            PR_BODY="$PR_BODY| $PKG | $CURRENT | $LATEST | $LEVEL | $FLAG_EMOJI |\n"
+          done
+          
+          git add bricks/project/__brick__/pubspec.yaml
+          
+          if git diff --staged --quiet; then
+            echo "No changes made to pubspec.yaml"
+            exit 0
+          fi
+          
+          git commit -m "chore(deps): update minor and patch dependencies"
+          git push origin "$BRANCH_NAME"
+          
+          # Create PR using gh CLI (pre-installed on ubuntu-latest)
+          echo -e "$PR_BODY" | gh pr create --title "chore(deps): auto-update minor and patch dependencies" --body-file - --base main --head "$BRANCH_NAME"
