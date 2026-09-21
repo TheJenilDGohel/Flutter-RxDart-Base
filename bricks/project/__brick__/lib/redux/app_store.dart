@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:redux/redux.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+{{#include_secure_storage}}
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+{{/include_secure_storage}}
 import 'package:{{project_name}}/redux/app_state.dart';
 import 'package:{{project_name}}/redux/actions.dart';
 import 'package:{{project_name}}/redux/reducers/app_reducer.dart';
@@ -30,9 +33,17 @@ abstract final class AppStore {
   static Future<Store<AppState>> init() async {
     final prefs = await SharedPreferences.getInstance();
 
+    {{#include_secure_storage}}
+    const secureStorage = FlutterSecureStorage();
+    final token = await secureStorage.read(key: 'auth_token');
+    final userDataJson = await secureStorage.read(key: 'user_data');
+    {{/include_secure_storage}}
+    {{^include_secure_storage}}
     final token = prefs.getString('auth_token');
-    final locale = prefs.getString('locale') ?? 'en';
     final userDataJson = prefs.getString('user_data');
+    {{/include_secure_storage}}
+
+    final locale = prefs.getString('locale') ?? 'en';
 
     Map<String, dynamic>? userData;
     if (userDataJson != null) {

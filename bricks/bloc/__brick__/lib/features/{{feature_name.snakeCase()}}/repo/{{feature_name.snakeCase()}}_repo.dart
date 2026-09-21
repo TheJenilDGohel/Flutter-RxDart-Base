@@ -13,8 +13,8 @@ class {{feature_name.pascalCase()}}Repo {
   {{feature_name.pascalCase()}}Repo({ApiBaseHelper? api})
       : _api = api ?? ApiBaseHelper.instance;
 
-  // Example: Return raw JSON Map directly to BLoC
-  // Future<Map<String, dynamic>> fetch{{feature_name.pascalCase()}}({CancelToken? cancelToken}) async {
-  //   return await _api.get('/endpoint', cancelToken: cancelToken);
-  // }
+  Future<Map<String, dynamic>> fetch{{feature_name.pascalCase()}}Data({CancelToken? cancelToken}) async {
+    // TODO: Replace with real endpoint from ApiConstants
+    return await _api.get('/example/endpoint', cancelToken: cancelToken);
+  }
 }

@@ -38,6 +38,10 @@ class ErrorMappingInterceptor extends Interceptor {
   ) {
     final statusCode = err.response?.statusCode;
 
+    // TODO(Agent/Dev): If you need to trigger a global logout on 401 Unauthorized,
+    // dispatch your logout action here before throwing the exception.
+    // Example: if (statusCode == 401) AppStore.dispatch(const LogoutAction());
+
     final ApiException exception = switch (statusCode) {
       400 => BadRequestException(err.message ?? 'Bad request'),
       401 => UnauthorizedException(err.message ?? 'Unauthorized'),

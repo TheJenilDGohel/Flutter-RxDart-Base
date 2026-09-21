@@ -31,3 +31,9 @@ vars:
     description: Scaffold AI Agent Harness (AGENTS.md, CLAUDE.md, scripts/agent)?
     default: true
     prompt: "Scaffold AI Agent Harness? (Y/n):"
+
+  include_secure_storage:
+    type: boolean
+    description: Scaffold flutter_secure_storage for sensitive session data?
+    default: false
+    prompt: "Use flutter_secure_storage for auth tokens? (y/N):"

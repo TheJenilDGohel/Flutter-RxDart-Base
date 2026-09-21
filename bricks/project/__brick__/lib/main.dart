@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:{{project_name}}/l10n/generated/app_localizations.dart';
@@ -14,6 +15,11 @@ import 'package:{{project_name}}/utils/router/routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables from .env
+  await dotenv.load(fileName: ".env");
+  // Example of injecting variables manually (e.g., merging with Platform.environment):
+  // dotenv.env.addAll({'EXTRA_VAR': 'value'});
 
   // Initialize networking singleton
   ApiBaseHelper.init();
