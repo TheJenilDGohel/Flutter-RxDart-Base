@@ -20,7 +20,8 @@ Future<void> main(List<String> args) async {
     exit(1);
   }
 
-  final pubspecContent = await pubspecFile.readAsString();
+  String pubspecContent = await pubspecFile.readAsString();
+  pubspecContent = pubspecContent.replaceAll(RegExp(r'\{\{.*?\}\}'), '');
   final pubspec = loadYaml(pubspecContent) as YamlMap;
   final dependencies = pubspec['dependencies'] as YamlMap?;
 
