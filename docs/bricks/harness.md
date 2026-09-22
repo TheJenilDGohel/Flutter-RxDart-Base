@@ -57,7 +57,7 @@ needed for CI/CD or AI agents running non-interactively).
   `analysis_options.yaml` (`analyzer.plugins: [custom_lint]`) so Golden Rules
   #1 (repo-transport-only), #3 (zero setState), #4 (zero RxDart outside BLoC)
   are `flutter analyze` errors, not just prose an agent has to remember. See
-  [`packages/redux_rxdart_lints`](../../packages/redux_rxdart_lints/README.md).
+  [`packages/redux_rxdart_lints`](../packages/redux_rxdart_lints.md).
 
 Run `dart pub get` (or `flutter pub get`) after install to fetch the lint
 plugin.
@@ -71,4 +71,4 @@ plugin.
 - No hook compilation or sub-process execution occurs during `mason make`, eliminating Windows path-length (`MAX_PATH`) and directory-scanning issues.
 - Generation completes deterministically in ~50ms across all platforms.
 
-See [`CHANGELOG.md`](CHANGELOG.md) for version history.
+See [`CHANGELOG.md`](https://github.com/TheJenilDGohel/Flutter-RxDart-Base/blob/main/bricks/harness/CHANGELOG.md) for version history.

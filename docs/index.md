@@ -56,7 +56,7 @@ the route constant + `onGenerateRoute` case. Without the harness, run `mason mak
 |-------|---------|---------------------|----------------------|
 | **`project`** | `mason make project` | **Once** per app | Scaffolds Redux store, Dio HTTP/2 engine with 5 interceptors, `ApiExceptionUIExt`, AppRouter, Toast helper (`ShowMessage`), CommonUtils, ResColors, AppTypography, L10n, and Showcase Demo. |
 | **`bloc`** | `mason make bloc` | **Repeatedly** per feature | Generates BLoC, Repo, Model folder, Page, and Content Widget with AI-friendly architecture guidance headers. |
-| **`harness`** | `mason make harness` | **Once** per project (auto-run by `project`) | Scaffolds `AGENTS.md`/`CLAUDE.md`, `scripts/agent/wire_route.dart` + `verify.ps1`/`verify.sh`, and wires the `redux_rxdart_lints` custom_lint plugin. See [`bricks/harness/README.md`](bricks/harness/README.md). |
+| **`harness`** | `mason make harness` | **Once** per project (auto-run by `project`) | Scaffolds `AGENTS.md`/`CLAUDE.md`, `scripts/agent/wire_route.dart` + `verify.ps1`/`verify.sh`, and wires the `redux_rxdart_lints` custom_lint plugin. See [`bricks/harness.md`](bricks/harness.md). |
 
 ---
 
@@ -177,12 +177,12 @@ lib/features/my_feature/
   AGENTS.md-compatible tools. `CLAUDE.md` is a 1-line `@AGENTS.md` transclusion.
 - **`scripts/agent/wire_route.dart`** — one command scaffolds a feature and wires its route.
 - **`scripts/agent/verify.ps1` / `verify.sh`** — deterministic quality gate (format + analyze).
-- **`redux_rxdart_lints`** — a [`custom_lint`](packages/redux_rxdart_lints/README.md) plugin wired
+- **`redux_rxdart_lints`** — a [`custom_lint`](packages/redux_rxdart_lints.md) plugin wired
   into `pubspec.yaml` / `analysis_options.yaml` automatically. Golden Rules #1 (repo-transport-only),
   #3 (zero `setState`), #4 (zero RxDart outside BLoC) become `flutter analyze` **errors**, not just
   prose an agent has to remember.
 
-See [`bricks/harness/README.md`](bricks/harness/README.md) for details.
+See [`bricks/harness.md`](bricks/harness.md) for details.
 
 ---
 
@@ -202,7 +202,7 @@ See [`bricks/harness/README.md`](bricks/harness/README.md) for details.
 ---
 
 ## 🛠️ Maintaining This Workspace
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for versioning, README-sync, and lint-propagation rules.
+See [`CONTRIBUTING.md`](contributing.md) for versioning, README-sync, and lint-propagation rules.
 
 ## 📄 License
-This workspace template is released under the **MIT License**. See [`LICENSE`](LICENSE).
+This workspace template is released under the **MIT License**. See [`LICENSE`](https://github.com/TheJenilDGohel/Flutter-RxDart-Base/blob/main/LICENSE).
