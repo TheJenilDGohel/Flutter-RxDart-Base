@@ -46,7 +46,7 @@ lib/features/{feature_name}/
 
 ## 🔌 Wiring the Route
 
-If the [`harness` brick](../harness/README.md) is installed, skip `mason make bloc` entirely and
+If the [`harness` brick](harness.md) is installed, skip `mason make bloc` entirely and
 run one command instead — it scaffolds the feature (if missing) *and* wires the route:
 
 ```bash
