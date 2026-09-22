@@ -1,0 +1,52 @@
+﻿site_name: Flutter-RxDart-Base
+site_description: A production-grade Mason Workspace for bootstrapping robust Flutter applications using a high-performance Hybrid State Management Architecture.
+site_author: Jenil D Gohel
+repo_name: TheJenilDGohel/Flutter-RxDart-Base
+repo_url: https://github.com/TheJenilDGohel/Flutter-RxDart-Base
+edit_uri: edit/main/
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - tables
+
+nav:
+  - Home: index.md
+  - Architecture Guide: architecture.md
+  - Bricks:
+      - Project: bricks/project.md
+      - BLoC: bricks/bloc.md
+      - Harness: bricks/harness.md
+  - Packages:
+      - Redux RxDart Lints: packages/redux_rxdart_lints.md
+  - Roadmap: roadmap.md
+  - Contributing: contributing.md
