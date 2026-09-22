@@ -31,10 +31,14 @@ needed for CI/CD or AI agents running non-interactively).
   reads `.agents/skills/` (Antigravity, Gemini, and the growing list of
   AGENTS.md-ecosystem tools). Includes golden-rules summary, architecture
   snapshot, planning checklist (neutral-mode-first), and known base gaps.
-  References `AGENTS.md` as the authoritative source. The `post_gen` hook
-  mirrors this into `.cursor/skills/` for Cursor IDE auto-discovery.
-- **`CLAUDE.md`**: Native transclusion of `@AGENTS.md`, `.harness/` context
-  files, and the skill references for Claude Code. Zero duplication.
+  References `AGENTS.md` as the authoritative source. Includes focused
+  reference docs (`api-layer.md`, `redux-vs-rxdart.md`, `ui-conventions.md`)
+  loaded only when needed.
+- **`.agents/agents/flutter-qa.md`**: On-demand QA reviewer agent. Runs once
+  on Sonnet, checks 5 critical areas, and reports findings. Invoked explicitly.
+- **`CLAUDE.md`**: Lean always-loaded project memory (~50 lines) with the
+  state-placement rule, folder map, daily workflow, and hard rules. References
+  `AGENTS.md` for the full golden rules contract.
 - **`scripts/agent/wire_route.dart`**: one command scaffolds a feature (via
   `mason make bloc`, if it doesn't exist yet) *and* wires its route constant +
   `onGenerateRoute` case into `routes.dart` / `app_router.dart`. Detects
@@ -62,7 +66,7 @@ plugin.
 
 ## ⚙️ Generation Architecture
 
-`harness` v1.4.0 is a pure-template brick (zero hooks):
+`harness` v1.4.1 is a pure-template brick (zero hooks):
 - Templates for `.agents/skills/`, `.cursor/skills/`, `.harness/`, `scripts/agent/`, `AGENTS.md`, and `CLAUDE.md` are rendered directly from `__brick__/`.
 - No hook compilation or sub-process execution occurs during `mason make`, eliminating Windows path-length (`MAX_PATH`) and directory-scanning issues.
 - Generation completes deterministically in ~50ms across all platforms.

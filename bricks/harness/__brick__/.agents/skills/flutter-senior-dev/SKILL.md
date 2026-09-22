@@ -71,6 +71,21 @@ Rules 1, 3 and 4 are enforced at analyze time by `redux_rxdart_lints`. Say which
 - When changing a brick, follow `CONTRIBUTING.md`: bump the brick version, update its CHANGELOG, and update READMEs in the same change. A Golden Rule change that can be enforced mechanically must be mirrored in the lint plugin.
 - Keep answers proportionate: short for simple questions, structured documents only when asked for one.
 
+## Quick references (load only the one you need)
+- `references/api-layer.md` — Dio interceptor order, all 8 `ApiException` subtypes and when
+  each fires, `ApiResponse<T>` states, adding a new endpoint.
+- `references/redux-vs-rxdart.md` — the state-placement rule with worked examples.
+- `references/ui-conventions.md` — design tokens, ScreenUtil, l10n, shared state widgets.
+- `references/architecture.md` — full architecture snapshot of the base (as of harness 1.1.0).
+- `references/base-gaps.md` — known gaps for LMS/ERP-style apps.
+- `references/planning-checklist.md` — structured planning template for features and journeys.
+
+## QA review
+For a focused architecture-conformance review of a finished feature, invoke the `flutter-qa`
+agent (`.agents/agents/flutter-qa.md`). It runs once on Sonnet, checks the 5 critical areas
+(state placement, RxDart lifecycle, exceptions, design tokens, `flutter analyze`), and reports
+findings. Don't auto-trigger it after every feature — invoke explicitly when you want a review.
+
 ## Keeping this skill in sync
 
 This skill summarizes `AGENTS.md` and `architecture.md`. When the golden rules, the interceptor chain, the Redux shape or the brick outputs change, update `references/architecture.md` and the rule summary above in the same change, so the skill does not drift from the repo.
