@@ -1,0 +1,1455 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A production-grade Mason Workspace for bootstrapping robust Flutter applications using a high-performance Hybrid State Management Architecture.">
+      
+      
+        <meta name="author" content="Jenil D Gohel">
+      
+      
+      
+      
+        <link rel="next" href="architecture/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Flutter-RxDart-Base</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#flutter-hybrid-architecture-mason-workspace" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="Flutter-RxDart-Base" class="md-header__button md-logo" aria-label="Flutter-RxDart-Base" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Flutter-RxDart-Base
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Home
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/TheJenilDGohel/Flutter-RxDart-Base" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    TheJenilDGohel/Flutter-RxDart-Base
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="Flutter-RxDart-Base" class="md-nav__button md-logo" aria-label="Flutter-RxDart-Base" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Flutter-RxDart-Base
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/TheJenilDGohel/Flutter-RxDart-Base" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    TheJenilDGohel/Flutter-RxDart-Base
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚀 Quick Start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-install-bricks-globally-via-mason-cli-from-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Install Bricks Globally via Mason CLI (from GitHub)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-your-flutter-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Create Your Flutter Project
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-bootstrap-architecture-mason-make-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Bootstrap Architecture (mason make project)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-scaffold-wire-feature-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Scaffold + Wire Feature Modules
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mason-bricks-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧩 Mason Bricks at a Glance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-core-architectural-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🏛️ The Core Architectural Rule
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generated-architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📁 Generated Architecture Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-technical-features-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚡ Key Technical Features &amp; Standards
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚡ Key Technical Features &amp; Standards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-declarative-ui-binding-appresponsebuildert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Declarative UI Binding (AppResponseBuilder&lt;T&gt;)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-form-action-toolkit-commonbutton-apptextformfield" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Form &amp; Action Toolkit (CommonButton &amp; AppTextFormField)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-lifecycle-safe-cancellation-canceltokenowner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Lifecycle-Safe Cancellation (CancelTokenOwner)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-interactive-dialog-shells-appdialog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Interactive Dialog Shells (AppDialog)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-multipart-form-data-ready-apibasehelper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Multipart &amp; Form-Data Ready (ApiBaseHelper)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generated-feature-module-structure-mason-make-bloc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🛠️ Generated Feature Module Structure (mason make bloc)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ai-agent-harness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤖 AI Agent Harness
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📝 Best Practices &amp; Guidelines
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📝 Best Practices &amp; Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ DO
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dont" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ❌ DON'T
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maintaining-this-workspace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🛠️ Maintaining This Workspace
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📄 License
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bricks
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Bricks
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="bricks/project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="bricks/bloc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BLoC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="bricks/harness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Harness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packages
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Packages
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="packages/redux_rxdart_lints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Redux RxDart Lints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚀 Quick Start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🚀 Quick Start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-install-bricks-globally-via-mason-cli-from-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Install Bricks Globally via Mason CLI (from GitHub)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-your-flutter-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Create Your Flutter Project
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-bootstrap-architecture-mason-make-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Bootstrap Architecture (mason make project)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-scaffold-wire-feature-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Scaffold + Wire Feature Modules
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mason-bricks-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🧩 Mason Bricks at a Glance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-core-architectural-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🏛️ The Core Architectural Rule
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generated-architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📁 Generated Architecture Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-technical-features-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚡ Key Technical Features &amp; Standards
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚡ Key Technical Features &amp; Standards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-declarative-ui-binding-appresponsebuildert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Declarative UI Binding (AppResponseBuilder&lt;T&gt;)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-form-action-toolkit-commonbutton-apptextformfield" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Form &amp; Action Toolkit (CommonButton &amp; AppTextFormField)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-lifecycle-safe-cancellation-canceltokenowner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Lifecycle-Safe Cancellation (CancelTokenOwner)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-interactive-dialog-shells-appdialog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Interactive Dialog Shells (AppDialog)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-multipart-form-data-ready-apibasehelper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Multipart &amp; Form-Data Ready (ApiBaseHelper)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generated-feature-module-structure-mason-make-bloc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🛠️ Generated Feature Module Structure (mason make bloc)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ai-agent-harness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤖 AI Agent Harness
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📝 Best Practices &amp; Guidelines
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📝 Best Practices &amp; Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ DO
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dont" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ❌ DON'T
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#maintaining-this-workspace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🛠️ Maintaining This Workspace
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📄 License
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="flutter-hybrid-architecture-mason-workspace">Flutter Hybrid Architecture — Mason Workspace</h1>
+<p><a href="https://flutter.dev"><img alt="Flutter" src="https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter" /></a>
+<a href="https://pub.dev/packages/mason_cli"><img alt="Mason" src="https://img.shields.io/badge/Mason-CLI-blue" /></a>
+<a href="https://pub.dev/packages/redux"><img alt="Redux" src="https://img.shields.io/badge/Redux-Session_Persistence-764ABC?logo=redux" /></a>
+<a href="https://pub.dev/packages/rxdart"><img alt="RxDart" src="https://img.shields.io/badge/RxDart-Ephemeral_BLoC-D60000" /></a>
+<a href="https://pub.dev/packages/dio"><img alt="Dio" src="https://img.shields.io/badge/Dio-HTTP2_Interceptors-0175C2" /></a></p>
+<p>A production-grade <strong>Mason Workspace</strong> for bootstrapping robust Flutter applications using a high-performance <strong>Hybrid State Management Architecture</strong>:</p>
+<ul>
+<li><strong>Redux</strong>: Global, persisted session state (Auth Token, User Profile, Locale).</li>
+<li><strong>RxDart</strong>: Local, per-screen, ephemeral state (Screen BLoCs, API fetches, form controls).</li>
+</ul>
+<p>Three bricks (<code>project</code>, <code>bloc</code>, <code>harness</code>) plus a standalone <code>custom_lint</code> package
+(<code>redux_rxdart_lints</code>) that turns the architecture rules into <code>flutter analyze</code> errors
+instead of prose an agent has to remember.</p>
+<hr />
+<h2 id="quick-start">🚀 Quick Start</h2>
+<h3 id="1-install-bricks-globally-via-mason-cli-from-github">1. Install Bricks Globally via Mason CLI (from GitHub)</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mason<span class="w"> </span>add<span class="w"> </span>-g<span class="w"> </span>project<span class="w"> </span>--git-url<span class="w"> </span>https://github.com/TheJenilDGohel/Flutter-RxDart-Base.git<span class="w"> </span>--git-path<span class="w"> </span>bricks/project
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>mason<span class="w"> </span>add<span class="w"> </span>-g<span class="w"> </span>bloc<span class="w"> </span>--git-url<span class="w"> </span>https://github.com/TheJenilDGohel/Flutter-RxDart-Base.git<span class="w"> </span>--git-path<span class="w"> </span>bricks/bloc
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>mason<span class="w"> </span>add<span class="w"> </span>-g<span class="w"> </span>harness<span class="w"> </span>--git-url<span class="w"> </span>https://github.com/TheJenilDGohel/Flutter-RxDart-Base.git<span class="w"> </span>--git-path<span class="w"> </span>bricks/harness
+</span></code></pre></div>
+<h3 id="2-create-your-flutter-project">2. Create Your Flutter Project</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>flutter<span class="w"> </span>create<span class="w"> </span>my_app
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">cd</span><span class="w"> </span>my_app
+</span></code></pre></div>
+<h3 id="3-bootstrap-architecture-mason-make-project">3. Bootstrap Architecture (<code>mason make project</code>)</h3>
+<p>From inside your new Flutter project directory:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>mason<span class="w"> </span>make<span class="w"> </span>project
+</span></code></pre></div>
+<em>Prompts for <code>project_name</code> (snake_case), <code>android_package_name</code> (com.example.myapp), <code>ios_bundle_id</code>, and <code>include_harness</code> (Y/n, default Y — scaffolds the AI Agent Harness below automatically).</em></p>
+<h3 id="4-scaffold-wire-feature-modules">4. Scaffold + Wire Feature Modules</h3>
+<p>Whenever adding a new screen or feature module, if the harness is installed, one command does it all:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>dart<span class="w"> </span>run<span class="w"> </span>scripts/agent/wire_route.dart<span class="w"> </span>&lt;feature_name&gt;<span class="w"> </span><span class="o">[</span>route_path<span class="o">]</span>
+</span></code></pre></div>
+Auto-runs <code>mason make bloc --feature_name &lt;name&gt;</code> first if the feature doesn't exist, then wires
+the route constant + <code>onGenerateRoute</code> case. Without the harness, run <code>mason make bloc</code> directly
+(prompts for <code>feature_name</code>) and wire the route by hand.</p>
+<hr />
+<h2 id="mason-bricks-at-a-glance">🧩 Mason Bricks at a Glance</h2>
+<table>
+<thead>
+<tr>
+<th>Brick</th>
+<th>Command</th>
+<th>Execution Frequency</th>
+<th>Key Responsibilities</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>project</code></strong></td>
+<td><code>mason make project</code></td>
+<td><strong>Once</strong> per app</td>
+<td>Scaffolds Redux store, Dio HTTP/2 engine with 5 interceptors, <code>ApiExceptionUIExt</code>, AppRouter, Toast helper (<code>ShowMessage</code>), CommonUtils, ResColors, AppTypography, L10n, and Showcase Demo.</td>
+</tr>
+<tr>
+<td><strong><code>bloc</code></strong></td>
+<td><code>mason make bloc</code></td>
+<td><strong>Repeatedly</strong> per feature</td>
+<td>Generates BLoC, Repo, Model folder, Page, and Content Widget with AI-friendly architecture guidance headers.</td>
+</tr>
+<tr>
+<td><strong><code>harness</code></strong></td>
+<td><code>mason make harness</code></td>
+<td><strong>Once</strong> per project (auto-run by <code>project</code>)</td>
+<td>Scaffolds <code>AGENTS.md</code>/<code>CLAUDE.md</code>, <code>scripts/agent/wire_route.dart</code> + <code>verify.ps1</code>/<code>verify.sh</code>, and wires the <code>redux_rxdart_lints</code> custom_lint plugin. See <a href="bricks/harness/README.md"><code>bricks/harness/README.md</code></a>.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="the-core-architectural-rule">🏛️ The Core Architectural Rule</h2>
+<blockquote>
+<p><strong>"Does this data need to survive navigation or a cold app restart?"</strong></p>
+<p>🟢 <strong>YES $\rightarrow$ <code>AppStore</code> (Redux)</strong>
+- Auth JWT / Session Token
+- User Profile Metadata
+- App Locale Preference</p>
+<p>🔵 <strong>NO $\rightarrow$ Feature BLoC (<code>RxDart</code>)</strong>
+- Page API Response States
+- Form Fields &amp; UI Toggles
+- Screen-specific Ephemeral Data</p>
+</blockquote>
+<hr />
+<h2 id="generated-architecture-overview">📁 Generated Architecture Overview</h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>AGENTS.md                                 # Universal AI agent contract (if include_harness)
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>CLAUDE.md                                 # @AGENTS.md transclusion (if include_harness)
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>scripts/agent/                            # wire_route.dart, verify.ps1, verify.sh (if include_harness)
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>lib/
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>├── features/                             # Feature-first modules
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>│   └── showcase/                         # Architecture &amp; UI toolkit showcase page
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>├── l10n/                                 # Localization ARB files (en, hi)
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>├── networking/                           # Network engine layer
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>│   ├── interceptors/                     # 5-step Dio interceptor chain
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>│   │   ├── connectivity_interceptor.dart # 1. ConnectivityInterceptor (offline check)
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>│   │   ├── auth_interceptor.dart         # 2. AuthInterceptor (token injection)
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>│   │   ├── platform_injector_interceptor.dart # 3. PlatformInjectorInterceptor (header/body injection)
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>│   │   │                                 # 4. RetryInterceptor (from dio_smart_retry package)
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>│   │   └── error_mapping_interceptor.dart # 5. ErrorMappingInterceptor (DioException mapping)
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>│   ├── api_base_helper.dart              # Facade with GET/POST/PUT/DELETE &amp; postFormData/putFormData
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>│   ├── api_constants.dart                # Base URL &amp; endpoint registry
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>│   ├── api_exceptions.dart               # Sealed ApiException hierarchy (8 subtypes)
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>│   ├── api_response.dart                 # Sealed ApiResponse&lt;T&gt; with error, retry, and .data accessor
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>│   ├── cancel_token_owner.dart           # CancelTokenOwner mixin for lifecycle request cancellation
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>│   └── dio_client.dart                   # HTTP/2 Dio client configuration with 5-step chain
+</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>├── redux/                                # Global session persistence layer
+</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>│   ├── middleware/                       # Logging &amp; SharedPreferences persistence middleware
+</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>│   ├── reducers/                         # Pure reducer with exhaustive switch matching
+</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>│   ├── actions.dart                      # Sealed AppAction hierarchy
+</span><span id="__span-4-25"><a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>│   ├── app_state.dart                    # Immutable AppState
+</span><span id="__span-4-26"><a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>│   └── app_store.dart                    # Store hydration &amp; token provider for Dio
+</span><span id="__span-4-27"><a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>├── resources/                            # Design tokens
+</span><span id="__span-4-28"><a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>│   ├── app_typography.dart               # Material 3 Type Scale with ScreenUtil .sp
+</span><span id="__span-4-29"><a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>│   └── res_colors.dart                   # Clean 23-token color palette (with disabled &amp; card tokens)
+</span><span id="__span-4-30"><a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>├── services/                             # Background &amp; device stubs
+</span><span id="__span-4-31"><a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a>│   ├── device_info_service.dart          # Device info plugin stub
+</span><span id="__span-4-32"><a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a>│   └── notification_service.dart        # Push &amp; local notification stub
+</span><span id="__span-4-33"><a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a>├── utils/                                # Universal utilities &amp; routing
+</span><span id="__span-4-34"><a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a>│   ├── extensions/                       # error.userMessage, context.l10n, context.textTheme
+</span><span id="__span-4-35"><a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a>│   ├── router/                           # AppRouter, Routes registry, navigatorKey
+</span><span id="__span-4-36"><a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a>│   ├── widgets/                          # Design system &amp; interactive components
+</span><span id="__span-4-37"><a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a>│   │   ├── app_scaffold.dart             # Standard scaffold with AppBar &amp; background
+</span><span id="__span-4-38"><a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a>│   │   └── ui/                           # Reusable UI component library
+</span><span id="__span-4-39"><a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a>│   │       ├── ui_components.dart        # Barrel export for clean imports
+</span><span id="__span-4-40"><a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a>│   │       ├── app_response_builder.dart # Declarative ApiResponse stream builder
+</span><span id="__span-4-41"><a id="__codelineno-4-41" name="__codelineno-4-41" href="#__codelineno-4-41"></a>│   │       ├── common_button.dart        # Production button with built-in loading spinner
+</span><span id="__span-4-42"><a id="__codelineno-4-42" name="__codelineno-4-42" href="#__codelineno-4-42"></a>│   │       ├── app_textformfield.dart    # Styled input with password visibility eye toggle
+</span><span id="__span-4-43"><a id="__codelineno-4-43" name="__codelineno-4-43" href="#__codelineno-4-43"></a>│   │       ├── app_dialog.dart           # Confirmation, status, &amp; async confirm dialogs
+</span><span id="__span-4-44"><a id="__codelineno-4-44" name="__codelineno-4-44" href="#__codelineno-4-44"></a>│   │       ├── app_card.dart             # Styled card container
+</span><span id="__span-4-45"><a id="__codelineno-4-45" name="__codelineno-4-45" href="#__codelineno-4-45"></a>│   │       ├── app_empty_state.dart      # Empty state placeholder
+</span><span id="__span-4-46"><a id="__codelineno-4-46" name="__codelineno-4-46" href="#__codelineno-4-46"></a>│   │       ├── app_error_state.dart      # Error state with retry button
+</span><span id="__span-4-47"><a id="__codelineno-4-47" name="__codelineno-4-47" href="#__codelineno-4-47"></a>│   │       └── app_loading_state.dart    # Centered loading spinner
+</span><span id="__span-4-48"><a id="__codelineno-4-48" name="__codelineno-4-48" href="#__codelineno-4-48"></a>│   ├── common_utils.dart                 # hideKeyboard, launcher recipes, showCommonDialog
+</span><span id="__span-4-49"><a id="__codelineno-4-49" name="__codelineno-4-49" href="#__codelineno-4-49"></a>│   └── show_message.dart                 # ShowMessage.success / error / info / warning toasts
+</span><span id="__span-4-50"><a id="__codelineno-4-50" name="__codelineno-4-50" href="#__codelineno-4-50"></a>└── main.dart                             # Entry point: Store hydration, AppRouter, ScreenUtil, OverlaySupport
+</span></code></pre></div>
+<hr />
+<h2 id="key-technical-features-standards">⚡ Key Technical Features &amp; Standards</h2>
+<h3 id="1-declarative-ui-binding-appresponsebuildert">1. Declarative UI Binding (<code>AppResponseBuilder&lt;T&gt;</code>)</h3>
+<ul>
+<li>Eliminates 30–50 lines of boilerplate <code>StreamBuilder</code> + <code>switch</code> per screen by declaratively handling <code>loadingWidget</code>, <code>AppErrorState</code> with retry callback, and typed <code>builder(context, data)</code>.</li>
+</ul>
+<h3 id="2-form-action-toolkit-commonbutton-apptextformfield">2. Form &amp; Action Toolkit (<code>CommonButton</code> &amp; <code>AppTextFormField</code>)</h3>
+<ul>
+<li><strong><code>CommonButton</code></strong>: Handles loading state out of the box (disables taps and shows spinner), prefix/suffix icons, and custom styling.</li>
+<li><strong><code>AppTextFormField</code></strong>: Form input with labels, hints, prefixes/suffixes, built-in password visibility toggle (<code>obscureText</code>), and ScreenUtil responsive scaling.</li>
+</ul>
+<h3 id="3-lifecycle-safe-cancellation-canceltokenowner">3. Lifecycle-Safe Cancellation (<code>CancelTokenOwner</code>)</h3>
+<ul>
+<li>BLoCs mix in <code>CancelTokenOwner</code> to manage Dio <code>CancelToken</code>s. Pending network calls automatically abort on screen <code>dispose()</code> or pull-to-refresh without memory leaks.</li>
+</ul>
+<h3 id="4-interactive-dialog-shells-appdialog">4. Interactive Dialog Shells (<code>AppDialog</code>)</h3>
+<ul>
+<li>Static helpers <code>AppDialog.showConfirmation</code>, <code>AppDialog.showStatus</code>, and <code>AppDialog.showAsyncConfirm</code> (keeps dialog open with spinner during async mutation).</li>
+</ul>
+<h3 id="5-multipart-form-data-ready-apibasehelper">5. Multipart &amp; Form-Data Ready (<code>ApiBaseHelper</code>)</h3>
+<ul>
+<li>Built-in <code>postFormData</code> and <code>putFormData</code> with <code>FormData.fromMap</code> and <code>onSendProgress</code> progress callbacks.</li>
+</ul>
+<hr />
+<h2 id="generated-feature-module-structure-mason-make-bloc">🛠️ Generated Feature Module Structure (<code>mason make bloc</code>)</h2>
+<p>Running <code>mason make bloc</code> creates a self-contained feature folder under <code>lib/features/</code>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>lib/features/my_feature/
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>├── bloc/my_feature_bloc.dart          # Clean BLoC with CancelTokenOwner &amp; $ stream convention
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>├── model/                             # Empty model folder for feature response models
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>├── repo/my_feature_repo.dart          # Constructor-injectable repository (with CancelToken support)
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>├── widgets/my_feature_content_widget.dart # Decoupled UI content widget
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>└── my_feature_page.dart               # Clean StatefulWidget with AppScaffold &amp; ui_components
+</span></code></pre></div>
+<hr />
+<h2 id="ai-agent-harness">🤖 AI Agent Harness</h2>
+<p><code>mason make harness</code> (auto-run by <code>project</code> unless <code>include_harness: false</code>) scaffolds:</p>
+<ul>
+<li><strong><code>AGENTS.md</code></strong> — the architecture contract: golden rules, backend API discovery, deterministic
+  commands, git policy. Read natively by Claude Code, Cursor, Copilot, Codex, and 20+ other
+  AGENTS.md-compatible tools. <code>CLAUDE.md</code> is a 1-line <code>@AGENTS.md</code> transclusion.</li>
+<li><strong><code>scripts/agent/wire_route.dart</code></strong> — one command scaffolds a feature and wires its route.</li>
+<li><strong><code>scripts/agent/verify.ps1</code> / <code>verify.sh</code></strong> — deterministic quality gate (format + analyze).</li>
+<li><strong><code>redux_rxdart_lints</code></strong> — a <a href="packages/redux_rxdart_lints/README.md"><code>custom_lint</code></a> plugin wired
+  into <code>pubspec.yaml</code> / <code>analysis_options.yaml</code> automatically. Golden Rules #1 (repo-transport-only),
+  #3 (zero <code>setState</code>), #4 (zero RxDart outside BLoC) become <code>flutter analyze</code> <strong>errors</strong>, not just
+  prose an agent has to remember.</li>
+</ul>
+<p>See <a href="bricks/harness/README.md"><code>bricks/harness/README.md</code></a> for details.</p>
+<hr />
+<h2 id="best-practices-guidelines">📝 Best Practices &amp; Guidelines</h2>
+<h3 id="do">✅ DO</h3>
+<ul>
+<li>Use <code>mason make project</code> once on a freshly created Flutter app.</li>
+<li>Use <code>mason make bloc</code> for every new screen or module (or <code>dart run scripts/agent/wire_route.dart &lt;name&gt;</code> if the harness is installed — scaffolds + wires the route in one step).</li>
+<li>Use <code>exception.userFacingMessage</code> for clean error formatting.</li>
+<li>Access localizations via <code>context.l10n</code> and themes via <code>context.textTheme</code>.</li>
+</ul>
+<h3 id="dont">❌ DON'T</h3>
+<ul>
+<li>Do <strong>NOT</strong> add screen-specific UI state to Redux.</li>
+<li>Do <strong>NOT</strong> call <code>flutter create</code> inside Mason hooks.</li>
+<li>Do <strong>NOT</strong> use hardcoded pixel sizes — use ScreenUtil <code>.w</code>, <code>.h</code>, <code>.r</code>, <code>.sp</code>.</li>
+</ul>
+<hr />
+<h2 id="maintaining-this-workspace">🛠️ Maintaining This Workspace</h2>
+<p>See <a href="CONTRIBUTING.md"><code>CONTRIBUTING.md</code></a> for versioning, README-sync, and lint-propagation rules.</p>
+<h2 id="license">📄 License</h2>
+<p>This workspace template is released under the <strong>MIT License</strong>. See <a href="LICENSE"><code>LICENSE</code></a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.sections", "navigation.top", "navigation.tracking", "search.suggest", "search.highlight", "search.share", "content.code.copy"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

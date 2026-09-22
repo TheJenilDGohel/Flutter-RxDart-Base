@@ -1,0 +1,1180 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A production-grade Mason Workspace for bootstrapping robust Flutter applications using a high-performance Hybrid State Management Architecture.">
+      
+      
+        <meta name="author" content="Jenil D Gohel">
+      
+      
+      
+        <link rel="prev" href="../packages/redux_rxdart_lints/">
+      
+      
+        <link rel="next" href="../contributing/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Roadmap - Flutter-RxDart-Base</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#improvement-roadmap" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Flutter-RxDart-Base" class="md-header__button md-logo" aria-label="Flutter-RxDart-Base" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Flutter-RxDart-Base
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Roadmap
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/TheJenilDGohel/Flutter-RxDart-Base" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    TheJenilDGohel/Flutter-RxDart-Base
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Flutter-RxDart-Base" class="md-nav__button md-logo" aria-label="Flutter-RxDart-Base" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Flutter-RxDart-Base
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/TheJenilDGohel/Flutter-RxDart-Base" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    TheJenilDGohel/Flutter-RxDart-Base
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bricks
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Bricks
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bricks/project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bricks/bloc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BLoC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bricks/harness/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Harness
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packages
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Packages
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../packages/redux_rxdart_lints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Redux RxDart Lints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-findings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Findings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Findings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#p0-false-claims-and-broken-guarantees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0: false claims and broken guarantees
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p1-drift-hygiene-developer-experience" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P1: drift, hygiene, developer experience
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-decisions-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Decisions needed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-0-baseline-size-s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 0: Baseline (size S)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-template-correctness-m-workstream-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Template correctness (M, workstream A)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-make-enforcement-real-m-workstream-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Make enforcement real (M, workstream C)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-ci-m-workstream-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: CI (M, workstream C)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-base-dx-upgrades-l-workstream-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Base DX upgrades (L, workstream A)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5-harness-diet-m-workstream-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: Harness diet (M, workstream B)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-6-release-hygiene-s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6: Release hygiene (S)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-findings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Findings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Findings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#p0-false-claims-and-broken-guarantees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0: false claims and broken guarantees
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p1-drift-hygiene-developer-experience" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P1: drift, hygiene, developer experience
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-decisions-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Decisions needed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-0-baseline-size-s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 0: Baseline (size S)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-template-correctness-m-workstream-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Template correctness (M, workstream A)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-make-enforcement-real-m-workstream-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Make enforcement real (M, workstream C)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-ci-m-workstream-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: CI (M, workstream C)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-base-dx-upgrades-l-workstream-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Base DX upgrades (L, workstream A)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5-harness-diet-m-workstream-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: Harness diet (M, workstream B)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-6-release-hygiene-s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6: Release hygiene (S)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="improvement-roadmap">Improvement Roadmap</h1>
+<p>Status: <strong>proposal, nothing implemented.</strong> Produced from a read-only review of the repository on 2026-09-21.</p>
+<p>Paths below are relative to <code>bricks/project/__brick__/</code> unless stated otherwise. Items marked <strong>[confirm]</strong> were found by reading code and must be proven or disproven by the Phase 0 smoke test before any fix is written.</p>
+<h2 id="1-summary">1. Summary</h2>
+<p>The core design is sound: sealed <code>ApiException</code> / <code>ApiResponse</code>, per-screen BLoC with <code>CancelTokenOwner</code>, disciplined brick versioning, and an honest <code>base-gaps.md</code>. The weak spot is that the repository claims guarantees it no longer delivers, and nothing tests the bricks end to end, so drift keeps getting in.</p>
+<h2 id="2-findings">2. Findings</h2>
+<h3 id="p0-false-claims-and-broken-guarantees">P0: false claims and broken guarantees</h3>
+<ol>
+<li><strong>The lint plugin is orphaned.</strong></li>
+<li>Harness 1.4.x removed the hooks that patched <code>pubspec.yaml</code> and <code>analysis_options.yaml</code>. No template now contains <code>custom_lint</code> or <code>redux_rxdart_lints</code>.</li>
+<li><code>bricks/harness/__brick__/AGENTS.md:59</code>, <code>bricks/harness/README.md:52-57</code> and the skill's <code>SKILL.md</code> still say Rules 1, 3 and 4 are analyzer-enforced.</li>
+<li>Even when wired, <code>custom_lint</code> results normally come from <code>dart run custom_lint</code>, not <code>flutter analyze</code> <strong>[confirm]</strong>.</li>
+<li>~~<strong>The base breaks its own Rule 3 (zero <code>setState</code>).</strong> <code>setState</code> is called in <code>lib/features/showcase/showcase_home_page.dart:204</code>, <code>lib/utils/widgets/ui/app_dialog.dart:185</code> and <code>lib/utils/widgets/ui/app_textformfield.dart:84</code>.~~ <em>(Fixed: Migrated to RxDart BLoC pattern with BehaviorSubjects)</em></li>
+<li><strong>Freshly generated <code>bloc</code> output probably fails the quality gate [confirm].</strong></li>
+<li>The BLoC template has unused imports (<code>api_exceptions</code>, <code>api_response</code>) and an unused <code>_repo</code> field; the page template has an unused <code>_bloc</code> field.</li>
+<li><code>bricks/bloc/README.md</code> says the page uses <code>AppScaffold</code>; it uses plain <code>Scaffold</code>.</li>
+<li><code>lib/redux/middleware/persistence_middleware.dart</code> calls <code>_syncToPrefs(...)</code> unawaited while <code>unawaited_futures</code> is enabled in <code>analysis_options.yaml</code>.</li>
+<li><code>verify</code> runs <code>flutter analyze --fatal-infos</code>.</li>
+<li><strong>A cancelled request surfaces as an error.</strong> <code>lib/networking/interceptors/error_mapping_interceptor.dart</code> maps <code>DioExceptionType.cancel</code> to <code>InternalServerErrorException</code>, and <code>ApiBaseHelper._extractException</code> does the same. Golden Rule 8 (<code>createNewToken()</code> on refetch) cancels the previous call, so the BLoC can emit a stale error for a superseded request.</li>
+<li><strong>Non-object bodies escape as <code>TypeError</code>.</strong> <code>response.data as Map&lt;String, dynamic&gt;</code> in <code>lib/networking/api_base_helper.dart</code> throws a raw <code>TypeError</code> for a list body or an empty 204, which no BLoC catches as <code>ApiException</code>. <code>base-gaps.md</code> documents the list case but no code handles it.</li>
+<li>~~<strong><code>ApiResponse</code> subtype names collide.</strong> <code>Error&lt;T&gt;</code> in <code>lib/networking/api_response.dart</code> shadows <code>dart:core</code> <code>Error</code> in every file that imports it. <code>Initial</code>, <code>Loading</code> and <code>Completed</code> are similarly generic.~~ <em>(Fixed: Renamed to <code>ErrorResponse</code>, <code>InitialResponse</code>, <code>LoadingResponse</code>, <code>SuccessResponse</code>)</em></li>
+<li>~~<strong><code>AppStore</code> cannot be re-initialised.</strong> <code>static late final Store&lt;AppState&gt; _store</code> throws on a second <code>init()</code> (tests, hot restart), and <code>AuthInterceptor</code> depends on that global so it cannot be unit tested.~~ <em>(Fixed: Removed <code>final</code> keyword)</em></li>
+<li>~~<strong>The SDK constraint is hard-pinned.</strong> <code>pubspec.yaml</code> sets <code>sdk: ^3.12.2</code>, overwriting what <code>flutter create</code> wrote. Teams on an older Flutter cannot run <code>pub get</code>.~~ <em>(Fixed: Relaxed to <code>&gt;=3.0.0 &lt;4.0.0</code>)</em></li>
+</ol>
+<h3 id="p1-drift-hygiene-developer-experience">P1: drift, hygiene, developer experience</h3>
+<ul>
+<li><strong>Doc drift.</strong></li>
+<li>~~<code>AGENTS.md:6</code> names <code>CurlLoggerInterceptor</code>, which does not exist.~~ <em>(Fixed)</em></li>
+<li>~~<code>AGENTS.md:15</code> says <code>ApiResponseBuilder</code>; the class is <code>AppResponseBuilder</code>.~~ <em>(Fixed)</em></li>
+<li>~~<code>AGENTS.md:20</code> and <code>SKILL.md</code> point to <code>utils/widgets/common/</code>; the folder is <code>ui/</code>.~~ <em>(Fixed)</em></li>
+<li><code>bricks/harness/README.md:35</code> says a <code>post_gen</code> hook mirrors <code>.cursor/</code> (there are no hooks now); line 66 says v1.4.0 while the brick is 1.4.1.</li>
+<li><code>SKILL.md</code> references <code>references/architecture.md</code>, which was flattened away.</li>
+<li><code>bricks/project/README.md</code> says <code>lib/screens/</code>; it is <code>lib/features/</code>.</li>
+<li><code>bricks/bloc/README.md</code> lists a <code>project_name</code> var and a <code>pre_gen</code> hook, but <code>project_name</code> is not declared in <code>bricks/bloc/brick.yaml</code>.</li>
+<li>Root <code>architecture.md</code> has a broken code fence (<code>1. ... Data</code>) and differs from the skill's copy.</li>
+<li><code>CONTRIBUTING.md</code> says <code>project</code> has no CHANGELOG; it does.</li>
+<li><code>bricks/harness/__brick__/.harness/active-context.md</code> has corrupted encoding.</li>
+<li>~~<strong>No tests and no CI.</strong> There is no <code>.github/</code>.~~ <em>(Fixed: Added Nightly Dependency Audit &amp; PR Gate to <code>.github/workflows/</code>)</em> Nothing tests the bricks, the hooks, <code>wire_route.dart</code> or the lint package (no <code>test/</code>). The history contains a hooks-then-no-hooks flip-flop driven by a Windows-only path problem that a CI matrix would have caught. The <code>CONTRIBUTING.md</code> rules (version bump, README sync) are enforced only by memory.</li>
+<li><strong>Duplicated skill and heavy context.</strong></li>
+<li>The <code>.agents/</code> and <code>.cursor/</code> skill copies are byte-identical (4 files each), and <code>AGENTS.md</code> and <code>SKILL.md</code> both list the 12 rules.</li>
+<li><code>CLAUDE.md</code> <code>@</code>-imports about 24 KB (roughly 6K tokens) into every Claude Code session, which defeats on-demand skill loading.</li>
+<li>Claude Code discovers project skills under <code>.claude/skills/</code>, not <code>.agents/</code> <strong>[confirm]</strong>.</li>
+<li><strong><code>snapshot.dart</code> and <code>verify</code>.</strong> The snapshot embeds a timestamp (dirties git on every run) and re-runs a full <code>flutter analyze</code> right after <code>verify</code> already ran one. The gate never runs <code>flutter test</code>. <code>verify.sh</code> step counters read <code>[1/2]</code>, <code>[2/3]</code>, <code>[3/3]</code>.</li>
+<li><strong><code>wire_route.dart</code>.</strong> It writes the route constant before checking that the router file exists, so a failure leaves a half-wired repo with no rollback. It selects the router file by fuzzy filename. <code>bloc</code> does not validate <code>feature_name</code>.</li>
+<li><strong><code>bricks/project/hooks/post_gen.dart</code>.</strong> It ignores the exit code of <code>change_app_package_name</code>, calls <code>exit(1)</code> after mason has already written files, silently swallows a missing global <code>harness</code> brick, and leaves <code>change_app_package_name</code> as a permanent dev dependency after its one-shot use.</li>
+<li><strong>Hardcoded English despite l10n.</strong> <code>lib/utils/extensions/exception_ext.dart</code> messages, the <code>'Retry'</code> label in <code>app_error_state.dart</code> and the <code>'Error'</code> title in <code>app_response_builder.dart</code>. A Hindi user sees English errors.</li>
+<li><strong>Missing pieces.</strong> No 401 → <code>LogoutAction</code> path; no 403/422/429 mapping; <code>ApiConstants.baseUrl</code> is a <code>const</code> with no env or flavor support; retry policy for POST/PUT is unverified <strong>[confirm]</strong>; <code>bloc</code> generates no test and <code>model/</code> is empty.</li>
+<li><strong>Repeated boilerplate.</strong> Rules 8 and 12 (fetch, cancel, <code>isClosed</code> guard, defensive JSON) are hand-copied into every BLoC.</li>
+<li><strong>No contributor entry point at the repo root.</strong> The last commit removed <code>.agents</code> and <code>.cursor</code> from the root, so nothing points agents or maintainers at <code>CONTRIBUTING.md</code> or a smoke-test command.</li>
+</ul>
+<h2 id="3-decisions-needed">3. Decisions needed</h2>
+<ol>
+<li><strong>Enforcement route.</strong> Wire <code>custom_lint</code> into the project template (recommended, fastest), migrate to Dart's native analyzer plugin API later, or drop the "analyzer-enforced" claim.</li>
+<li><strong>Rule 3 scope.</strong> Exempt <code>utils/widgets/ui/</code> primitives (recommended) or rewrite them with <code>ValueNotifier</code>.</li>
+<li><strong>Skill layout.</strong> One canonical <code>.agents/</code> copy plus <code>.claude/skills/</code>, and drop the <code>.cursor/</code> mirror (recommended); or keep the mirrors with a CI byte-diff check.</li>
+<li><strong>Secure storage.</strong> Default on, or an opt-in <code>include_secure_storage</code> flag (recommend opt-in).</li>
+<li><strong>Redux.</strong> Three fields and four actions is the thinnest justification in the stack. Recommendation: keep it as the project's identity, but do not extend it.</li>
+</ol>
+<h2 id="4-plan">4. Plan</h2>
+<p>Workstreams own disjoint files so they can run as parallel agents in separate worktrees. Every phase after 0 is gated by the Phase 0 smoke test.</p>
+<ul>
+<li><strong>A</strong>: templates (<code>bricks/project</code>, <code>bricks/bloc</code>)</li>
+<li><strong>B</strong>: harness and docs (<code>bricks/harness</code>, root docs)</li>
+<li><strong>C</strong>: enforcement and CI (<code>packages/redux_rxdart_lints</code>, <code>.github/</code>, <code>tool/</code>)</li>
+</ul>
+<p>Dependencies: 0 → 1 → (2, 3 in parallel) → 4 → 5 → 6.</p>
+<h3 id="phase-0-baseline-size-s">Phase 0: Baseline (size S)</h3>
+<p>Add <code>tool/smoke.dart</code> (or <code>.sh</code> / <code>.ps1</code>) that runs: <code>flutter create</code> in a temp directory → <code>mason make project</code> (non-interactive, overwrite conflicts) → <code>flutter analyze --fatal-infos</code> → <code>flutter test</code> → <code>mason make bloc</code> → <code>wire_route</code> → analyze again.</p>
+<p>Acceptance: runs on Windows and Linux; its output is the confirmed defect list and resolves every <strong>[confirm]</strong> above.</p>
+<h3 id="phase-1-template-correctness-m-workstream-a">Phase 1: Template correctness (M, workstream A)</h3>
+<p>Fix P0 items 3-8: clean generated code, a <code>RequestCancelledException</code>, a list and empty-body path in <code>ApiBaseHelper</code>, renamed <code>ApiResponse</code> subtypes, re-initialisable <code>AppStore</code>, a relaxed SDK constraint, and l10n for error strings.</p>
+<p>Acceptance: smoke test passes with zero analyzer issues; <code>project</code> bumped to 1.2.0 and <code>bloc</code> to 1.1.0 with CHANGELOG entries.</p>
+<h3 id="phase-2-make-enforcement-real-m-workstream-c">Phase 2: Make enforcement real (M, workstream C)</h3>
+<p>Depends on Decision 1.</p>
+<ul>
+<li>Wire <code>custom_lint</code> and the <code>redux_rxdart_lints</code> git dependency through mustache sections (<code>{{#include_harness}}...{{/include_harness}}</code>) in the project template's <code>pubspec.yaml</code> and <code>analysis_options.yaml</code>, with no hook.</li>
+<li>Add <code>dart run custom_lint</code> to <code>verify</code>.</li>
+<li>Add tests to the lint package.</li>
+<li>Reconcile Rule 3 with the UI kit (Decision 2).</li>
+<li>Check that the pinned <code>analyzer ^7.0.0</code> resolves against SDK 3.12.</li>
+</ul>
+<p>Acceptance: a deliberate <code>setState</code> in a generated feature page fails <code>verify</code>.</p>
+<h3 id="phase-3-ci-m-workstream-c">Phase 3: CI (M, workstream C)</h3>
+<ul>
+<li>GitHub Actions matrix on ubuntu, windows and macos running the smoke test, the lint package tests, and <code>dart format</code> / <code>dart analyze</code> per package.</li>
+<li>A check that fails when <code>__brick__</code> or hooks change without a <code>brick.yaml</code> version bump and CHANGELOG entry.</li>
+<li>A docs check that class names and paths cited in <code>AGENTS.md</code>, <code>SKILL.md</code> and the READMEs exist.</li>
+</ul>
+<p>Acceptance: a PR that changes a template without a version bump fails.</p>
+<h3 id="phase-4-base-dx-upgrades-l-workstream-a">Phase 4: Base DX upgrades (L, workstream A)</h3>
+<p>Depends on Phase 1.</p>
+<ul>
+<li>A <code>BaseBloc</code> helper or <code>runFetch(subject, () =&gt; repo...)</code> covering loading, the <code>isClosed</code> guard, cancel and <code>userMessage</code>.</li>
+<li>JSON parsing helpers for Rule 12.</li>
+<li><code>bloc</code> template with an example model, an example fetch and a generated test.</li>
+<li>Env config via <code>--dart-define</code>.</li>
+<li>A 401 → logout hook.</li>
+<li>An opt-in <code>include_secure_storage</code> flag.</li>
+</ul>
+<p>Acceptance: a generated feature needs no hand-written cancel or guard code; <code>project</code> bumped to 1.3.0.</p>
+<h3 id="phase-5-harness-diet-m-workstream-b">Phase 5: Harness diet (M, workstream B)</h3>
+<p>Depends on Decision 3.</p>
+<ul>
+<li>One skill source plus <code>.claude/skills/</code>.</li>
+<li><code>CLAUDE.md</code> imports only <code>AGENTS.md</code> and <code>active-context.md</code>.</li>
+<li>Deterministic snapshot (no timestamp, no second analyze), gitignored or regenerated.</li>
+<li><code>flutter test</code> added to <code>verify</code>; fix <code>verify.sh</code> numbering.</li>
+<li>Atomic <code>wire_route</code> with rollback and input validation.</li>
+<li>Fix the encoding corruption and the doc drift listed above.</li>
+</ul>
+<p>Acceptance: session-start context from the harness is at most about a quarter of today's ~6K tokens; <code>verify</code> leaves git clean; <code>harness</code> bumped to 1.5.0.</p>
+<h3 id="phase-6-release-hygiene-s">Phase 6: Release hygiene (S)</h3>
+<p>Sync all READMEs (<code>CONTRIBUTING.md</code> rule 2), refresh the root README table, correct <code>CONTRIBUTING.md</code>, and add a short root <code>AGENTS.md</code> pointing to <code>CONTRIBUTING.md</code> and the smoke command.</p>
+<p>Acceptance: the docs check from Phase 3 passes with no exceptions.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "navigation.tracking", "search.suggest", "search.highlight", "search.share", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
