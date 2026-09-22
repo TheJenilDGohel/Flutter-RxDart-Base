@@ -31,20 +31,71 @@ Future<void> run(HookContext context) async {
     exit(1);
   }
 
-  // 2. Package rename execution
-  await Process.run(
+  // 2. Generate localization files
+  final l10nResult = await Process.run(
+    'flutter',
+    ['gen-l10n'],
+    runInShell: true,
+  );
+
+  if (l10nResult.exitCode != 0) {
+    progress.fail();
+    context.logger.err('flutter gen-l10n failed:\n${l10nResult.stderr}');
+    exit(1);
+  }
+
+  // 3. Package rename execution
+  final renameResult = await Process.run(
     'dart',
     ['run', 'change_app_package_name:main', androidPackageName],
     runInShell: true,
   );
 
-  progress.complete('Dependencies configured & package renamed in seconds!');
+  if (renameResult.exitCode != 0) {
+    progress.fail();
+    context.logger.err('change_app_package_name failed:\n${renameResult.stderr}');
+    exit(1);
+  }
+
+  // 4. Remove one-shot package rename dependency
+  await Process.run(
+    'flutter',
+    ['pub', 'remove', 'change_app_package_name'],
+    runInShell: true,
+  );
+
+  progress.complete('Dependencies configured, localizations generated & package renamed!');
 
   if (iosBundleId != androidPackageName) {
     context.logger.info(
       'iOS bundle ID ($iosBundleId) differs from Android package name. '
       'You may need to update ios/Runner.xcodeproj/project.pbxproj if needed.',
     );
+  }
+
+  // 4. Optionally scaffold AI Agent Harness
+  final includeHarness = context.vars['include_harness'] as bool? ?? true;
+  if (includeHarness) {
+    final harnessProgress =
+        context.logger.progress('Scaffolding AI Agent Harness');
+    final harnessResult = await Process.run(
+      'mason',
+      [
+        'make',
+        'harness',
+        '--project_name',
+        context.vars['project_name'] as String,
+      ],
+      runInShell: true,
+    );
+
+    if (harnessResult.exitCode == 0) {
+      harnessProgress.complete('AI Agent Harness installed.');
+    } else {
+      harnessProgress.fail(
+        'Note: AI Agent Harness failed to scaffold. You can install it anytime via `mason make harness`.',
+      );
+    }
   }
 
   context.logger.success('\n🎉 Project bootstrap complete!');

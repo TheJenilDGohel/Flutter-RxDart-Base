@@ -10,5 +10,25 @@
   },
   "@toggleLocale": {
     "description": "Label for the locale toggle button"
+  },
+  "errorTitle": "Error",
+  "retryButton": "Retry",
+  "errorNoInternet": "Check your connection and try again.",
+  "errorUnauthorized": "Your session expired. Please sign in again.",
+  "errorGeneric": "Something went wrong. Please try again.",
+  "@errorTitle": {
+    "description": "Default title for error dialogs and states"
+  },
+  "@retryButton": {
+    "description": "Label for the retry action button"
+  },
+  "@errorNoInternet": {
+    "description": "Error message when device has no connectivity"
+  },
+  "@errorUnauthorized": {
+    "description": "Error message when authentication token is invalid or expired"
+  },
+  "@errorGeneric": {
+    "description": "Fallback error message for unexpected failures"
   }
 }

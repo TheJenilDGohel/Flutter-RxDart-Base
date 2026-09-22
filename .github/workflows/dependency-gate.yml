@@ -1,0 +1,54 @@
+name: Dependency Gate (PR Advisory)
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'bricks/project/__brick__/pubspec.yaml'
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  check-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install Tool Dependencies
+        run: cd tool && dart pub get
+
+      - name: Run Dependency Gate
+        id: gate
+        run: |
+          # This script will exit 0 in both success and "failure" cases because it is advisory only.
+          # It prints the markdown table to stdout.
+          dart run tool/check_deps.dart --mode=gate > advisory.md
+
+      - name: Post PR Comment
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const fs = require('fs');
+            const advisory = fs.readFileSync('advisory.md', 'utf8');
+            console.log("Advisory content length:", advisory.length);
+            console.log("Advisory content preview:", advisory.substring(0, 100));
+            
+            if (advisory.includes('⚠️')) {
+              console.log("Found warning emoji, posting comment to PR...");
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: advisory
+              });
+            } else {
+              console.log("No warning emoji found in the advisory.");
+            }

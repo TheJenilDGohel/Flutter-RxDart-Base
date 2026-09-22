@@ -1,0 +1,12 @@
+name: tool
+description: Internal CLI tools for the repository.
+publish_to: 'none'
+version: 1.0.0
+
+environment:
+  sdk: ^3.1.0
+
+dependencies:
+  yaml: ^3.1.2
+  http: ^1.2.1
+  pub_semver: ^2.1.4

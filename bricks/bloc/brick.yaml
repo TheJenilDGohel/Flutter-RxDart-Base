@@ -1,7 +1,7 @@
 name: bloc
 description: >-
-  Generates a feature folder with BLoC (RxDart), repository (injectable),
-  response model, content widget, and page (exhaustive switch on sealed ApiResponse).
+  Generates a feature folder under lib/features/ with BLoC (RxDart), repository (injectable),
+  response model, content widget, and page.
   Run once per feature/screen.
 version: 1.0.0
 

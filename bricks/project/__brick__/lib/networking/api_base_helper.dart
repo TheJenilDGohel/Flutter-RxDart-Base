@@ -38,17 +38,26 @@ class ApiBaseHelper {
     );
   }
 
+  /// Parses the raw response body safely.
+  Map<String, dynamic> _parseResponse(dynamic data) {
+    if (data == null || data == '') return {};
+    if (data is List) return {'items': data};
+    return data as Map<String, dynamic>;
+  }
+
   /// HTTP GET.
   Future<Map<String, dynamic>> get(
     String url, {
     Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
   }) async {
     try {
       final response = await _dio.get(
         url,
         queryParameters: queryParameters,
+        cancelToken: cancelToken,
       );
-      return response.data as Map<String, dynamic>;
+      return _parseResponse(response.data);
     } on DioException catch (e) {
       throw _extractException(e);
     }
@@ -58,10 +67,39 @@ class ApiBaseHelper {
   Future<Map<String, dynamic>> post(
     String url, {
     dynamic data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
   }) async {
     try {
-      final response = await _dio.post(url, data: data);
-      return response.data as Map<String, dynamic>;
+      final response = await _dio.post(
+        url,
+        data: data,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+      );
+      return _parseResponse(response.data);
+    } on DioException catch (e) {
+      throw _extractException(e);
+    }
+  }
+
+  /// HTTP POST with multipart/form-data.
+  Future<Map<String, dynamic>> postFormData(
+    String url, {
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    void Function(int sent, int total)? onSendProgress,
+  }) async {
+    try {
+      final response = await _dio.post(
+        url,
+        data: FormData.fromMap(data ?? {}),
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+        onSendProgress: onSendProgress,
+      );
+      return _parseResponse(response.data);
     } on DioException catch (e) {
       throw _extractException(e);
     }
@@ -71,10 +109,39 @@ class ApiBaseHelper {
   Future<Map<String, dynamic>> put(
     String url, {
     dynamic data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
   }) async {
     try {
-      final response = await _dio.put(url, data: data);
-      return response.data as Map<String, dynamic>;
+      final response = await _dio.put(
+        url,
+        data: data,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+      );
+      return _parseResponse(response.data);
+    } on DioException catch (e) {
+      throw _extractException(e);
+    }
+  }
+
+  /// HTTP PUT with multipart/form-data.
+  Future<Map<String, dynamic>> putFormData(
+    String url, {
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    void Function(int sent, int total)? onSendProgress,
+  }) async {
+    try {
+      final response = await _dio.put(
+        url,
+        data: FormData.fromMap(data ?? {}),
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+        onSendProgress: onSendProgress,
+      );
+      return _parseResponse(response.data);
     } on DioException catch (e) {
       throw _extractException(e);
     }
@@ -84,10 +151,17 @@ class ApiBaseHelper {
   Future<Map<String, dynamic>> delete(
     String url, {
     dynamic data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
   }) async {
     try {
-      final response = await _dio.delete(url, data: data);
-      return response.data as Map<String, dynamic>;
+      final response = await _dio.delete(
+        url,
+        data: data,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+      );
+      return _parseResponse(response.data);
     } on DioException catch (e) {
       throw _extractException(e);
     }

@@ -1,4 +1,6 @@
+import 'package:flutter/widgets.dart';
 import 'package:{{project_name}}/networking/api_exceptions.dart';
+import 'package:{{project_name}}/utils/extensions/context_ext.dart';
 
 /// Extension on [ApiException] for user-facing UI message formatting.
 extension ApiExceptionUIExt on ApiException {
@@ -6,10 +8,13 @@ extension ApiExceptionUIExt on ApiException {
   ///
   /// Only [BusinessLogicException] copy is displayed verbatim as it originates
   /// from explicit backend error messaging.
-  String get userFacingMessage => switch (this) {
-        NoInternetException() => 'Check your connection and try again.',
-        UnauthorizedException() => 'Your session expired. Please sign in again.',
+  String userFacingMessage(BuildContext context) => switch (this) {
+        NoInternetException() => context.l10n.errorNoInternet,
+        UnauthorizedException() => context.l10n.errorUnauthorized,
         BusinessLogicException(:final message) => message,
-        _ => 'Something went wrong. Please try again.',
+        _ => context.l10n.errorGeneric,
       };
+
+  /// Convenient alias for [userFacingMessage].
+  String userMessage(BuildContext context) => userFacingMessage(context);
 }

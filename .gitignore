@@ -22,6 +22,7 @@ build/
 
 # Mason temporary build outputs
 .mason/
+mason-lock.json
 
 # Node / temporary files
 node_modules/

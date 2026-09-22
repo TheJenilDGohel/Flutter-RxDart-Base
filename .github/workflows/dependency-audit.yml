@@ -1,0 +1,106 @@
+name: Dependency Audit (Nightly)
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 18 * * *' # 18:00 UTC = 11:30 PM IST
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install Tool Dependencies
+        run: cd tool && dart pub get
+
+      - name: Run Dependency Audit
+        id: audit
+        run: |
+          dart run tool/check_deps.dart --mode=audit > audit_result.json
+          cat audit_result.json
+
+      - name: Create PR for Updates
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Parse JSON with jq
+          MINOR_PATCH=$(jq -c '.outdated[] | select(.level == "minor" or .level == "patch")' audit_result.json)
+          MAJOR=$(jq -c '.outdated[] | select(.level == "major")' audit_result.json)
+          
+          if [ -z "$MINOR_PATCH" ] && [ -z "$MAJOR" ]; then
+            echo "No updates found."
+            exit 0
+          fi
+          
+          # Configure Git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          BRANCH_NAME="deps/update-$(date +%s)"
+          git checkout -b "$BRANCH_NAME"
+          
+          PR_BODY="## Dependency Updates\n\n"
+          
+          if [ -n "$MAJOR" ]; then
+            PR_BODY="${PR_BODY}### 🚨 Major Updates (Manual action required)\nThese updates contain breaking changes and have NOT been automatically bumped in \`pubspec.yaml\`.\n\n| Package | Current | Latest |\n|---|---|---|\n"
+            while read -r row; do
+              if [ -n "$row" ] && [ "$row" != "null" ]; then
+                PKG=$(echo "$row" | jq -r '.package')
+                CURRENT=$(echo "$row" | jq -r '.current')
+                LATEST=$(echo "$row" | jq -r '.latest')
+                PR_BODY="${PR_BODY}| $PKG | $CURRENT | $LATEST |\n"
+              fi
+            done <<< "$MAJOR"
+            PR_BODY="${PR_BODY}\n---\n\n"
+          fi
+          
+          PR_BODY="${PR_BODY}### 🔼 Minor & Patch Updates\nThese have been automatically updated in \`pubspec.yaml\`.\n\n| Package | Current | Latest | Level | Flagged |\n|---|---|---|---|---|\n"
+          
+          while read -r row; do
+            if [ -n "$row" ] && [ "$row" != "null" ]; then
+              PKG=$(echo "$row" | jq -r '.package')
+              CURRENT=$(echo "$row" | jq -r '.current')
+              LATEST=$(echo "$row" | jq -r '.latest')
+              LEVEL=$(echo "$row" | jq -r '.level')
+              FLAGGED=$(echo "$row" | jq -r '.hasPotentialBreakingChange')
+              
+              if [ -n "$PKG" ] && [ "$PKG" != "null" ]; then
+                FLAG_EMOJI="🟢"
+                if [ "$FLAGGED" == "true" ]; then
+                  FLAG_EMOJI="⚠️ Breaking keywords found"
+                fi
+                
+                # Use sed to update pubspec.yaml in place
+                # Matches:   package_name: ^x.y.z
+                sed -i -E "s/^([[:space:]]*)$PKG:[[:space:]]*\^?[0-9]+\.[0-9]+\.[0-9]+.*$/\1$PKG: ^$LATEST/" bricks/project/__brick__/pubspec.yaml
+                
+                PR_BODY="$PR_BODY| $PKG | $CURRENT | $LATEST | $LEVEL | $FLAG_EMOJI |\n"
+              fi
+            fi
+          done <<< "$MINOR_PATCH"
+          
+          git add bricks/project/__brick__/pubspec.yaml
+          
+          if git diff --staged --quiet; then
+            echo "No changes made to pubspec.yaml"
+            exit 0
+          fi
+          
+          git commit -m "chore(deps): update minor and patch dependencies"
+          git push origin "$BRANCH_NAME"
+          
+          # Create PR using gh CLI (pre-installed on ubuntu-latest)
+          echo -e "$PR_BODY" | gh pr create --title "chore(deps): auto-update dependencies" --body-file - --base main --head "$BRANCH_NAME"

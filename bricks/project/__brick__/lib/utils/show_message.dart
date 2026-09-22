@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:overlay_support/overlay_support.dart';
+import 'package:toastification/toastification.dart';
 import 'package:{{project_name}}/resources/res_colors.dart';
 import 'package:{{project_name}}/resources/app_typography.dart';
 
 /// App status types for toasts, alerts, and banners.
 enum AppStatus { success, info, warning, error }
 
-/// Convenience helper to show custom toasts / message bars from the bottom of the screen.
+/// Convenience helper to show custom toasts from the bottom of the screen.
 ///
 /// ```dart
 /// ShowMessage.success('Saved successfully');
@@ -17,10 +17,11 @@ enum AppStatus { success, info, warning, error }
 /// ```
 abstract final class ShowMessage {
   static void _show(String message, AppStatus status, {Duration? duration}) {
-    showOverlayNotification(
-      (context) => _CustomToast(message: message, status: status),
-      duration: duration ?? const Duration(seconds: 3),
-      position: NotificationPosition.bottom,
+    toastification.showCustom(
+      alignment: Alignment.bottomCenter,
+      autoCloseDuration: duration ?? const Duration(seconds: 3),
+      builder: (context, holder) =>
+          _CustomToast(message: message, status: status),
     );
   }
 
@@ -60,13 +61,10 @@ extension ToastContextExt on BuildContext {
 }
 
 class _CustomToast extends StatelessWidget {
-  const _CustomToast({
-    required this.message,
-    required this.status,
-  });
-
   final String message;
   final AppStatus status;
+
+  const _CustomToast({required this.message, required this.status});
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +72,7 @@ class _CustomToast extends StatelessWidget {
     final icon = _statusIcons[status]!;
 
     return Container(
-      margin: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 25.h),
+      margin: EdgeInsets.only(bottom: 4.h, right: 16.w, left: 16.w),
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       decoration: BoxDecoration(
         color: colors.background,
@@ -90,7 +88,7 @@ class _CustomToast extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: colors.icon, size: 22.r),
           SizedBox(width: 12.w),
@@ -115,17 +113,17 @@ class _CustomToast extends StatelessWidget {
 }
 
 final class _ToastColors {
+  final Color background;
+  final Color border;
+  final Color icon;
+  final Color text;
+
   const _ToastColors({
     required this.background,
     required this.border,
     required this.icon,
     required this.text,
   });
-
-  final Color background;
-  final Color border;
-  final Color icon;
-  final Color text;
 }
 
 final Map<AppStatus, _ToastColors> _statusColors = {

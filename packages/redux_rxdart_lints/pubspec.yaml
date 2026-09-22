@@ -1,0 +1,17 @@
+name: redux_rxdart_lints
+description: >-
+  custom_lint plugin enforcing the Redux+RxDart+Dio architecture golden rules
+  from the Flutter-RxDart-Base harness (AGENTS.md) at analyze time.
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  analyzer: ^7.0.0
+  custom_lint_builder: ^0.7.0
+
+dev_dependencies:
+  lints: ^5.0.0
+  custom_lint: ^0.7.6

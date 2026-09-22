@@ -26,6 +26,9 @@ abstract final class ResColors {
   static const Color textSecondary = Color(0xFF64748B);
 
   // ── Utility ──────────────────────────────────────────────────────────
+  static const Color disabled = Color(0xFFCBD5E1);
+  static const Color textDisabled = Color(0xFF94A3B8);
+  static const Color cardBackground = Color(0xFFFFFFFF);
   static const Color divider = Color(0xFFE2E8F0);
   static const Color border = Color(0xFFE2E8F0);
   static const Color shadow = Color(0x1A000000);
