@@ -47,7 +47,7 @@ lib/features/<name>/
 - Repositories take `{ApiBaseHelper? api}` and default to `ApiBaseHelper.instance`.
 - `ApiException` (sealed): `NoInternetException`, `BadRequestException` (400), `UnauthorizedException` (401), `NotFoundException` (404), `ConflictException` (409), `RequestTimeoutException` (408 or Dio timeouts), `InternalServerErrorException` (500 and fallbacks), `BusinessLogicException` (HTTP 200/201 with `{"status": false, "message": ...}`).
 - Only `BusinessLogicException.message` is shown verbatim to users. Everything else maps through `userFacingMessage` / `userMessage` (extension in `utils/extensions/exception_ext.dart`), which has a switch with safe copy.
-- `ApiResponse<T>` (sealed): `Initial`, `Loading`, `Completed(data)`, `Error(error, {retry})`; `.data` returns data only when completed.
+- `ApiResponse<T>` (sealed): `InitialResponse`, `LoadingResponse`, `SuccessResponse(data)`, `ErrorResponse(error, {retry})`; `.data` returns data only when successful.
 - `CancelTokenOwner` mixin: `cancelToken` (lazy), `isCancelled`, `cancelRequests([reason])`, `createNewToken()` (cancels the old one, creates a fresh one).
 
 ## 3. Redux (session only)

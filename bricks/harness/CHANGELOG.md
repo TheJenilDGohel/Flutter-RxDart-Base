@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.2
+
+- **Hybrid Token-Efficient Memory**: Lean `CLAUDE.md` (~500 tokens) with direct transclusion of `@.harness/active-context.md` for zero-cost cross-session memory retention.
+- **Accurate ApiResponse Signatures**: Updated `architecture.md`, `references/api-layer.md`, and `references/ui-conventions.md` to use the canonical sealed subtypes (`InitialResponse`, `LoadingResponse`, `SuccessResponse`, `ErrorResponse`) and replaced all stale `Completed` references.
+- **Golden Rule #1 Enforcement**: Fixed erroneous instructions in `api-layer.md` to ensure repositories return raw `Map<String, dynamic>` rather than calling `Model.fromJson`.
+- **Flutter 3.27+ Standard Alignment**: Updated design token documentation and `flutter-qa` reviewer checks to mandate `withValues(alpha:)` over deprecated `withOpacity()`.
+
 ## 1.4.1
 
 - Flattened skill files directly into `.agents/skills/flutter-senior-dev/` and

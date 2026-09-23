@@ -52,7 +52,7 @@ class ApiBaseHelper {
     CancelToken? cancelToken,
   }) async {
     try {
-      final response = await _dio.get(
+      final response = await _dio.get<dynamic>(
         url,
         queryParameters: queryParameters,
         cancelToken: cancelToken,
@@ -71,7 +71,7 @@ class ApiBaseHelper {
     CancelToken? cancelToken,
   }) async {
     try {
-      final response = await _dio.post(
+      final response = await _dio.post<dynamic>(
         url,
         data: data,
         queryParameters: queryParameters,
@@ -92,7 +92,7 @@ class ApiBaseHelper {
     void Function(int sent, int total)? onSendProgress,
   }) async {
     try {
-      final response = await _dio.post(
+      final response = await _dio.post<dynamic>(
         url,
         data: FormData.fromMap(data ?? {}),
         queryParameters: queryParameters,
@@ -113,7 +113,7 @@ class ApiBaseHelper {
     CancelToken? cancelToken,
   }) async {
     try {
-      final response = await _dio.put(
+      final response = await _dio.put<dynamic>(
         url,
         data: data,
         queryParameters: queryParameters,
@@ -134,7 +134,7 @@ class ApiBaseHelper {
     void Function(int sent, int total)? onSendProgress,
   }) async {
     try {
-      final response = await _dio.put(
+      final response = await _dio.put<dynamic>(
         url,
         data: FormData.fromMap(data ?? {}),
         queryParameters: queryParameters,
@@ -155,7 +155,7 @@ class ApiBaseHelper {
     CancelToken? cancelToken,
   }) async {
     try {
-      final response = await _dio.delete(
+      final response = await _dio.delete<dynamic>(
         url,
         data: data,
         queryParameters: queryParameters,

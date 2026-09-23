@@ -18,7 +18,8 @@ Future<void> run(HookContext context) async {
           context.logger.info('Auto-detected project_name: $detected');
         }
       } catch (e) {
-        context.logger.warn('Could not read project name from pubspec.yaml: $e');
+        context.logger
+            .warn('Could not read project name from pubspec.yaml: $e');
       }
     } else {
       context.logger.err(

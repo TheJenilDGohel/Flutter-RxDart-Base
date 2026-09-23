@@ -163,7 +163,7 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
                 disabledBorder: OutlineInputBorder(
                   borderRadius: radius,
                   borderSide:
-                      BorderSide(color: ResColors.border.withOpacity(0.5)),
+                      BorderSide(color: ResColors.border.withValues(alpha: 0.5)),
                 ),
               ),
             );

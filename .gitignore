@@ -29,3 +29,7 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Test harnesses and temporary generation artifacts
+temp_smoke_test/
+bricks/temp_test_app/

@@ -17,7 +17,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load environment variables from .env
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: '.env');
   // Example of injecting variables manually (e.g., merging with Platform.environment):
   // dotenv.env.addAll({'EXTRA_VAR': 'value'});
 

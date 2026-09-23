@@ -10,7 +10,8 @@ Future<void> run(HookContext context) async {
     await Process.run('dart', ['format', targetDir], runInShell: true);
   }
 
-  context.logger.success('🎉 Feature module `$featureName` scaffolded successfully in `$targetDir`!');
+  context.logger.success(
+      '🎉 Feature module `$featureName` scaffolded successfully in `$targetDir`!');
   context.logger.info(
     '\nNext steps to wire this feature:\n'
     '1. Register route in `lib/utils/router/routes.dart`:\n'

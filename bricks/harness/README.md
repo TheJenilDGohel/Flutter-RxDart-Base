@@ -66,7 +66,7 @@ plugin.
 
 ## ⚙️ Generation Architecture
 
-`harness` v1.4.1 is a pure-template brick (zero hooks):
+`harness` v1.4.2 is a pure-template brick (zero hooks):
 - Templates for `.agents/skills/`, `.cursor/skills/`, `.harness/`, `scripts/agent/`, `AGENTS.md`, and `CLAUDE.md` are rendered directly from `__brick__/`.
 - No hook compilation or sub-process execution occurs during `mason make`, eliminating Windows path-length (`MAX_PATH`) and directory-scanning issues.
 - Generation completes deterministically in ~50ms across all platforms.
