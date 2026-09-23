@@ -19,7 +19,8 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Install dependencies
+      - name: Install tool dependencies
+        working-directory: tool
         run: dart pub get
 
       - name: Run Smoke Test

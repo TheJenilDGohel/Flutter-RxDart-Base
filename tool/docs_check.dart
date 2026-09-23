@@ -4,32 +4,64 @@ import 'dart:io';
 void main() {
   print('Running docs check...');
 
-  final readmeFile = File('README.md');
-  if (!readmeFile.existsSync()) {
-    print('README.md is missing!');
-    exit(1);
-  }
-
-  // Simple validation to ensure that any local links in the README actually exist
-  final content = readmeFile.readAsStringSync();
-  final RegExp linkRegex = RegExp(r'\[.+?\]\((.+?)\)');
-
-  final matches = linkRegex.allMatches(content);
+  final Set<String> checkedFiles = {};
   bool hasErrors = false;
 
-  for (final match in matches) {
-    final link = match.group(1);
-    // Ignore external URLs and hash links
-    if (link != null && !link.startsWith('http') && !link.startsWith('#')) {
-      final linkedFile = File(link);
-      final linkedDir = Directory(link);
+  final filesToCheck = <File>[
+    File('README.md'),
+    ...Directory('docs')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.md')),
+    ...Directory('bricks')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.endsWith('README.md')),
+    File('packages/redux_rxdart_lints/README.md'),
+  ];
+
+  final RegExp linkRegex = RegExp(r'\[.+?\]\((.+?)\)');
+
+  for (final file in filesToCheck) {
+    if (!file.existsSync()) continue;
+    checkedFiles.add(file.path);
+
+    final content = file.readAsStringSync();
+    final matches = linkRegex.allMatches(content);
+
+    for (final match in matches) {
+      final link = match.group(1);
+      if (link == null) continue;
+
+      // Ignore external URLs, anchors, mailto, and templated mustache links
+      if (link.startsWith('http') ||
+          link.startsWith('#') ||
+          link.startsWith('mailto:') ||
+          link.contains('{{')) {
+        continue;
+      }
+
+      // Strip query parameters and anchors
+      final cleanLink = link.split('?').first.split('#').first;
+      if (cleanLink.isEmpty) continue;
+
+      // Resolve path relative to the markdown file's directory
+      final fileDir = file.parent.path;
+      final targetPath = cleanLink.startsWith('/')
+          ? cleanLink.substring(1)
+          : '$fileDir/$cleanLink';
+
+      final linkedFile = File(targetPath);
+      final linkedDir = Directory(targetPath);
 
       if (!linkedFile.existsSync() && !linkedDir.existsSync()) {
-        print('Broken link in README.md: $link');
+        print('Broken link in ${file.path}: $link (resolved: $targetPath)');
         hasErrors = true;
       }
     }
   }
+
+  print('Checked ${checkedFiles.length} documentation files.');
 
   if (hasErrors) {
     print('Docs check failed.');

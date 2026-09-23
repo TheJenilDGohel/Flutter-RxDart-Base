@@ -143,8 +143,10 @@ Future<void> main() async {
     if (lintRes.exitCode != 0) {
       final combinedOutput = '${lintRes.stdout}\n${lintRes.stderr}';
       if (combinedOutput.contains('%20')) {
-        print('Notice: custom_lint has a known upstream URI encoding issue (%20) with spaces in parent directories.');
-        print('Skipping custom_lint exit failure on local spaced directory path.');
+        print(
+            'Notice: custom_lint has a known upstream URI encoding issue (%20) with spaces in parent directories.');
+        print(
+            'Skipping custom_lint exit failure on local spaced directory path.');
       } else {
         print('custom_lint failed.');
         print(lintRes.stdout);
@@ -156,7 +158,12 @@ Future<void> main() async {
     print('--- Smoke test completed successfully! ---');
     exit(0);
   } finally {
-    // Restore template pubspec
-    templatePubspec.writeAsStringSync(backupPubspecContent);
+    // Ensure template pubspec is always restored to canonical git dependency
+    final currentText = templatePubspec.readAsStringSync();
+    final restoredText = currentText.replaceAll(
+      'path: ../packages/redux_rxdart_lints',
+      'git:\n      url: https://github.com/TheJenilDGohel/Flutter-RxDart-Base.git\n      path: packages/redux_rxdart_lints',
+    );
+    templatePubspec.writeAsStringSync(restoredText);
   }
 }

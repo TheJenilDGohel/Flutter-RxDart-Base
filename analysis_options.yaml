@@ -1,0 +1,6 @@
+analyzer:
+  exclude:
+    - "bricks/**/__brick__/**"
+    - "temp_smoke_test/**"
+    - "**/build/**"
+    - "**/.dart_tool/**"

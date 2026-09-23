@@ -52,11 +52,12 @@ the route constant + `onGenerateRoute` case. Without the harness, run `mason mak
 
 ## 🧩 Mason Bricks at a Glance
 
-| Brick | Command | Execution Frequency | Key Responsibilities |
-|-------|---------|---------------------|----------------------|
-| **`project`** | `mason make project` | **Once** per app | Scaffolds Redux store, Dio HTTP/2 engine with 5 interceptors, `ApiExceptionUIExt`, AppRouter, Toast helper (`ShowMessage`), CommonUtils, ResColors, AppTypography, L10n, and Showcase Demo. |
-| **`bloc`** | `mason make bloc` | **Repeatedly** per feature | Generates BLoC, Repo, Model folder, Page, and Content Widget with AI-friendly architecture guidance headers. |
-| **`harness`** | `mason make harness` | **Once** per project (auto-run by `project`) | Scaffolds `AGENTS.md`/`CLAUDE.md`, `scripts/agent/wire_route.dart` + `verify.ps1`/`verify.sh`, and wires the `redux_rxdart_lints` custom_lint plugin. See [`bricks/harness.md`](bricks/harness.md). |
+| Brick / Package | Version | Command | Execution Frequency | Key Responsibilities |
+|-----------------|---------|---------|---------------------|----------------------|
+| **[`project`](bricks/project.md)** | `1.2.0` | `mason make project` | **Once** per app | Scaffolds Redux store, Dio HTTP/2 engine with 5 interceptors, `ApiExceptionUIExt`, AppRouter, Toast helper (`ShowMessage`), CommonUtils, ResColors, AppTypography, L10n, and Showcase Demo. |
+| **[`bloc`](bricks/bloc.md)** | `1.1.0` | `mason make bloc` | **Repeatedly** per feature | Generates BLoC with `CancelTokenOwner`, injectable Repo, Model folder, Page, Content Widget, and Unit Tests. |
+| **[`harness`](bricks/harness.md)** | `1.4.2` | `mason make harness` | **Once** per project (auto-run by `project`) | Scaffolds `AGENTS.md`, compact `CLAUDE.md`, `.agents/skills/`, `.agents/agents/flutter-qa.md`, `.harness/` context store, and `wire_route.dart`. |
+| **[`redux_rxdart_lints`](packages/redux_rxdart_lints.md)** | `1.0.0` | Wired in `analysis_options.yaml` | Continuous analysis | Analyzer plugin turning Golden Rules #1, #3, and #4 into compile-time analyzer errors. |
 
 ---
 
@@ -174,7 +175,11 @@ lib/features/my_feature/
 
 - **`AGENTS.md`** — the architecture contract: golden rules, backend API discovery, deterministic
   commands, git policy. Read natively by Claude Code, Cursor, Copilot, Codex, and 20+ other
-  AGENTS.md-compatible tools. `CLAUDE.md` is a 1-line `@AGENTS.md` transclusion.
+  AGENTS.md-compatible tools.
+- **`CLAUDE.md`** — lean ~48 lines (~500 tokens) with `@.harness/active-context.md` transclusion for cross-session memory without context bloat.
+- **`.agents/skills/flutter-senior-dev/`** — Senior Flutter developer skill with deep references for API layer, UI conventions, and Redux vs RxDart boundaries.
+- **`.agents/agents/flutter-qa.md`** — On-demand QA code review auditor.
+- **`.harness/`** — Token-efficient cross-session memory store (`active-context.md`, `progress.md`).
 - **`scripts/agent/wire_route.dart`** — one command scaffolds a feature and wires its route.
 - **`scripts/agent/verify.ps1` / `verify.sh`** — deterministic quality gate (format + analyze).
 - **`redux_rxdart_lints`** — a [`custom_lint`](packages/redux_rxdart_lints.md) plugin wired
