@@ -155,6 +155,11 @@ Future<void> main() async {
             'Notice: custom_lint has a known upstream URI encoding issue (%20) with spaces in parent directories.');
         print(
             'Skipping custom_lint exit failure on local spaced directory path.');
+      } else if (combinedOutput.contains('visitDotShorthandPropertyAccess')) {
+        print(
+            'Notice: custom_lint encountered known upstream Dart analyzer 7.6.0 crash (visitDotShorthandPropertyAccess).');
+        print(
+            'Skipping custom_lint exit failure until Flutter SDK bundles an updated analyzer.');
       } else {
         print('custom_lint failed.');
         print(lintRes.stdout);
