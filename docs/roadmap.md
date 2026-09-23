@@ -1,6 +1,6 @@
 # Improvement Roadmap
 
-Status: **Executed & Verified.** Phases 0 through 6 are fully implemented and passing end-to-end verification quality gates as of 2026-09-23.
+Status: **Phases 0 through 6 Executed & Verified.** Major future horizons (Phases 7 through 10) tracked below for v2.0 evolution as of 2026-09-23.
 
 Paths below are relative to `bricks/project/__brick__/` unless stated otherwise.
 
@@ -67,3 +67,80 @@ The core design is sound: sealed `ApiException` / `ApiResponse`, per-screen BLoC
   - Synced all READMEs (`README.md`, `bricks/*/README.md`, `packages/*/README.md`).
   - Added repository root `AGENTS.md` and `CLAUDE.md`.
   - All `docs/` and brick cross-references passing link check.
+
+---
+
+## 4. Pending Horizons & Major Evolution Roadmap (v2.0)
+
+The following major milestones track architectural enhancements, enterprise capabilities, and ecosystem expansions identified from real-world usage and [base-gaps.md](../bricks/harness/__brick__/.agents/skills/flutter-senior-dev/base-gaps.md).
+
+### ⏳ Phase 7: Core Scaffolding Hardening & Template Alignment
+*Objective: Eliminate template runtime bugs, decouple generated presentation layers, and resolve networking omissions.*
+
+- [ ] **BLoC Request Cancellation Guard**:
+  - Update `{{feature_name}}_bloc.dart` template to explicitly check `e is! RequestCancelledException` in the `ApiException` catch block. Prevent aborted requests from surfacing as UI errors.
+  - Wire `retry: fetchData` callback directly into `ApiResponse.error(e, retry: fetchData)` so retry action handlers work automatically.
+- [ ] **Decoupled Feature Page & Content Widget**:
+  - Update `{{feature_name}}_page.dart` to trigger `_bloc.fetchData()` in `initState()`.
+  - Wire `AppResponseBuilder<{{feature_name.pascalCase()}}Model>` into the page body.
+  - Refactor `{{feature_name}}_content_widget.dart` to receive pure domain model data (`{{feature_name.pascalCase()}}Model`) instead of holding a direct reference to the BLoC.
+- [ ] **Network Method Completeness (`PATCH`)**:
+  - Implement HTTP `patch()` in `ApiBaseHelper` for partial resource updates.
+- [ ] **Server Error Message Extraction**:
+  - Enhance `ErrorMappingInterceptor` to extract backend error messages from `err.response?.data` (e.g. `data['message']` or `data['errors']`) for 400, 401, 404, 409, and 500 status codes rather than falling back to generic Dio messages.
+- [ ] **De-duplicate AppScaffold**:
+  - Remove redundant `lib/utils/widgets/app_scaffold.dart`, consolidating to `lib/utils/widgets/ui/app_scaffold.dart`.
+- [ ] **Comprehensive Unit Test Templates**:
+  - Expand `{{feature_name}}_bloc_test.dart` to assert stream emission sequences (`loading` -> `completed`, and error state handling with mocks).
+
+---
+
+### ⏳ Phase 8: Enterprise Session, Security & Resilient Networking
+*Objective: Upgrade auth session management to enterprise grade, support streaming/AI workloads, and fix payload injection.*
+
+- [ ] **401 Token Refresh & Auto-Logout Flow**:
+  - Implement single-flight token refresh mutex in `AuthInterceptor`.
+  - Queue concurrent requests during active refresh and replay upon token renewal.
+  - Automatically dispatch `LogoutAction` and trigger route transition on unrecoverable 401/403 session expiration.
+- [ ] **Strict Backend Compatibility**:
+  - Remove unconditional JSON body mutation in `PlatformInjectorInterceptor` (move `{"platform": "app"}` to custom HTTP headers or opt-in configuration) to avoid 400 schema validation errors on strict backends.
+- [ ] **Streaming & LLM Response Support**:
+  - Add streaming call to `ApiBaseHelper` using Dio `ResponseType.stream` returning a chunked `Stream<String>` for Server-Sent Events (SSE) and AI model inference.
+- [ ] **File Download with Progress Tracking**:
+  - Add `download()` method to `ApiBaseHelper` supporting local disk writes and download progress callbacks.
+- [ ] **Localized Exception Mapping Expansion**:
+  - Expand `ApiExceptionUIExt` and ARB localization files to provide distinct user-facing messages for `BadRequestException`, `NotFoundException`, `ConflictException`, and `RequestTimeoutException`.
+
+---
+
+### ⏳ Phase 9: Dynamic Theming, Responsive Layouts & Offline Queue
+*Objective: Multi-theme persistence, cross-device form factor support, and resilient offline capabilities.*
+
+- [ ] **Dynamic Dark Mode & Theme Persistence**:
+  - Add `ThemeMode` (light, dark, system) to Redux `AppState` and persist to storage.
+  - Introduce dark color tokens in `ResColors` and configure `darkTheme` + `themeMode` in `MaterialApp`.
+- [ ] **Adaptive Form Factors & Multi-Screen Support**:
+  - Upgrade responsive layout utilities beyond phone dimensions (`Size(375, 812)`).
+  - Add responsive layout builders and breakpoint tokens for foldables, tablets, and desktop/web.
+- [ ] **Offline-First Mutation Queue**:
+  - Integrate local storage abstraction (Drift/Hive) in `lib/services/`.
+  - Introduce an offline write queue that serializes mutations during network loss and replays them when connectivity resumes.
+- [ ] **Declarative Routing / GoRouter Integration**:
+  - Add declarative routing support or migration guide for `go_router` deep-linking and web URL synchronization while retaining automated feature wiring capabilities.
+
+---
+
+### ⏳ Phase 10: Brick Ecosystem Expansion & Custom Lint Guardrails
+*Objective: Scaffold common repetitive modules and expand analyzer-enforced architecture rules.*
+
+- [ ] **`model` Brick**:
+  - Scaffolds immutable DTOs with defensive JSON type casting (Golden Rule #12) or optional `freezed` / `json_serializable` support.
+- [ ] **`list_bloc` / `pagination` Brick**:
+  - Scaffolds infinite scrolling, page/cursor pagination, pull-to-refresh, empty states, and debounced live search (`PublishSubject<String>` with `.debounceTime()`).
+- [ ] **`auth` Brick**:
+  - Scaffolds a complete auth module (Splash, Login, Register, Forgot Password, Secure Token Storage, and Redux session dispatching).
+- [ ] **`redux_rxdart_lints` Custom Lint Expansion**:
+  - Add analyzer rule enforcing `$` suffix on public BLoC streams (Golden Rule #8).
+  - Add analyzer rule enforcing `CancelTokenOwner` mixin on all classes ending with `Bloc`.
+  - Add analyzer rule requiring proper resource disposal in `dispose()` (closing subjects, cancelling subscriptions).
+  - Add analyzer rule forbidding direct `*Repo` instantiation inside UI presentation widgets.
