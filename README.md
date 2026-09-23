@@ -157,7 +157,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
 | Brick / Package | Version | Command | Execution Frequency | Key Responsibilities |
 |-----------------|---------|---------|---------------------|----------------------|
-| **[`project`](docs/bricks/project.md)** | `1.2.0` | `mason make project` | **Once** per app | Scaffolds Redux store, Dio HTTP/2 engine with 5 interceptors, `ApiExceptionUIExt`, AppRouter, Toast helper (`ShowMessage`), CommonUtils, ResColors, AppTypography, L10n, and Showcase Demo. |
+| **[`project`](docs/bricks/project.md)** | `1.2.1` | `mason make project` | **Once** per app | Scaffolds Redux store, Dio HTTP/2 engine with 5 interceptors, `ApiExceptionUIExt`, AppRouter, Toast helper (`ShowMessage`), CommonUtils, ResColors, AppTypography, L10n, and Showcase Demo. |
 | **[`bloc`](docs/bricks/bloc.md)** | `1.1.0` | `mason make bloc` | **Repeatedly** per feature | Generates BLoC with `CancelTokenOwner`, injectable Repo, Model folder, Page, Content Widget, and Unit Tests. |
 | **[`harness`](docs/bricks/harness.md)** | `1.5.0` | `mason make harness` | **Once** per project (auto-run by `project`) | Scaffolds `AGENTS.md`, compact `CLAUDE.md`, `.agents/skills/`, `.agents/agents/flutter-qa.md`, `.harness/` context store, `wire_route.dart`, and **`upgrade.dart`**. |
 | **[`redux_rxdart_lints`](docs/packages/redux_rxdart_lints.md)** | `1.0.0` | Wired in `analysis_options.yaml` | Continuous analysis | Custom analyzer plugin turning Golden Rules #1, #3, and #4 into compile-time analyzer errors. |

@@ -54,7 +54,7 @@ the route constant + `onGenerateRoute` case. Without the harness, run `mason mak
 
 | Brick / Package | Version | Command | Execution Frequency | Key Responsibilities |
 |-----------------|---------|---------|---------------------|----------------------|
-| **[`project`](bricks/project.md)** | `1.2.0` | `mason make project` | **Once** per app | Scaffolds Redux store, Dio HTTP/2 engine with 5 interceptors, `ApiExceptionUIExt`, AppRouter, Toast helper (`ShowMessage`), CommonUtils, ResColors, AppTypography, L10n, and Showcase Demo. |
+| **[`project`](bricks/project.md)** | `1.2.1` | `mason make project` | **Once** per app | Scaffolds Redux store, Dio HTTP/2 engine with 5 interceptors, `ApiExceptionUIExt`, AppRouter, Toast helper (`ShowMessage`), CommonUtils, ResColors, AppTypography, L10n, and Showcase Demo. |
 | **[`bloc`](bricks/bloc.md)** | `1.1.0` | `mason make bloc` | **Repeatedly** per feature | Generates BLoC with `CancelTokenOwner`, injectable Repo, Model folder, Page, Content Widget, and Unit Tests. |
 | **[`harness`](bricks/harness.md)** | `1.4.2` | `mason make harness` | **Once** per project (auto-run by `project`) | Scaffolds `AGENTS.md`, compact `CLAUDE.md`, `.agents/skills/`, `.agents/agents/flutter-qa.md`, `.harness/` context store, and `wire_route.dart`. |
 | **[`redux_rxdart_lints`](packages/redux_rxdart_lints.md)** | `1.0.0` | Wired in `analysis_options.yaml` | Continuous analysis | Analyzer plugin turning Golden Rules #1, #3, and #4 into compile-time analyzer errors. |

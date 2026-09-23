@@ -38,3 +38,7 @@ temp_upgrade_test/
 # AI Harness Pre-flight Safety Backups
 .harness/.backup_*
 .harness/backup_*
+
+# Track template .env asset
+!bricks/project/__brick__/.env
+

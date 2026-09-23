@@ -10,6 +10,7 @@ analyzer:
     strict-inference: true
     strict-raw-types: true
   errors:
+    analysis_options_deprecated_plugins: ignore
     missing_required_param: error
     missing_return: error
     todo: ignore

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1
+
+- Ensured `.env` template asset is explicitly tracked in repository for clean smoke test asset resolution.
+- Added `analysis_options_deprecated_plugins: ignore` to scaffolded `analysis_options.yaml` to suppress Dart SDK legacy plugin deprecation warning on Flutter 3.27+.
+
 ## 1.2.0
 
 - Upgraded deprecated `.withOpacity(...)` to Flutter 3.27+ `.withValues(alpha: ...)` across design tokens and UI components (`common_utils.dart`, `app_card.dart`, `app_dialog.dart`, `app_textformfield.dart`, `showcase_home_page.dart`).
