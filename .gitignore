@@ -34,3 +34,7 @@ yarn-error.log*
 temp_smoke_test/
 bricks/temp_test_app/
 temp_upgrade_test/
+
+# AI Harness Pre-flight Safety Backups
+.harness/.backup_*
+.harness/backup_*
