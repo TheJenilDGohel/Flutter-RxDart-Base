@@ -15,6 +15,14 @@ Future<void> main() async {
     exit(1);
   }
 
+  // 1.5 Resolve workspace bricks via mason get
+  print('Resolving workspace bricks via mason get...');
+  final masonGet = await Process.run('mason', ['get'], runInShell: true);
+  if (masonGet.exitCode != 0) {
+    print('Failed to resolve bricks via mason get: ${masonGet.stderr}');
+    exit(1);
+  }
+
   // Define paths
   final rootDir = Directory.current.path;
   final tempDir = Directory(p.join(rootDir, 'temp_smoke_test'));
