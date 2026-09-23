@@ -50,7 +50,11 @@ Future<void> main() async {
   // 3. Git Commits
   buffer.writeln('## Recent Commits');
   try {
-    final result = Process.runSync('git', ['log', '--oneline', '-5']);
+    final result = Process.runSync('git', [
+      'log',
+      '--oneline',
+      '-5',
+    ], runInShell: true);
     if (result.exitCode == 0 && result.stdout.toString().trim().isNotEmpty) {
       buffer.writeln(result.stdout.toString().trim());
     } else {
@@ -65,7 +69,10 @@ Future<void> main() async {
   buffer.writeln('## Analysis');
   try {
     // Run analyzer, but we don't want to show the full output, just the summary
-    final result = Process.runSync('flutter', ['analyze', '--no-fatal-infos']);
+    final result = Process.runSync('flutter', [
+      'analyze',
+      '--no-fatal-infos',
+    ], runInShell: true);
     if (result.exitCode == 0) {
       buffer.writeln('Clean ✅');
     } else {

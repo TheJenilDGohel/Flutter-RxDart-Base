@@ -160,12 +160,27 @@ void main(List<String> args) async {
     final newAgents =
         File(p.join(stagingDir.path, 'AGENTS.md')).readAsStringSync();
 
-    final customRegex = RegExp(r'(##\s*1[3-9]\..*|\n##\s*Custom.*)',
-        multiLine: true, dotAll: true);
-    final match = customRegex.firstMatch(currentAgents);
     String customSection = '';
-    if (match != null) {
-      customSection = currentAgents.substring(match.start).trim();
+    final idx = currentAgents.indexOf('## 7. Project Context');
+    if (idx != -1) {
+      final afterSeven = currentAgents.substring(idx);
+      final nextMatch = RegExp(
+        r'\n(##\s+[8-9]\.|\n##\s+[1-9][0-9]\.|\n##\s+[A-Za-z]|<!--)',
+        multiLine: true,
+      ).firstMatch(afterSeven);
+      if (nextMatch != null) {
+        customSection = afterSeven.substring(nextMatch.start).trim();
+      }
+    } else {
+      final customRegex = RegExp(
+        r'(##\s*1[3-9]\..*|\n##\s*Custom.*)',
+        multiLine: true,
+        dotAll: true,
+      );
+      final match = customRegex.firstMatch(currentAgents);
+      if (match != null) {
+        customSection = currentAgents.substring(match.start).trim();
+      }
     }
 
     if (customSection.isNotEmpty) {
@@ -204,7 +219,15 @@ void main(List<String> args) async {
 
     if (customLines.isNotEmpty) {
       final preservedCustomNotes = customLines.join('\n').trim();
-      claudeFile.writeAsStringSync('$newClaude\n\n$preservedCustomNotes\n');
+      if (newClaude.contains('@.harness/active-context.md')) {
+        final merged = newClaude.replaceFirst(
+          '@.harness/active-context.md',
+          '$preservedCustomNotes\n\n---\n@.harness/active-context.md',
+        );
+        claudeFile.writeAsStringSync(merged);
+      } else {
+        claudeFile.writeAsStringSync('$newClaude\n\n$preservedCustomNotes\n');
+      }
       print('     -> Preserved custom notes in CLAUDE.md');
     } else {
       claudeFile.writeAsStringSync(newClaude);
