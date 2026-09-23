@@ -53,6 +53,8 @@
   Auto-runs `mason make bloc --feature_name <name>` first if the feature doesn't exist yet.
 - Quality Gate: `powershell -ExecutionPolicy Bypass -File scripts/agent/verify.ps1` (Win) or `./scripts/agent/verify.sh` (Mac/Linux).
   Must pass `dart format --set-exit-if-changed .` and `flutter analyze --fatal-infos`.
+- Harness Upgrade & Migration: `dart run scripts/agent/upgrade.dart`.
+  Performs 3-tier safe upgrade: overwrites engine scripts and skills, strictly protects `.harness/active-context.md` (0 data loss), and smart-merges custom project rules.
 - Hot-reload vs full build: Rely on hot reload/restart during feature work; only full restart on native dependency/asset changes.
 
 ## 5. Golden Rules Are Analyzer-Enforced

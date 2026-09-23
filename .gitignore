@@ -33,3 +33,4 @@ yarn-error.log*
 # Test harnesses and temporary generation artifacts
 temp_smoke_test/
 bricks/temp_test_app/
+temp_upgrade_test/

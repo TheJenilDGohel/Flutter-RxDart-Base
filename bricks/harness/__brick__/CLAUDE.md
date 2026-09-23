@@ -28,6 +28,7 @@ lib/
 1. `dart run scripts/agent/wire_route.dart <feature_name>` — scaffolds bloc if missing & wires route.
 2. Implement repo → bloc → model → widgets/page following the golden rules.
 3. Run `scripts/agent/verify.ps1` (Win) or `./scripts/agent/verify.sh` (Mac/Linux) before commit.
+4. Upgrade harness safely without data loss: `dart run scripts/agent/upgrade.dart`.
 
 ## Hard Rules (Enforced by Analyzer & Architecture)
 - **Repository is transport ONLY**: call `ApiBaseHelper`, return raw `Map<String, dynamic>`. **Never** call `Model.fromJson` in repository. *(Enforced by custom_lint)*

@@ -158,12 +158,7 @@ Future<void> main() async {
     print('--- Smoke test completed successfully! ---');
     exit(0);
   } finally {
-    // Ensure template pubspec is always restored to canonical git dependency
-    final currentText = templatePubspec.readAsStringSync();
-    final restoredText = currentText.replaceAll(
-      'path: ../packages/redux_rxdart_lints',
-      'git:\n      url: https://github.com/TheJenilDGohel/Flutter-RxDart-Base.git\n      path: packages/redux_rxdart_lints',
-    );
-    templatePubspec.writeAsStringSync(restoredText);
+    // Ensure template pubspec is always restored to original content
+    templatePubspec.writeAsStringSync(backupPubspecContent);
   }
 }

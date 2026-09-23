@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.5.0
+
+- **Autonomous 3-Tier Migration Engine (`scripts/agent/upgrade.dart`)**: Self-contained migration tool allowing consuming projects to upgrade harness bricks without data loss.
+  - **Tier 1 (Core Engine & Tools)**: Safely overwrites `scripts/agent/` and `.agents/skills/` with latest templates.
+  - **Tier 2 (User Memory & State)**: Strictly protects `.harness/active-context.md` and `.harness/progress.md`—zero loss of ongoing tasks, commit proofs, or architecture decisions.
+  - **Tier 3 (Shared Contract)**: Smart-merges `AGENTS.md` and `CLAUDE.md`, preserving custom team sections and project workarounds while adopting upstream rule evolutions.
+- **Machine-Readable Version Manifest (`.harness/version.json`)**: Tracks installed brick version, upgrade history, and upstream repository for automated CI bots and AI agents.
+- **Universal Migration CLI (`tool/upgrade_harness.dart`)**: Workspace-level tool capable of migrating legacy projects (like pre-1.4.2 apps) with pre-flight safety backups.
+- **Opinionated Architecture Stance**: Officially codified the architecture as "The Opinionated Flutter RxDart Base Architecture", emphasizing strict compiler-enforced convention over configuration.
+
 ## 1.4.2
 
 - **Hybrid Token-Efficient Memory**: Lean `CLAUDE.md` (~500 tokens) with direct transclusion of `@.harness/active-context.md` for zero-cost cross-session memory retention.
