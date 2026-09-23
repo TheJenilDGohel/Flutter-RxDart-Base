@@ -4,6 +4,7 @@
 
 - Ensured `.env` template asset is explicitly tracked in repository for clean smoke test asset resolution.
 - Added `analysis_options_deprecated_plugins: ignore` to scaffolded `analysis_options.yaml` to suppress Dart SDK legacy plugin deprecation warning on Flutter 3.27+.
+- Upgraded `custom_lint` to `^0.8.0` to support Dart analyzer 7.5.0+ and prevent AST visitor crashes on Flutter 3.27+ runners.
 
 ## 1.2.0
 
