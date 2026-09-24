@@ -1,6 +1,6 @@
 # Improvement Roadmap
 
-Status: **Phases 0 through 6 Executed & Verified.** Major future horizons (Phases 7 through 10) tracked below for v2.0 evolution as of 2026-09-23.
+Status: **Phases 0 through 6 Executed & Verified.** Major future horizons (Phases 7 through 11) tracked below for v2.0 evolution as of 2026-09-24.
 
 Paths below are relative to `bricks/project/__brick__/` unless stated otherwise.
 
@@ -144,3 +144,24 @@ The following major milestones track architectural enhancements, enterprise capa
   - Add analyzer rule enforcing `CancelTokenOwner` mixin on all classes ending with `Bloc`.
   - Add analyzer rule requiring proper resource disposal in `dispose()` (closing subjects, cancelling subscriptions).
   - Add analyzer rule forbidding direct `*Repo` instantiation inside UI presentation widgets.
+
+---
+
+### ⏳ Phase 11: Knowledge Graph & Structural Intelligence
+*Objective: Auto-generated architectural graph for token-efficient AI context and human-readable architecture visualization. Real-world data shows AI agents waste 60–80% of context windows on orientation (file discovery, re-reading); a deterministic graph reduces orientation tokens by ~97% (from ~19,000 to ~500 tokens per task).*
+
+- [ ] **`graph.dart` Architecture Extractor**:
+  - Dart `analyzer`-based extraction of features, BLoCs, repos, models, routes, Redux actions, shared widgets, and interceptor chain.
+  - Outputs `.harness/project-graph.json` — machine-readable JSON with typed nodes (feature, bloc, repo, model, route, redux_action, shared_widget) and typed edges (depends_on, parses_with, registered_at, dispatches, uses_widget, calls_endpoint, exposes_stream).
+  - ~500 tokens for a 10-feature app (vs ~19,000 tokens for raw file reading).
+  - Deterministic, LLM-free — extracts from AST, never manually curated, cannot go stale.
+  - Integrated into `verify.ps1` / `verify.sh` as a final quality gate step.
+- [ ] **Graph-Aware AGENTS.md & CLAUDE.md**:
+  - Section 7 update: instruct agents to read `project-graph.json` before file scanning.
+  - `CLAUDE.md` transclusion of `.harness/project-graph.json` for zero-cost graph injection.
+- [ ] **Graph-Aware Skill Update**:
+  - Update `flutter-senior-dev` SKILL.md to teach graph-first navigation: "follow edges, not files."
+  - Structural questions (dependencies, blast radius, widget reuse) answered from graph, not grep.
+- [ ] **Mermaid Visualization (Optional)**:
+  - Auto-generate architecture diagrams from `project-graph.json` as Mermaid in a `project-architecture.md`.
+  - For human onboarding and documentation — not for AI consumption.
