@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.1
+
+- Restored `meta` constraint to `^1.16.0` and `intl` constraint to `^0.20.2` to ensure full compatibility with Flutter SDK (`flutter_test` pins `meta: 1.18.0` and `flutter_localizations` pins `intl: 0.20.2`).
+- Added `meta` and `intl` to dependency audit skip list to prevent automated bumps beyond Flutter SDK pinned versions.
+
 ## 1.3.0
 
 - Upgraded `connectivity_plus` from `^6.1.0` to `^7.3.1`; modernized `ConnectivityInterceptor` to use `result.hasConnectivity` instead of `result.contains(ConnectivityResult.none)`.

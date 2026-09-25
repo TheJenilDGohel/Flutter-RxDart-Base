@@ -41,7 +41,9 @@ Future<void> main() async {
   if (routeCount == 0) {
     buffer.writeln('_None mapped in routes.dart._');
   } else {
-    buffer.writeln('$routeCount routes registered (see `lib/utils/router/routes.dart`)');
+    buffer.writeln(
+      '$routeCount routes registered (see `lib/utils/router/routes.dart`)',
+    );
   }
   buffer.writeln();
 

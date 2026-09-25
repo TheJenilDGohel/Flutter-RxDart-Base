@@ -47,14 +47,14 @@ dependencies:
   flutter_secure_storage: ^10.3.4
   {{/include_secure_storage}}
   rxdart: ^0.28.0
-  meta: ^1.19.0
+  meta: ^1.16.0
 
   # UI / responsive
   flutter_screenutil: ^5.9.3
   toastification: ^3.2.0
 
   # Localization
-  intl: ^0.20.3
+  intl: ^0.20.2
 
   # Misc
   url_launcher: ^6.3.2
