@@ -45,8 +45,10 @@ needed for CI/CD or AI agents running non-interactively).
   incompatible declarative routers (`go_router`, `auto_route`) and fails loud
   with manual-wiring instructions instead of guessing.
 - **`.harness/` Context Store**: token-efficient cross-session memory for AI
-  agents. Contains `system-snapshot.md` (auto-generated, always accurate project
-  state), `active-context.md` (agent-maintained handoff log), and `version.json` (version manifest).
+  agents. Contains `system-snapshot.md` (auto-generated project scan — routes
+  shown as count only to save tokens), `active-context.md` (agent-maintained
+  handoff log with enforced line-length caps, overflow-to-progress.md, and
+  Known Issues lifecycle rules), and `version.json` (version manifest).
 - **`scripts/agent/upgrade.dart`**: Autonomous 3-Tier Migration Engine. Safely upgrades
   installed harness components from upstream releases without losing ongoing
   sprint context (`active-context.md`) or custom team rules (`AGENTS.md`).
@@ -83,7 +85,7 @@ dart run scripts/agent/upgrade.dart
 
 ## ⚙️ Generation Architecture
 
-`harness` v1.5.0 is a pure-template brick (zero hooks):
+`harness` v1.5.1 is a pure-template brick (zero hooks):
 - Templates for `.agents/skills/`, `.cursor/skills/`, `.harness/`, `scripts/agent/`, `AGENTS.md`, and `CLAUDE.md` are rendered directly from `__brick__/`.
 - No hook compilation or sub-process execution occurs during `mason make`, eliminating Windows path-length (`MAX_PATH`) and directory-scanning issues.
 - Generation completes deterministically in ~50ms across all platforms.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.1
+
+- **Context bloat reduction**: Tightened `active-context.md` template with enforced line-length caps (Current Focus: 2-3 lines, Recent Tasks: 1-2 lines each, Key Decisions: 1-2 lines each), overflow-to-`progress.md` instructions, Known Issues cleanup rules (delete resolved items), `⏸ deferred by decision` line type, and `commit:pending` anti-staleness guidance.
+- **AGENTS.md §7**: Expanded project context rules to match the tighter `active-context.md` guardrails — explicit format constraints, overflow protocol, and Known Issues lifecycle.
+- **`progress.md`**: Enforced one-line Conventional Commits format: `[YYYY-MM-DD] type(scope): what, why if not obvious (proof)`. No paragraphs.
+- **`snapshot.dart` route de-bloat**: Replaced full route enumeration (`Name → /path | ...`) with route count + pointer to `routes.dart`. Saves thousands of tokens on real apps where `routes.dart` is already the canonical list.
+
 ## 1.5.0
 
 - **Autonomous 3-Tier Migration Engine (`scripts/agent/upgrade.dart`)**: Self-contained migration tool allowing consuming projects to upgrade harness bricks without data loss.
