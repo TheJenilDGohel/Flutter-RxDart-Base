@@ -43,6 +43,7 @@ final class LoadingResponse<T> extends ApiResponse<T> {
 /// Request succeeded with [data].
 final class SuccessResponse<T> extends ApiResponse<T> {
   const SuccessResponse(this.data);
+  @override
   final T data;
 }
 

@@ -10,8 +10,7 @@ that changes generated output or hook behavior:
 
 - Bump `version:` in that brick's `brick.yaml` (semver — patch for fixes, minor for new
   capabilities, major for breaking template/var changes).
-- Add an entry to that brick's `CHANGELOG.md` (create one if it doesn't exist yet — `harness` has
-  one, `project`/`bloc` don't yet; add when they get their first post-1.0.0 change).
+- Add an entry to that brick's `CHANGELOG.md` (`bricks/project/CHANGELOG.md`, `bricks/bloc/CHANGELOG.md`, and `bricks/harness/CHANGELOG.md` are all actively maintained).
 
 Cosmetic-only changes (formatting, comments) don't require a bump.
 
@@ -45,9 +44,10 @@ analyzer-enforced.
 
 ## 5. Verify before committing
 
-- `dart format --set-exit-if-changed .` and `dart analyze` clean on every touched Dart file —
-  including brick hook files (`bricks/*/hooks/`) and `packages/redux_rxdart_lints`, each of which
-  has its own `pubspec.yaml`/`.dart_tool` and must be checked from its own directory.
+- **Docs & Link Integrity**: Run `dart run tool/docs_check.dart` from the repository root. Validates that all relative links and cross-references in `README.md`, `docs/`, and brick documentation resolve to real files.
+- **Full E2E Smoke Test**: Run `dart run tool/smoke.dart` from the repository root. Exercises the full end-to-end flow: `flutter create` -> `mason make project` -> `mason make bloc` -> `dart format` -> `flutter analyze` -> `flutter test` -> `custom_lint`.
+- **Linter Package Analysis**: Run `dart analyze --fatal-infos` inside `packages/redux_rxdart_lints/`.
+- **Formatting & Analysis**: Run `dart format --set-exit-if-changed .` and `dart analyze` across all touched packages and hook directories (`bricks/*/hooks/`).
 - If you change `wire_route.dart` or a hook's file-injection logic, dry-run it against the real
   templates in a scratch copy before trusting the regex — don't assume it's correct from reading
   it. (Silent no-ops in generated/injected files are the failure mode to watch for.)

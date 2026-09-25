@@ -3,6 +3,7 @@
 ## Design tokens
 - Colors: `ResColors` (`lib/resources/res_colors.dart`) — a fixed 20-token palette. Don't
   introduce a new `Color(0x...)` inline; add a token if something is genuinely missing.
+  For opacity, use `ResColors.<color>.withValues(alpha: ...)` (Flutter 3.27+ standard) — avoid deprecated `.withOpacity()`.
 - Type: `AppTypography` (`lib/resources/app_typography.dart`) — Material 3 type scale, already
   wired to ScreenUtil `.sp`. Access via `context.textTheme`, not by constructing `TextStyle`
   directly.
@@ -11,7 +12,7 @@
   screen sizes.
 
 ## Shared state widgets (`lib/utils/widgets/ui/`)
-`AppLoadingState`, `AppErrorState`, `AppEmptyState` — use these for the non-`Completed` branches
+`AppLoadingState`, `AppErrorState`, `AppEmptyState` — use these for the non-`SuccessResponse` branches
 of an `ApiResponse` switch instead of ad hoc `CircularProgressIndicator()`/`Text('error')` calls,
 so loading/error/empty look consistent across the app. `AppScaffold` (`lib/utils/widgets/`) wraps
 the standard screen chrome — use it instead of a bare `Scaffold` unless a screen has a real reason

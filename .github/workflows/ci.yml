@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  smoke-test:
+    name: Brick Generation Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install tool dependencies
+        working-directory: tool
+        run: dart pub get
+
+      - name: Run Smoke Test
+        run: dart run tool/smoke.dart
+
+      - name: Run Docs Check
+        run: dart run tool/docs_check.dart
+
+  packages-lint-test:
+    name: Packages Test (redux_rxdart_lints)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install dependencies
+        working-directory: packages/redux_rxdart_lints
+        run: dart pub get
+
+      - name: Format
+        working-directory: packages/redux_rxdart_lints
+        run: dart format --set-exit-if-changed .
+
+      - name: Analyze
+        working-directory: packages/redux_rxdart_lints
+        run: dart analyze --fatal-infos

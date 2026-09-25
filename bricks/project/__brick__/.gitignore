@@ -1,2 +1,6 @@
 
 .env
+
+# AI Harness Pre-flight Safety Backups
+.harness/.backup_*
+.harness/backup_*

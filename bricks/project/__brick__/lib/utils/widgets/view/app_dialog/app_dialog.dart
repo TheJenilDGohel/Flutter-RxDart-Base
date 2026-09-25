@@ -213,7 +213,7 @@ class _AppDialogState extends State<AppDialog> {
           borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
-              color: ResColors.black.withOpacity(0.08),
+              color: ResColors.black.withValues(alpha: 0.08),
               blurRadius: 24.r,
               offset: Offset(0, 8.h),
             ),
@@ -232,7 +232,7 @@ class _AppDialogState extends State<AppDialog> {
                 height: 56.r,
                 decoration: BoxDecoration(
                   color: (widget.statusIconColor ?? ResColors.primary)
-                      .withOpacity(0.1),
+                      .withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

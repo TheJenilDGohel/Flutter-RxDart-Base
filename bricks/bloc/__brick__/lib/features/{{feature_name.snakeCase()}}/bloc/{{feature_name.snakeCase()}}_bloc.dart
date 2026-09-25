@@ -3,7 +3,7 @@ import 'package:{{project_name}}/networking/cancel_token_owner.dart';
 import 'package:{{project_name}}/features/{{feature_name.snakeCase()}}/repo/{{feature_name.snakeCase()}}_repo.dart';
 import 'package:{{project_name}}/features/{{feature_name.snakeCase()}}/model/{{feature_name.snakeCase()}}_model.dart';
 import 'package:{{project_name}}/networking/api_exceptions.dart';
-import 'package:{{project_name}}/utils/widgets/ui/app_response_builder.dart';
+import 'package:{{project_name}}/networking/api_response.dart';
 
 /// BLoC for {{feature_name.titleCase()}}.
 ///

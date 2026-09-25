@@ -46,7 +46,10 @@ needed for CI/CD or AI agents running non-interactively).
   with manual-wiring instructions instead of guessing.
 - **`.harness/` Context Store**: token-efficient cross-session memory for AI
   agents. Contains `system-snapshot.md` (auto-generated, always accurate project
-  state) and `active-context.md` (agent-maintained handoff log).
+  state), `active-context.md` (agent-maintained handoff log), and `version.json` (version manifest).
+- **`scripts/agent/upgrade.dart`**: Autonomous 3-Tier Migration Engine. Safely upgrades
+  installed harness components from upstream releases without losing ongoing
+  sprint context (`active-context.md`) or custom team rules (`AGENTS.md`).
 - **`scripts/agent/snapshot.dart`**: generates deterministic, LLM-free project
   snapshots (features, routes, commits, analysis) for the context store.
 - **`scripts/agent/verify.ps1` / `verify.sh`**: deterministic quality gate —
@@ -64,9 +67,23 @@ plugin.
 
 ---
 
+## 🔄 Autonomous 3-Tier Migration Engine
+
+When upgrading an existing project to a new harness release:
+
+```bash
+dart run scripts/agent/upgrade.dart
+```
+
+1. **Tier 1 (Core Engine & Tools)**: Overwrites `scripts/agent/` and `.agents/skills/` cleanly with upstream improvements.
+2. **Tier 2 (User Session Memory)**: **Strictly protects** `.harness/active-context.md` and `.harness/progress.md`—zero loss of ongoing tasks or architectural decisions.
+3. **Tier 3 (Shared Contract)**: Smart-merges `AGENTS.md` and `CLAUDE.md`, adopting upstream rule evolutions while preserving custom project rules and platform workarounds.
+
+---
+
 ## ⚙️ Generation Architecture
 
-`harness` v1.4.1 is a pure-template brick (zero hooks):
+`harness` v1.5.0 is a pure-template brick (zero hooks):
 - Templates for `.agents/skills/`, `.cursor/skills/`, `.harness/`, `scripts/agent/`, `AGENTS.md`, and `CLAUDE.md` are rendered directly from `__brick__/`.
 - No hook compilation or sub-process execution occurs during `mason make`, eliminating Windows path-length (`MAX_PATH`) and directory-scanning issues.
 - Generation completes deterministically in ~50ms across all platforms.

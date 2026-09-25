@@ -19,14 +19,14 @@ custom per-error UI), match exhaustively rather than adding a generic `catch`/`d
 swallows a case silently.
 
 ## `ApiResponse<T>` (`lib/networking/api_response.dart`)
-Sealed: `Initial`, `Loading`, `Completed(T data)`, `Error(ApiException exception)`. A bloc's
+Sealed: `InitialResponse`, `LoadingResponse`, `SuccessResponse(T data)`, `ErrorResponse(dynamic error, {VoidCallback? retry})`. A bloc's
 subject should always be typed `BehaviorSubject<ApiResponse<T>>`, seeded with `ApiResponse.initial()`.
 
 ## Adding a new endpoint
 1. Add the path to `lib/networking/api_constants.dart`.
-2. Add a method to the feature's repo that calls `ApiBaseHelper` and returns the parsed model —
-   let exceptions propagate.
-3. Call it from the bloc, wrapping the result: emit `.loading()` before the call, `.completed(data)`
-   on success, `.error(e)` in the `catch`.
+2. Add a method to the feature's repo that calls `ApiBaseHelper` and returns raw `Map<String, dynamic>` —
+   let exceptions propagate. (Golden Rule #1: NEVER call `Model.fromJson` in the repository).
+3. Call it from the bloc, parsing with `Model.fromJson` and emitting states: emit `ApiResponse.loading()` before the call,
+   `ApiResponse.completed(model)` on success, `ApiResponse.error(e, retry: ...)` in the `catch`.
 4. Don't add per-endpoint error handling inside widgets — that's what
    `exception.userFacingMessage` and `AppErrorState` are for.

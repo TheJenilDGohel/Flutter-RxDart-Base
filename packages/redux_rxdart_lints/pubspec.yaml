@@ -10,8 +10,8 @@ environment:
 
 dependencies:
   analyzer: ^7.0.0
-  custom_lint_builder: ^0.7.0
+  custom_lint_builder: ^0.8.0
 
 dev_dependencies:
   lints: ^5.0.0
-  custom_lint: ^0.7.6
+  custom_lint: ^0.8.0

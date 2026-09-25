@@ -85,6 +85,12 @@ Future<void> run(HookContext context) async {
         'harness',
         '--project_name',
         context.vars['project_name'] as String,
+        '--android_package_name',
+        androidPackageName,
+        '--ios_bundle_id',
+        iosBundleId,
+        '--on-conflict',
+        'overwrite',
       ],
       runInShell: true,
     );

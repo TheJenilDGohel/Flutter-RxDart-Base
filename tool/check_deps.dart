@@ -33,7 +33,14 @@ Future<void> main(List<String> args) async {
   final outdatedPackages = <Map<String, dynamic>>[];
   final upToDatePackages = <String>[];
 
-  final skipPackages = ['flutter', 'flutter_localizations', 'flutter_test'];
+  // Packages pinned or tightly constrained by the Flutter SDK / flutter_localizations
+  final skipPackages = [
+    'flutter',
+    'flutter_localizations',
+    'flutter_test',
+    'meta',
+    'intl',
+  ];
   final client = http.Client();
 
   final entries =

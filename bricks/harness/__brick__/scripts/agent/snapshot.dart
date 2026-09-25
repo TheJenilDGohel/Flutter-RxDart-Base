@@ -29,28 +29,32 @@ Future<void> main() async {
   }
   buffer.writeln();
 
-  // 2. Routes
-  final routes = <String>[];
+  // 2. Routes (count only — routes.dart is the canonical list)
+  var routeCount = 0;
   final routesFile = File('lib/utils/router/routes.dart');
   if (routesFile.existsSync()) {
     final content = routesFile.readAsStringSync();
-    final routeRegex = RegExp(r"static const String (\w+) = '([^']+)';");
-    for (final match in routeRegex.allMatches(content)) {
-      routes.add('${match.group(1)} → ${match.group(2)}');
-    }
+    final routeRegex = RegExp(r"static const String \w+ = '[^']+';");
+    routeCount = routeRegex.allMatches(content).length;
   }
-  buffer.writeln('## Routes (${routes.length})');
-  if (routes.isEmpty) {
+  buffer.writeln('## Routes');
+  if (routeCount == 0) {
     buffer.writeln('_None mapped in routes.dart._');
   } else {
-    buffer.writeln(routes.join(' | '));
+    buffer.writeln(
+      '$routeCount routes registered (see `lib/utils/router/routes.dart`)',
+    );
   }
   buffer.writeln();
 
   // 3. Git Commits
   buffer.writeln('## Recent Commits');
   try {
-    final result = Process.runSync('git', ['log', '--oneline', '-5']);
+    final result = Process.runSync('git', [
+      'log',
+      '--oneline',
+      '-5',
+    ], runInShell: true);
     if (result.exitCode == 0 && result.stdout.toString().trim().isNotEmpty) {
       buffer.writeln(result.stdout.toString().trim());
     } else {
@@ -65,7 +69,10 @@ Future<void> main() async {
   buffer.writeln('## Analysis');
   try {
     // Run analyzer, but we don't want to show the full output, just the summary
-    final result = Process.runSync('flutter', ['analyze', '--no-fatal-infos']);
+    final result = Process.runSync('flutter', [
+      'analyze',
+      '--no-fatal-infos',
+    ], runInShell: true);
     if (result.exitCode == 0) {
       buffer.writeln('Clean ✅');
     } else {

@@ -17,12 +17,13 @@ before reviewing anything.
 2. **RxDart lifecycle** — every `BehaviorSubject`/`PublishSubject` created has a matching
    disposal in `CompositeSubscription`/`dispose()`; every post-`await` `.add()` is guarded with
    `if (!subject.isClosed)`.
-3. **Exception handling** — `ApiException` subtypes are matched exhaustively where switched on,
+3. **Exception & Response handling** — `ApiException` subtypes and `ApiResponse` states (`InitialResponse`,
+   `LoadingResponse`, `SuccessResponse`, `ErrorResponse`) are matched exhaustively where switched on,
    and UI-facing error text goes through `exception.userFacingMessage` rather than being
    formatted inline in a widget.
-4. **Design tokens** — no raw `Color(...)`, no hardcoded pixel literals where ScreenUtil
-   (`.w/.h/.r/.sp`) should be used, no ad hoc loading/error/empty widgets where
-   `AppLoadingState`/`AppErrorState`/`AppEmptyState` apply.
+4. **Design tokens** — no raw `Color(...)`, no deprecated `.withOpacity()` (use `withValues(alpha:)`),
+   no hardcoded pixel literals where ScreenUtil (`.w/.h/.r/.sp`) should be used, no ad hoc
+   loading/error/empty widgets where `AppLoadingState`/`AppErrorState`/`AppEmptyState` apply.
 5. **`flutter analyze`** — run it on the touched files and report anything it flags.
 
 ## Output

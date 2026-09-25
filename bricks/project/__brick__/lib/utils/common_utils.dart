@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:snug_logger/snug_logger.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:{{project_name}}/resources/res_colors.dart';
 import 'package:{{project_name}}/resources/app_typography.dart';
-import 'package:{{project_name}}/utils/show_message.dart';
 
 /// Style intent for a dialog action button.
 enum DialogActionType { primary, decline }
@@ -116,7 +113,7 @@ class CommonUtils {
     return showDialog<T>(
       context: context,
       barrierDismissible: barrierDismissible,
-      barrierColor: ResColors.black.withOpacity(0.5),
+      barrierColor: ResColors.black.withValues(alpha: 0.5),
       builder: (dialogContext) => Dialog(
         backgroundColor: ResColors.transparent,
         insetPadding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -127,7 +124,7 @@ class CommonUtils {
             borderRadius: BorderRadius.circular(20.r),
             boxShadow: [
               BoxShadow(
-                color: ResColors.black.withOpacity(0.08),
+                color: ResColors.black.withValues(alpha: 0.08),
                 blurRadius: 24.r,
                 offset: Offset(0, 8.h),
               ),

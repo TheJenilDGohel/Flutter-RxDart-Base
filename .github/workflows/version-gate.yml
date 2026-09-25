@@ -1,0 +1,48 @@
+name: Version Gate
+
+on:
+  pull_request:
+    paths:
+      - 'bricks/project/__brick__/**'
+      - 'bricks/bloc/__brick__/**'
+      - 'bricks/harness/__brick__/**'
+      - 'bricks/project/brick.yaml'
+      - 'bricks/bloc/brick.yaml'
+      - 'bricks/harness/brick.yaml'
+
+jobs:
+  check-version-bump:
+    name: Ensure brick version bumped
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Project Brick Version
+        run: |
+          if git diff --name-only origin/${{ github.base_ref }} HEAD | grep -q "^bricks/project/__brick__/"; then
+            if ! git diff origin/${{ github.base_ref }} HEAD -- bricks/project/brick.yaml | grep -q "^+version:"; then
+              echo "::error::bricks/project/__brick__ was modified but bricks/project/brick.yaml version was not bumped."
+              exit 1
+            fi
+          fi
+
+      - name: Check Bloc Brick Version
+        run: |
+          if git diff --name-only origin/${{ github.base_ref }} HEAD | grep -q "^bricks/bloc/__brick__/"; then
+            if ! git diff origin/${{ github.base_ref }} HEAD -- bricks/bloc/brick.yaml | grep -q "^+version:"; then
+              echo "::error::bricks/bloc/__brick__ was modified but bricks/bloc/brick.yaml version was not bumped."
+              exit 1
+            fi
+          fi
+
+      - name: Check Harness Brick Version
+        run: |
+          if git diff --name-only origin/${{ github.base_ref }} HEAD | grep -q "^bricks/harness/__brick__/"; then
+            if ! git diff origin/${{ github.base_ref }} HEAD -- bricks/harness/brick.yaml | grep -q "^+version:"; then
+              echo "::error::bricks/harness/__brick__ was modified but bricks/harness/brick.yaml version was not bumped."
+              exit 1
+            fi
+          fi

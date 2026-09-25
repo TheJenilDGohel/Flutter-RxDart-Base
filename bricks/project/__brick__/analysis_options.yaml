@@ -13,6 +13,8 @@ analyzer:
     missing_required_param: error
     missing_return: error
     todo: ignore
+    analysis_options_deprecated_plugins: ignore
+    unrecognized_error_code: ignore
 
 linter:
   rules:

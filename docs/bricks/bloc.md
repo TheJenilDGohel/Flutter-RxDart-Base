@@ -30,6 +30,8 @@ lib/features/{feature_name}/
 ├── repo/{feature_name}_repo.dart          # Injectable repository (ApiBaseHelper DI + CancelToken)
 ├── widgets/{feature_name}_content_widget.dart # Decoupled dumb UI content widget
 └── {feature_name}_page.dart               # StatefulWidget managing BLoC lifecycle with Scaffold
+test/features/{feature_name}/bloc/
+└── {feature_name}_bloc_test.dart          # Unit test skeleton with Fake repo and reactive stream matchers
 ```
 
 ---
@@ -41,6 +43,7 @@ lib/features/{feature_name}/
 3. **Pre-scaffolded Model Folder**: Includes an empty `model/` folder so feature models can be added immediately.
 4. **Constructor Injection**: Repositories use `FeatureRepo({ApiBaseHelper? api}) : _api = api ?? ApiBaseHelper.instance;` for easy unit testing.
 5. **Scaffold Shell**: Uses `Scaffold` with consistent styling, app bar title, and design tokens.
+6. **Isolated Unit Testing**: Scaffolded unit tests in `test/features/` test state emission without making actual HTTP requests.
 
 ---
 
@@ -52,3 +55,7 @@ run one command instead — it scaffolds the feature (if missing) *and* wires th
 ```bash
 dart run scripts/agent/wire_route.dart <feature_name> [route_path]
 ```
+
+---
+
+See [`CHANGELOG.md`](https://github.com/TheJenilDGohel/Flutter-RxDart-Base/blob/main/bricks/bloc/CHANGELOG.md) for version history.

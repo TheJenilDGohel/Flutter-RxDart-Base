@@ -10,3 +10,4 @@ dependencies:
   yaml: ^3.1.2
   http: ^1.2.1
   pub_semver: ^2.1.4
+  path: ^1.9.1

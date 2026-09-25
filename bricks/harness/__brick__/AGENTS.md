@@ -53,6 +53,8 @@
   Auto-runs `mason make bloc --feature_name <name>` first if the feature doesn't exist yet.
 - Quality Gate: `powershell -ExecutionPolicy Bypass -File scripts/agent/verify.ps1` (Win) or `./scripts/agent/verify.sh` (Mac/Linux).
   Must pass `dart format --set-exit-if-changed .` and `flutter analyze --fatal-infos`.
+- Harness Upgrade & Migration: `dart run scripts/agent/upgrade.dart`.
+  Performs 3-tier safe upgrade: overwrites engine scripts and skills, strictly protects `.harness/active-context.md` (0 data loss), and smart-merges custom project rules.
 - Hot-reload vs full build: Rely on hot reload/restart during feature work; only full restart on native dependency/asset changes.
 
 ## 5. Golden Rules Are Analyzer-Enforced
@@ -69,10 +71,11 @@ will already catch them.
 ## 7. Project Context (.harness/)
 - **Before starting**: read `.harness/active-context.md` (current state) and `.harness/system-snapshot.md` (project scan).
 - **After completing a task**: update `.harness/active-context.md`:
-  - `Current Focus`: what you just finished + what's next.
-  - `Recent Tasks`: prepend entry with proof (`commit:a1b2c3d` or `file:lib/features/chat/...`). Cap at 5 — move overflow to `progress.md`.
-  - `Key Decisions`: only add if you made an architectural or pattern choice.
-  - `Known Issues`: only add if you found something broken you didn't fix.
+  - `Current Focus`: 2-3 lines — what you just finished + what's next.
+  - `Recent Tasks`: prepend entry, 1-2 lines with proof (`commit:a1b2c3d` or `file:lib/features/chat/...`). Cap at 5 — overflow goes to `progress.md` as ONE line: `[YYYY-MM-DD] type(scope): what (proof)`. Drop `commit:pending` wording once committed — stale pending markers mislead later sessions.
+  - `Key Decisions`: 1-2 lines each. State the decision and reason. No verification narrative.
+  - `Known Issues`: only things still broken. **Delete** resolved items — no "was X, now fixed" history. Use `⏸ deferred by decision: <reason>` for items the owner chose to skip, so later sessions don't re-raise them.
 - **Never** edit `.harness/system-snapshot.md` — it is script-generated only.
 - **Never** read `.harness/progress.md` unless explicitly asked for historical context.
 - Regenerate snapshot: `dart run scripts/agent/snapshot.dart`.
+
