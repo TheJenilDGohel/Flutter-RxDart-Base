@@ -4,7 +4,7 @@ description: >-
   Redux (auth/session persistence), RxDart BLoCs (per-screen ephemeral state),
   Dio networking with interceptor chain, design tokens, localization, and
   a showcase demo. Run once per project.
-version: 1.2.1
+version: 1.3.0
 
 environment:
   mason: ">=0.1.0-dev.52 <0.2.0"

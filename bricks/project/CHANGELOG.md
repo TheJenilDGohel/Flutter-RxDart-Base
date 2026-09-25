@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.0
+
+- Upgraded `connectivity_plus` from `^6.1.0` to `^7.3.1`; modernized `ConnectivityInterceptor` to use `result.hasConnectivity` instead of `result.contains(ConnectivityResult.none)`.
+- Upgraded `flutter_secure_storage` from `^9.2.2` to `^10.3.4` (bridges legacy cipher migration engine — safe for existing user tokens). **Note:** 11.x is intentionally avoided as it deletes legacy Android tokens on first launch.
+- Upgraded `flutter_dotenv` from `^5.2.1` to `^6.0.1` (fully backward compatible; no template code changes needed).
+- Raised Dart SDK floor from `>=3.0.0` to `>=3.3.0` to match `connectivity_plus` 7.x requirement.
+- Removed obsolete `analysis_options_deprecated_plugins: ignore` from `analysis_options.yaml` — the diagnostic code is no longer recognized by the current Dart analyzer and was causing an `unrecognized_error_code` warning.
+
 ## 1.2.1
 
 - Ensured `.env` template asset is explicitly tracked in repository for clean smoke test asset resolution.
