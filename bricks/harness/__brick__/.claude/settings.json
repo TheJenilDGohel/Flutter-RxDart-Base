@@ -3,7 +3,6 @@
   "promptCacheTtl": "1h",
   "subagentPromptCacheTtl": "1h",
   "bashOutputMaxChars": 4000,
-  "crossSessionInbound": "hold",
   "teammateMode": "auto",
   "permissions": {
     "allow": [

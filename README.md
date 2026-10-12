@@ -38,7 +38,7 @@ dart run scripts/agent/verify.dart
 |---|---|---|---|
 | [`project`](docs/bricks/project.md) | `1.5.0` | `mason make project`, once | Redux session store, Dio client with 5 interceptors, typed errors, router, design tokens, UI kit, l10n (en, hi), showcase screen |
 | [`bloc`](docs/bricks/bloc.md) | `1.2.1` | `mason make bloc`, once per screen | BLoC, repo, model, page, content widget and 7 passing BLoC tests |
-| [`harness`](docs/bricks/harness.md) | `2.0.1` | installed by `project` | `AGENTS.md`, Token Shield, path rules, specialist swarm, Maestro testing, quality gates, lessons loop |
+| [`harness`](docs/bricks/harness.md) | `2.0.2` | installed by `project` | `AGENTS.md`, Token Shield, path rules, specialist swarm, Maestro testing, quality gates, lessons loop |
 | [`redux_rxdart_lints`](docs/packages/redux_rxdart_lints.md) | `0.4.0` | wired in by `project` | Turns five golden rules into analyzer errors |
 
 ---
@@ -70,7 +70,7 @@ The architecture lints (in the IDE and in `verify.dart`) reject parsing in repos
 
 ---
 
-## The Opinionated AI Agent Setup (Harness v2.0.1)
+## The Opinionated AI Agent Setup (Harness v2.0.2)
 
 This repository couples architecture with a battle-tested **AI Agent Harness** engineered specifically for frontier coding agents (Claude Code, Cursor, Codex, Gemini CLI). It transforms chaotic LLM edits into a deterministic, token-efficient assembly line:
 

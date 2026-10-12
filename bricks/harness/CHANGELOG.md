@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.2
+
+- **`crossSessionInbound` is no longer set by the harness**: 2.0.1's `"hold"` in the project `.claude/settings.json` blocked swarm hand-offs (a project-manager session assigning work to another session). A repo setting can only tighten this value, so a developer's own `"accept"` could not override it. The key is removed; each developer chooses in `~/.claude/settings.json`. Apps keep their own `settings.json` on upgrade, so delete the line there by hand.
+
 ## 2.0.1
 
 - **`--check-only` no longer hangs in IDE terminals**: VS Code-based terminals export `GIT_ASKPASS`, which beats `core.askPass=` and made `git ls-remote` wait on a credential prompt for a missing or private upstream. The probe now clears `GIT_ASKPASS` and `SSH_ASKPASS`.
