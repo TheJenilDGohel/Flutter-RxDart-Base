@@ -15,6 +15,7 @@ Find the layer that's wrong, fix it there, prove it with a test, and leave a les
 - **Red gate**: run `dart run scripts/agent/verify.dart` and read the first failing step's output. Each step is covered in `.agents/skills/fix-bug/gate-failures.md`.
 - **Runtime**: the stack trace or the user's exact steps. With a running debug app and the `dart` MCP server: `get_runtime_errors`, `widget_inspector`, then `hot_reload` to confirm a fix. In debug builds, the Redux logging middleware prints every action (look for an unexpected `LogoutAction`).
 - **Logic bug** (BLoC, model, reducer): write the failing test *first*, named after the bug. It's the reproduction and the regression guard in one (`.agents/skills/write-tests/SKILL.md`).
+- **Separate diagnosis from fix**: Form a concrete hypothesis and reproduce it before changing code. Propose the root cause and minimal diff first. Never guess with multi-shot trial-and-error edits in the main context.
 
 ## 2. Map the symptom to a layer
 | Symptom | Usual cause | Where to fix |

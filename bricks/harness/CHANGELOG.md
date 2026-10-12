@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.0
+
+- **Adversarial Plan Reviewer Subagent (`.claude/agents/skeptic.md`)**: Introduced `@skeptic`, a read-only specialist designed to attack implementation plans, state models, and reactive designs before coding begins. Evaluates BLoC/stream lifecycles, race conditions, offline handling, and boundaries with a maximum of 5 ranked risks and an explicit actionable verdict.
+- **Token-Shielded Documentation Scout (`.claude/agents/docs-scout.md`)**: Introduced `@docs-scout`, a fast, token-efficient research librarian configured with Haiku and `WebFetch` to fetch and digest third-party library, pub package, and API documentation into compact summaries strictly under 200 words, shielding the main agent context from heavy web/README bloat.
+- **Automated `PostToolUse` Hook for In-Flight Verification**: Configured a native `PostToolUse` lifecycle hook in `.claude/settings.json` running `dart run scripts/agent/on_edit.dart` automatically after `Edit` and `Write` actions, providing instantaneous formatting and custom lint feedback without requiring manual tool invocations.
+- **Enhanced Root-Cause Debugging Protocol in `fix-bug`**: Updated `.agents/skills/fix-bug/SKILL.md` to enforce explicit separation of hypothesis reproduction from fix application, preventing trial-and-error edits in the main agent context.
+- **Updated Swarm Coordination & Documentation**: Updated `CLAUDE.md`, `.harness/team-protocol.md`, `bricks/harness/README.md`, and `docs/bricks/harness.md` to document `@skeptic`, `@docs-scout`, and the automated edit hooks.
+
 ## 2.0.2
 
 - **`crossSessionInbound` is no longer set by the harness**: 2.0.1's `"hold"` in the project `.claude/settings.json` blocked swarm hand-offs (a project-manager session assigning work to another session). A repo setting can only tighten this value, so a developer's own `"accept"` could not override it. The key is removed; each developer chooses in `~/.claude/settings.json`. Apps keep their own `settings.json` on upgrade, so delete the line there by hand.

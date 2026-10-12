@@ -5,7 +5,7 @@ description: >-
   (planning plus task skills for features, endpoints, state, UI, tests,
   bug fixing and harness evolution), a lessons-based learning loop,
   and scripts/agent/ tools for verification, route wiring and upgrades.
-version: 2.0.2
+version: 2.1.0
 
 environment:
   mason: ">=0.1.0-dev.52 <0.2.0"

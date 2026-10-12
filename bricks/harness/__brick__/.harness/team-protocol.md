@@ -23,6 +23,8 @@ To eliminate merge conflicts across sessions, each agent role strictly owns its 
 - `@ui-artisan`: Owns `lib/features/<name>/widgets/`, `lib/features/<name>/<name>_page.dart`, and `lib/utils/widgets/ui/`.
 - `@device-qa`: Owns `.maestro/flows/` and end-to-end device test execution.
 - `@flutter-qa`: Read-only architecture reviewer.
+- `@skeptic`: Read-only adversarial plan reviewer (attacks designs before code is written).
+- `@docs-scout`: Read-only documentation and API researcher (token-shielded digests).
 
 ## 3. Distributed Task Lifecycle & Concurrency Control
 1. **Discover**: Check pending work with `dart run scripts/team/task_handoff.dart list`.

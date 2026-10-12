@@ -38,7 +38,7 @@ dart run scripts/agent/verify.dart
 |---|---|---|---|
 | [`project`](bricks/project.md) | `1.5.0` | `mason make project`, once | Redux session store, Dio client with 5 interceptors, typed errors, router, design tokens, UI kit, l10n (en, hi), showcase screen |
 | [`bloc`](bricks/bloc.md) | `1.2.1` | `mason make bloc`, once per screen | BLoC, repo, model, page, content widget and 7 passing BLoC tests |
-| [`harness`](bricks/harness.md) | `2.0.2` | installed by `project` | `AGENTS.md`, Token Shield, path rules, specialist swarm, Maestro testing, quality gates, lessons loop |
+| [`harness`](bricks/harness.md) | `2.1.0` | installed by `project` | `AGENTS.md`, Token Shield, path rules, specialist swarm, Maestro testing, quality gates, lessons loop |
 | [`redux_rxdart_lints`](packages/redux_rxdart_lints.md) | `0.4.0` | wired in by `project` | Turns five golden rules into analyzer errors |
 
 ---
@@ -70,7 +70,7 @@ The architecture lints (in the IDE and in `verify.dart`) reject parsing in repos
 
 ---
 
-## The Opinionated AI Agent Setup (Harness v2.0.2)
+## The Opinionated AI Agent Setup (Harness v2.1.0)
 
 This repository couples architecture with a battle-tested **AI Agent Harness** engineered specifically for frontier coding agents (Claude Code, Cursor, Codex, Gemini CLI). It transforms chaotic LLM edits into a deterministic, token-efficient assembly line:
 
@@ -85,6 +85,8 @@ Instead of one generalist agent running out of context, tasks multiplex across l
 - `@ui-artisan`: ScreenUtil public widgets, ResColors tokens, `AppResponseBuilder`, l10n, and zero `setState`.
 - `@device-qa`: Declarative end-to-end device testing via Maestro CLI and MCP.
 - `@flutter-qa`: One-shot architectural conformance, layer boundary enforcement, and lint audits.
+- `@skeptic`: Adversarial plan reviewer attacking reactive state and stream edge cases before coding begins.
+- `@docs-scout`: Token-efficient library and documentation researcher (<200 words) shielding the main context.
 - **Coordination**: Supports single-terminal in-process handoffs and concurrent multi-session Git worktrees (`.worktreeinclude`) via `scripts/team/task_handoff.dart` and `scripts/team/heartbeat.dart` (`.harness/team-protocol.md`).
 
 ### 3. 📱 Declarative Device Automation (Maestro)
