@@ -903,6 +903,7 @@ Directory _backup() {
     '.agents',
     '.cursor',
     'scripts/agent',
+    'scripts/team',
   ]) {
     final type = FileSystemEntity.typeSync(path);
     if (type == FileSystemEntityType.file) {
@@ -964,13 +965,37 @@ List<String> _missingPermissions(String template, String mine) {
   return allow(template).where((e) => !have.contains(e)).toList();
 }
 
+const _skipBackupDirNames = {
+  'worktrees',
+  '.git',
+  '.dart_tool',
+  'build',
+};
+
 void _replaceDir(Directory from, Directory to) {
   if (!from.existsSync()) return;
   if (to.existsSync()) to.deleteSync(recursive: true);
   to.createSync(recursive: true);
-  for (final entity in from.listSync(recursive: true)) {
-    final rel = entity.path.substring(from.path.length + 1);
-    if (entity is File) _copyFile(entity.path, '${to.path}/$rel');
+  _copyDirRecursive(from, to);
+}
+
+void _copyDirRecursive(Directory from, Directory to) {
+  try {
+    for (final entity in from.listSync(followLinks: false)) {
+      final name = entity.uri.pathSegments.where((s) => s.isNotEmpty).last;
+      if (_skipBackupDirNames.contains(name) || name.startsWith('.backup_')) {
+        continue;
+      }
+      final dest = '${to.path}/$name';
+      if (entity is File) {
+        _copyFile(entity.path, dest);
+      } else if (entity is Directory) {
+        Directory(dest).createSync(recursive: true);
+        _copyDirRecursive(entity, Directory(dest));
+      }
+    }
+  } on FileSystemException {
+    // Gracefully ignore unreadable or path-length-exceeded entities in non-managed trees.
   }
 }
 

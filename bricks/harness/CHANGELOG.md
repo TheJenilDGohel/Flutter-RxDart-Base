@@ -3,6 +3,7 @@
 ## 2.0.2
 
 - **`crossSessionInbound` is no longer set by the harness**: 2.0.1's `"hold"` in the project `.claude/settings.json` blocked swarm hand-offs (a project-manager session assigning work to another session). A repo setting can only tighten this value, so a developer's own `"accept"` could not override it. The key is removed; each developer chooses in `~/.claude/settings.json`. Apps keep their own `settings.json` on upgrade, so delete the line there by hand.
+- **`upgrade.dart` skips `.claude/worktrees` and deep trees during backup**: Claude Code worktrees contain full git checkouts. Backing them up recursed into nested backups or exceeded path length limits on Windows (`PathNotFoundException`). The backup step now safely skips `worktrees`, `.git`, `.dart_tool`, and old backups, and handles unreadable entities gracefully.
 
 ## 2.0.1
 
