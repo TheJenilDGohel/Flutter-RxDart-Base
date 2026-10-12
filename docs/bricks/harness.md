@@ -20,14 +20,14 @@ The brick has no hooks and does not edit `pubspec.yaml`. `project` adds the `red
 | `.agents/skills/` | Eight skills, one per kind of work (table below). Claude Code reads the entry points in `.claude/skills/`. |
 | `.claude/rules/` | Path-scoped rules loaded on-demand: `bloc.md`, `ui.md`, `endpoints.md`, `testing.md`. |
 | `.claude/agents/` | Specialist subagent swarm: `@bloc-specialist`, `@ui-artisan`, `@device-qa`, `@flutter-qa`, `@skeptic`, `@docs-scout`. |
-| `scripts/agent/on_edit.dart` | Fast (<1.5s) in-flight format and analyze check on touched files (runs automatically via `PostToolUse` hook). |
+| `scripts/agent/on_edit.dart` | Fast (<1.5s) in-flight format and analyze check on touched files. |
 | `scripts/team/` | Distributed swarm coordination: `task_handoff.dart` and `heartbeat.dart` (`.harness/team-protocol.md`). |
 | `.maestro/` | Declarative E2E mobile testing flows (`flows/smoke_launch.yaml`). |
 | `scripts/agent/verify.dart` | The quality gate: format → analyze (including architecture lints) → tests → lessons → snapshot (`--fast` = format + analyze). |
 | `scripts/agent/wire_route.dart` | Scaffolds a feature with `mason make bloc` if missing, then adds its route. |
 | `scripts/agent/learn.dart` | The lessons loop (below). |
 | `scripts/agent/upgrade.dart` | Upgrades the harness without touching your work (below). |
-| `.claude/` | Settings (Token Shield, 1h cache TTL, `PostToolUse` edit hooks, multiplexing), skill entry points, specialist subagents. |
+| `.claude/` | Settings (Token Shield, 1h cache TTL, multiplexing), skill entry points, specialist subagents. |
 | `.mcp.json`, `.cursor/mcp.json` | Dart MCP server, Maestro device automation, and Anthropic Knowledge Graph memory server. |
 | `.harness/` | Memory: `active-context.md`, `progress.md`, `lessons.md`, `team-protocol.md`, generated `system-snapshot.md`, `version.json`. Agents add skill overlays (`skills/<skill>.md`) and specs (`specs/<feature>.md`). |
 

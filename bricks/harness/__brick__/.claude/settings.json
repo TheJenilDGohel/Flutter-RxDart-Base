@@ -4,19 +4,6 @@
   "subagentPromptCacheTtl": "1h",
   "bashOutputMaxChars": 4000,
   "teammateMode": "auto",
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "dart run scripts/agent/on_edit.dart"
-          }
-        ]
-      }
-    ]
-  },
   "permissions": {
     "allow": [
       "mcp__dart",

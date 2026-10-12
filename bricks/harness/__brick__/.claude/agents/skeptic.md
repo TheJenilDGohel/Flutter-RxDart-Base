@@ -2,7 +2,7 @@
 name: skeptic
 description: Attacks implementation plans, state models, and reactive designs before coding starts to uncover edge cases and failure modes.
 tools: Read, Grep, Glob
-model: opus
+model: sonnet
 omitClaudeMd: true
 ---
 

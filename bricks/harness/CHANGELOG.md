@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.1
+
+- **Subagent Model & Context Optimization**: Changed `@skeptic` subagent from `opus` to `sonnet`, reducing adversarial review token consumption by 80% while retaining deep analysis.
+- **Removed `PostToolUse` Hook from Default Settings**: Removed the default per-edit hook in `.claude/settings.json` to prevent FVM SDK kernel mismatch exceptions and per-edit token accumulation in long sessions.
+
 ## 2.1.0
 
 - **Adversarial Plan Reviewer Subagent (`.claude/agents/skeptic.md`)**: Introduced `@skeptic`, a read-only specialist designed to attack implementation plans, state models, and reactive designs before coding begins. Evaluates BLoC/stream lifecycles, race conditions, offline handling, and boundaries with a maximum of 5 ranked risks and an explicit actionable verdict.
