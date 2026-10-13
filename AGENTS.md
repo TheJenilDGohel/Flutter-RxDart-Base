@@ -21,7 +21,7 @@ This repository is the Mason Workspace source repository providing templates, br
 │   ├── test_harness_learn.dart   # E2E test of the harness's scripts/agent/learn.dart (lessons loop)
 │   └── version_gate.dart         # Version bump + CHANGELOG entry required for shipped changes
 ├── docs/                         # Extended architectural guides, brick references, and roadmap
-└── .github/workflows/            # ci.yml, version-gate.yml, docs.yml, dependency-audit.yml, dependency-gate.yml
+└── .github/workflows/            # ci.yml, version-gate.yml, docs.yml, dependency-audit.yml, dependency-gate.yml, changelog.yml
 ```
 
 ## ⚡ Maintainer Verification Quality Gates

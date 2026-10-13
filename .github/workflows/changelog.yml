@@ -1,0 +1,58 @@
+name: Changelog Bot
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Git ref (tag or HEAD) to generate changelog for'
+        required: false
+        default: 'HEAD'
+        type: string
+      release_name:
+        description: "Display name for the version (without 'v', optional)"
+        required: false
+        default: ''
+        type: string
+      dry_run:
+        description: 'Print updated changelog without creating PR or writing file'
+        required: false
+        default: false
+        type: boolean
+      provider:
+        description: 'LLM provider (optional: gemini, openai, anthropic, xai)'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  changelog:
+    name: Generate Changelog
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Changelog Bot Runner Nyaomaru
+        uses: nyaomaru/changelog-bot@v0.8.0
+        with:
+          changelog-path: 'CHANGELOG.md'
+          base-branch: 'main'
+          release-tag: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref_name }}
+          release-name: ${{ github.event_name == 'workflow_dispatch' && inputs.release_name || '' }}
+          dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+          provider: ${{ github.event_name == 'workflow_dispatch' && inputs.provider || '' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
