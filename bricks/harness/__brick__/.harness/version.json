@@ -1,6 +1,6 @@
 {
   "brick": "harness",
-  "version": "2.1.1",
+  "version": "2.3.0",
   "upstream_repo": "https://github.com/jenilseawind-glitch/Flutter-RxDart-Base.git",
   "vars": {
     "project_name": "{{project_name}}",

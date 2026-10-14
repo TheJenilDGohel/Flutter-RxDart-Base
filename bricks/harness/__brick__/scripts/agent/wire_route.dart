@@ -298,7 +298,10 @@ void _injectRouteConstant(
   String routePath,
 ) {
   final content = routesFile.readAsStringSync();
-  if (RegExp('\\b$constantName\\s*=').hasMatch(content)) {
+  if (RegExp(
+    r'^\s*static\s+const\s+(?:String\s+)?' + constantName + r'\s*=',
+    multiLine: true,
+  ).hasMatch(content)) {
     print(
       '   ℹ️ Route constant Routes.$constantName already exists in ${routesFile.path}',
     );

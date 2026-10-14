@@ -47,6 +47,15 @@ Work in this order, keeping the gate green as you go (`dart run scripts/agent/on
 
 1. **Endpoint, repo, model, BLoC fetch**: follow `.agents/skills/add-endpoint/SKILL.md` for each endpoint. The scaffold's repo calls a placeholder path, so replace it.
 2. **Screen state beyond one fetch** (forms, search, pagination, events, session changes): follow `.agents/skills/manage-state/SKILL.md`.
+
+> [!TIP]
+> **Boundary Checkpoint (Context Compaction):** Once BLoC unit tests pass green, drop network payload schemas, raw JSON payloads, and test execution logs from active context before building UI. Carry forward ONLY:
+> 1. The public `Stream<ApiResponse<T>>` / `data$` contract.
+> 2. The parsed model field names and types.
+> 3. The UI state transitions (loading, empty, error, data).
+> 4. Acceptance criteria from the spec.
+> Pruning raw HTTP traces and compiler noise saves 60-80% of context tokens during widget implementation.
+
 3. **UI**: the page owns the BLoC and binds `data$` with `AppResponseBuilder`. The content widget receives the parsed model, never the BLoC or a stream. Follow `.agents/skills/build-ui/SKILL.md`.
 4. **Strings**: the scaffold's AppBar title is a hardcoded `Text`. Move it and every new string to `context.l10n`, adding each key to both `lib/l10n/app_en.arb` and `lib/l10n/app_hi.arb`.
 

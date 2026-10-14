@@ -19,11 +19,13 @@ The brick has no hooks and does not edit `pubspec.yaml`. `project` adds the `red
 | `CLAUDE.md` | Claude Code's entry: imports `AGENTS.md`, adds the app ids, loads `.harness/active-context.md`. |
 | `.agents/skills/` | Eight skills, one per kind of work (table below). Claude Code reads the entry points in `.claude/skills/`. |
 | `.claude/rules/` | Path-scoped rules loaded on-demand: `bloc.md`, `ui.md`, `endpoints.md`, `testing.md`. |
+| `.cursor/rules/` | Cursor path-scoped rules with glob frontmatter: `bloc.mdc`, `ui.mdc`, `endpoints.mdc`, `testing.mdc`. |
 | `.claude/agents/` | Specialist subagent swarm: `@bloc-specialist`, `@ui-artisan`, `@device-qa`, `@flutter-qa`, `@skeptic`, `@docs-scout`. |
-| `scripts/agent/on_edit.dart` | Fast (<1.5s) in-flight format and analyze check on touched files. |
-| `scripts/team/` | Distributed swarm coordination: `task_handoff.dart` and `heartbeat.dart` (`.harness/team-protocol.md`). |
+| `scripts/agent/on_edit.dart` | Fast (<1.5s) in-flight format/analyze check with compact error stripping and anti-loop circuit breaker. |
+| `scripts/agent/watch.dart` | Background incremental diagnostics watcher updating `.harness/diagnostics.json` with zero token overhead. |
+| `scripts/team/` | Distributed swarm coordination: `task_handoff.dart` (messaging & human blockers), `heartbeat.dart`, and `worktree.dart` (`.harness/team-protocol.md`). |
 | `.maestro/` | Declarative E2E mobile testing flows (`flows/smoke_launch.yaml`). |
-| `scripts/agent/verify.dart` | The quality gate: format → analyze (including architecture lints) → tests → lessons → snapshot (`--fast` = format + analyze). |
+| `scripts/agent/verify.dart` | The quality gate: format → analyze (including architecture lints) → tests → lessons → snapshot with framework stack trace pruning. |
 | `scripts/agent/wire_route.dart` | Scaffolds a feature with `mason make bloc` if missing, then adds its route. |
 | `scripts/agent/learn.dart` | The lessons loop (below). |
 | `scripts/agent/upgrade.dart` | Upgrades the harness without touching your work (below). |
@@ -56,7 +58,18 @@ Tasks multiplex across lean, role-bounded subagents in `.claude/agents/` configu
 - `@skeptic`: Adversarial plan reviewer attacking reactive designs before coding begins.
 - `@docs-scout`: Token-efficient package and documentation researcher (<200 words).
 
-Coordination works across single-terminal in-process handoffs and concurrent multi-session Git worktrees (`.worktreeinclude`) via `scripts/team/task_handoff.dart` and `scripts/team/heartbeat.dart` (`.harness/team-protocol.md`).
+Coordination works across single-terminal in-process handoffs and concurrent multi-session Git worktrees (`.worktreeinclude`) via `scripts/team/task_handoff.dart`, `scripts/team/heartbeat.dart`, and `scripts/team/worktree.dart` (`.harness/team-protocol.md`).
+
+### Token Conservation & High-Efficiency Operations
+
+Token waste is eliminated systematically across all agent interactions:
+- **Fast In-Flight Checks & Anti-Loop Circuit Breaker**: `dart run scripts/agent/on_edit.dart` strips analyzer noise and halts runaway retry loops with exit code 2 on the 3rd consecutive identical failure.
+- **Framework Stack Trace Pruning**: `scripts/agent/verify.dart` prunes internal Flutter framework traces (`package:flutter/src/`, `test_api/`, `dart:async/`), delivering ~80% token savings on test/build failures.
+- **Layer-Boundary Compaction Protocol**: Skills (`add-feature`, `build-ui`) enforce explicit checkpoints between BLoC tests and UI creation, dropping raw network schemas and test output.
+- **Background Watcher**: `dart run scripts/agent/watch.dart` provides live status in `.harness/diagnostics.json` without spawning extra processes.
+- **Token Shield**: `.claude/settings.json` enforces `bashOutputMaxChars: 3000`, 1h prompt cache TTL, and denies reads to generated serialization files (`*.g.dart`, `*.freezed.dart`, `build/`, `.dart_tool/`).
+- **Research Offload**: `@docs-scout` uses Haiku and enforces <200 word digests for library/API documentation.
+- **System Snapshot**: `.harness/system-snapshot.md` eliminates expensive directory sweeps and repetitive tool calls.
 
 ### Declarative Device Automation (Maestro)
 
@@ -65,14 +78,15 @@ Mobile QA runs deterministically without token-draining screenshot OCR or raw ac
 - Pre-approved in `.mcp.json` (`maestro mcp`) and CLI (`maestro test .maestro/flows/smoke_launch.yaml`).
 - Subagent `@device-qa` drives full user journeys across real emulators and devices.
 
-### 5-Tier Memory & Self-Learning Architecture
+### Grounded RAG & Tiered Memory Architecture
 
-Instead of a ceremonial task close-out tax that inflates prompt context, memory is structured in five tiers:
-1. **Tier 1 (Ambient)**: Claude Code Auto-Memory (`MEMORY.md` + Auto-Dream) captures personal session insights without manual friction.
-2. **Tier 2 (Structured Knowledge Graph)**: `@modelcontextprotocol/server-memory` registered in `.mcp.json` stores technical domain entities, relations, and observations locally with **0 baseline prompt tokens**.
-3. **Tier 3 (Path-Scoped Rules)**: Invariant standards codified in `.claude/rules/*.md` (`bloc.md`, `ui.md`, `endpoints.md`, `testing.md`) load only when editing matching files.
-4. **Tier 4 (Permanent Team Rules)**: Non-negotiable team rules live below `harness:project-rules` in `AGENTS.md` §7.
-5. **Tier 5 (Offline CLI)**: `scripts/agent/learn.dart` remains available for offline CLI tracking and packaging upstream proposals (`learn.dart upstream`).
+Memory and context retrieval are structured to eliminate token bloat and administrative ceremony:
+1. **Tier 1 (Compiler & Symbol Grounding - LSP RAG)**: `mcp__dart` retrieves ground-truth definitions, signatures, and types on demand without file dumping.
+2. **Tier 2 (Deterministic Path Rules)**: Invariant standards in `.claude/rules/*.md` (`bloc.md`, `ui.md`, `endpoints.md`, `testing.md`) inject layer context only when matching files are opened (0 baseline prompt tokens).
+3. **Tier 3 (Ambient Session Memory)**: Claude Code Auto-Memory (`MEMORY.md` + Auto-Dream) captures transient workflow context without manual journaling.
+4. **Tier 4 (Permanent Team Rules)**: Non-negotiable global conventions live below `harness:project-rules` in `AGENTS.md` §7.
+5. **Tier 5 (Offline CLI & Sync)**: `scripts/agent/learn.dart` remains available for offline team review and upstream proposals (`learn.dart upstream`).
+- **No Close-Out Tax**: Routine bugfixes and UI tweaks skip close-out completely; only major features or milestones update `.harness/active-context.md`.
 
 ---
 

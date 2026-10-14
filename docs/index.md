@@ -38,7 +38,7 @@ dart run scripts/agent/verify.dart
 |---|---|---|---|
 | [`project`](bricks/project.md) | `1.5.0` | `mason make project`, once | Redux session store, Dio client with 5 interceptors, typed errors, router, design tokens, UI kit, l10n (en, hi), showcase screen |
 | [`bloc`](bricks/bloc.md) | `1.2.1` | `mason make bloc`, once per screen | BLoC, repo, model, page, content widget and 7 passing BLoC tests |
-| [`harness`](bricks/harness.md) | `2.1.1` | installed by `project` | `AGENTS.md`, Token Shield, path rules, specialist swarm, Maestro testing, quality gates, lessons loop |
+| [`harness`](bricks/harness.md) | `2.3.0` | installed by `project` | `AGENTS.md`, Token Shield, Cursor rules, anti-loop guard, specialist swarm, Maestro testing, quality gates, lessons loop |
 | [`redux_rxdart_lints`](packages/redux_rxdart_lints.md) | `0.4.0` | wired in by `project` | Turns five golden rules into analyzer errors |
 
 ---

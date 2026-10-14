@@ -7,6 +7,9 @@ description: Builds or changes Flutter UI in this Redux + RxDart app the house w
 
 Widgets render state; they don't own it. Pages wire a BLoC to the screen, content widgets draw plain data, and everything visual comes from tokens, so a design change touches one file instead of fifty.
 
+> [!TIP]
+> **Token-Saving Input Boundary:** When implementing UI, inspect only the public `Stream<ApiResponse<T>>` / `data$` contract, parsed model fields, and required UI states. Never pull raw JSON schemas or BLoC test output logs into your UI context.
+
 ## 0. Load what this project learned
 1. Read `.harness/skills/build-ui.md` if it exists (design decisions, custom tokens, components added here). It wins over this file.
 2. Check the Knowledge Graph (`search_nodes` / `read_graph`) or run `dart run scripts/agent/learn.dart list build-ui`.

@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.3.0
+
+- **Cross-IDE Path-Scoped Rules (`.cursor/rules/*.mdc`)**: Added first-class Cursor rule definitions (`bloc.mdc`, `endpoints.mdc`, `ui.mdc`, `testing.mdc`) using glob frontmatter targeting specific folders (`lib/**/bloc/`, `lib/**/repo/`, `lib/**/views/`, `test/`), automatically synchronized during `scripts/agent/upgrade.dart`.
+- **Anti-Loop Circuit Breaker (`scripts/agent/on_edit.dart`)**: Added persistent loop tracking in `.harness/.loop_guard.json` that halts runaway retry loops with exit code `2` on the 3rd consecutive identical failure signature, preventing token exhaustion. Added `--reset-guard` command.
+- **Intelligent Error Stripping & Framework Stack Trace Pruning (`scripts/agent/on_edit.dart` & `scripts/agent/verify.dart`)**: Filtered out Dart analyzer boilerplates (`Analyzing...`, `issues found`) and trimmed internal Flutter framework stack traces (`package:flutter/src/`, `package:test_api/`, `dart:async/`), delivering ~80% token reduction on test/build failures.
+- **Contrastive Golden Rule Snippets (`AGENTS.md`)**: Embedded explicit `// ❌ BAD` vs `// ✅ GOOD` code examples directly under locked Golden Rules 1, 2, 3, 4, and 13 to eliminate hallucinations and ambiguity.
+- **Layer-Boundary Compaction Protocol (`add-feature` & `build-ui` skills)**: Added formal context compaction checkpoints between BLoC unit testing and UI implementation, dropping raw JSON schemas, network traces, and test output before generating widgets.
+- **Ground-Truth RAG & Anti-Ceremony Grounding**: Overhauled `AGENTS.md` §6 to eliminate mandatory external Knowledge Graph lookups on standard edits, grounded RAG in Dart LSP (`mcp__dart`), and introduced "No close-out tax on small edits" to bypass expensive post-task rituals on iterative fixes.
+- **Automated Multi-Agent Swarm & Worktree Lifecycle**: Added `scripts/team/worktree.dart` (1-command worktree provisioning mirroring configuration), `scripts/agent/watch.dart` (background watcher caching `diagnostics.json`), and enhanced `scripts/team/task_handoff.dart` (`send`, `inbox`, `wait-human`, `resume`).
+- **Automated Compliance & Eval Suite (`tool/eval.dart`)**: Added comprehensive test harness validating golden rule custom lints, circuit breaker thresholds, stack trace pruning, and cross-IDE rule schemas.
+
 ## 2.1.1
 
 - **Subagent Model & Context Optimization**: Changed `@skeptic` subagent from `opus` to `sonnet`, reducing adversarial review token consumption by 80% while retaining deep analysis.

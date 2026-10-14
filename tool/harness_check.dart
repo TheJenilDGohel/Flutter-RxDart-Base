@@ -101,6 +101,9 @@ Set<String> _generatedPaths() {
   // following the harness skills.
   paths.addAll([
     '.harness/system-snapshot.md',
+    '.harness/diagnostics.json',
+    '.harness/tasks/active.json',
+    '.harness/.loop_guard.json',
     '.harness/skills/<name>.md',
     '.harness/specs/<name>.md',
     'lib/l10n/generated',

@@ -3,8 +3,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-/// Manages task handoffs and session state across single and multi-session modes
-/// in `.harness/tasks/active.json`.
+/// Manages task handoffs, session state, inter-agent messaging, and human-in-the-loop blockers
+/// across single and multi-session modes in `.harness/tasks/active.json`.
 ///
 /// Usage:
 /// ```bash
@@ -12,8 +12,12 @@ import 'dart:io';
 /// dart run scripts/team/task_handoff.dart sessions
 /// dart run scripts/team/task_handoff.dart register-session --session "<id>" --agent "<agent>"
 /// dart run scripts/team/task_handoff.dart create --title "<title>" --assignee "<agent>" [--desc "<desc>"] [--session "<id>"]
-/// dart run scripts/team/task_handoff.dart claim --id "<id>" --assignee "<agent>" [--session "<id>"]
+/// dart run scripts/team/task_handoff.dart claim --id "<id>" --assignee "<agent>" [--session "<id>"] [--force]
+/// dart run scripts/team/task_handoff.dart wait-human --id "<id>" --reason "<reason>" [--session "<id>"]
+/// dart run scripts/team/task_handoff.dart resume --id "<id>" [--session "<id>"]
 /// dart run scripts/team/task_handoff.dart complete --id "<id>" [--summary "<summary>"] [--session "<id>"]
+/// dart run scripts/team/task_handoff.dart send --to "<agent>" --subject "<title>" --body "<body>" [--from "<agent>"] [--session "<id>"]
+/// dart run scripts/team/task_handoff.dart inbox [--agent "<agent>"] [--unread-only] [--mark-read]
 /// ```
 void main(List<String> args) {
   if (args.isEmpty) {
@@ -28,12 +32,14 @@ void main(List<String> args) {
     _atomicSave(queueFile, {
       'sessions': <Map<String, dynamic>>[],
       'tasks': <Map<String, dynamic>>[],
+      'messages': <Map<String, dynamic>>[],
     });
   }
 
   final data = _readJsonSafe(queueFile);
   final tasks = (data['tasks'] as List<dynamic>? ?? <dynamic>[]).cast<Map<String, dynamic>>();
   final sessions = (data['sessions'] as List<dynamic>? ?? <dynamic>[]).cast<Map<String, dynamic>>();
+  final messages = (data['messages'] as List<dynamic>? ?? <dynamic>[]).cast<Map<String, dynamic>>();
 
   switch (command) {
     case 'list':
@@ -54,7 +60,7 @@ void main(List<String> args) {
         'registered_at': DateTime.now().toUtc().toIso8601String(),
         'last_active': DateTime.now().toUtc().toIso8601String(),
       });
-      _atomicSave(queueFile, {'sessions': sessions, 'tasks': tasks});
+      _atomicSave(queueFile, {'sessions': sessions, 'tasks': tasks, 'messages': messages});
       print('Registered session: $sessionId as @$agent');
       break;
 
@@ -78,7 +84,7 @@ void main(List<String> args) {
         'created_at': DateTime.now().toUtc().toIso8601String(),
       };
       tasks.add(newTask);
-      _atomicSave(queueFile, {'sessions': sessions, 'tasks': tasks});
+      _atomicSave(queueFile, {'sessions': sessions, 'tasks': tasks, 'messages': messages});
       print('Task created: $id ($title) -> $assignee');
       break;
 
@@ -111,8 +117,55 @@ void main(List<String> args) {
       task['status'] = 'in_progress';
       if (session != null) task['claimed_by_session'] = session;
       task['updated_at'] = DateTime.now().toUtc().toIso8601String();
-      _atomicSave(queueFile, {'sessions': sessions, 'tasks': tasks});
+      _atomicSave(queueFile, {'sessions': sessions, 'tasks': tasks, 'messages': messages});
       print('Task $id claimed by $assignee${session != null ? " ($session)" : ""}');
+      break;
+
+    case 'wait-human':
+      final id = _argValue(args, '--id');
+      final reason = _argValue(args, '--reason') ?? 'Waiting for human confirmation/decision.';
+      final session = _argValue(args, '--session');
+      if (id == null) {
+        stderr.writeln('Error: --id is required.');
+        exit(1);
+      }
+      final task = tasks.firstWhere(
+        (t) => t['id'] == id,
+        orElse: () => {},
+      );
+      if (task.isEmpty) {
+        stderr.writeln('Error: Task $id not found.');
+        exit(1);
+      }
+      task['status'] = 'waiting_human';
+      task['blocked_reason'] = reason;
+      if (session != null) task['updated_by_session'] = session;
+      task['updated_at'] = DateTime.now().toUtc().toIso8601String();
+      _atomicSave(queueFile, {'sessions': sessions, 'tasks': tasks, 'messages': messages});
+      print('Task $id marked waiting_human: $reason');
+      break;
+
+    case 'resume':
+      final id = _argValue(args, '--id');
+      final session = _argValue(args, '--session');
+      if (id == null) {
+        stderr.writeln('Error: --id is required.');
+        exit(1);
+      }
+      final task = tasks.firstWhere(
+        (t) => t['id'] == id,
+        orElse: () => {},
+      );
+      if (task.isEmpty) {
+        stderr.writeln('Error: Task $id not found.');
+        exit(1);
+      }
+      task['status'] = 'in_progress';
+      task.remove('blocked_reason');
+      if (session != null) task['updated_by_session'] = session;
+      task['updated_at'] = DateTime.now().toUtc().toIso8601String();
+      _atomicSave(queueFile, {'sessions': sessions, 'tasks': tasks, 'messages': messages});
+      print('Task $id resumed as in_progress.');
       break;
 
     case 'complete':
@@ -135,8 +188,67 @@ void main(List<String> args) {
       if (summary.isNotEmpty) task['completion_summary'] = summary;
       if (session != null) task['completed_by_session'] = session;
       task['completed_at'] = DateTime.now().toUtc().toIso8601String();
-      _atomicSave(queueFile, {'sessions': sessions, 'tasks': tasks});
+      _atomicSave(queueFile, {'sessions': sessions, 'tasks': tasks, 'messages': messages});
       print('Task $id marked completed.');
+      break;
+
+    case 'send':
+      final to = _argValue(args, '--to');
+      final subject = _argValue(args, '--subject') ?? '(no subject)';
+      final body = _argValue(args, '--body') ?? '';
+      final from = _argValue(args, '--from') ?? 'agent';
+      final session = _argValue(args, '--session') ?? 'unknown';
+      if (to == null || to.isEmpty) {
+        stderr.writeln('Error: --to is required.');
+        exit(1);
+      }
+      final msgId = 'M-${DateTime.now().millisecondsSinceEpoch}';
+      messages.add({
+        'id': msgId,
+        'from': from,
+        'to': to,
+        'subject': subject,
+        'body': body,
+        'session': session,
+        'sent_at': DateTime.now().toUtc().toIso8601String(),
+        'read': false,
+      });
+      _atomicSave(queueFile, {'sessions': sessions, 'tasks': tasks, 'messages': messages});
+      print('Message $msgId sent to $to: $subject');
+      break;
+
+    case 'inbox':
+      final agent = _argValue(args, '--agent');
+      final unreadOnly = args.contains('--unread-only');
+      final markRead = args.contains('--mark-read');
+      final matching = messages.where((m) {
+        if (agent != null && m['to'] != agent && m['to'] != '@$agent' && '@${m['to']}' != agent) {
+          return false;
+        }
+        if (unreadOnly && m['read'] == true) return false;
+        return true;
+      }).toList();
+
+      if (matching.isEmpty) {
+        print(agent != null ? 'No messages for $agent.' : 'Inbox empty.');
+        return;
+      }
+
+      print('Inbox (${matching.length} message${matching.length == 1 ? '' : 's'}):');
+      for (final m in matching) {
+        final readStatus = m['read'] == true ? '[read]' : '[UNREAD]';
+        print('  $readStatus ${m['id']} from ${m['from']} -> ${m['to']}: ${m['subject']}');
+        if ((m['body']?.toString() ?? '').isNotEmpty) {
+          print('    ${m['body']}');
+        }
+        if (markRead) {
+          m['read'] = true;
+          m['read_at'] = DateTime.now().toUtc().toIso8601String();
+        }
+      }
+      if (markRead) {
+        _atomicSave(queueFile, {'sessions': sessions, 'tasks': tasks, 'messages': messages});
+      }
       break;
 
     default:
@@ -152,6 +264,7 @@ Map<String, dynamic> _readJsonSafe(File file) {
     return {
       'sessions': <Map<String, dynamic>>[],
       'tasks': <Map<String, dynamic>>[],
+      'messages': <Map<String, dynamic>>[],
     };
   }
 }
@@ -164,7 +277,8 @@ void _listTasks(List<Map<String, dynamic>> tasks) {
   print('Active Task Queue (${tasks.length} tasks):');
   for (final t in tasks) {
     final sessionInfo = t['claimed_by_session'] != null ? ' [${t['claimed_by_session']}]' : '';
-    print('  [${t['status']}] ${t['id']}: ${t['title']} (@${t['assignee']}$sessionInfo)');
+    final blocker = t['blocked_reason'] != null ? ' (waiting on human: ${t['blocked_reason']})' : '';
+    print('  [${t['status']}] ${t['id']}: ${t['title']} (@${t['assignee']}$sessionInfo)$blocker');
   }
 }
 
@@ -216,5 +330,9 @@ void _printUsage() {
   print('  dart run scripts/team/task_handoff.dart register-session --session "<id>" --agent "<agent>"');
   print('  dart run scripts/team/task_handoff.dart create --title "<title>" --assignee "<agent>" [--desc "<desc>"] [--session "<id>"]');
   print('  dart run scripts/team/task_handoff.dart claim --id "<id>" --assignee "<agent>" [--session "<id>"] [--force]');
+  print('  dart run scripts/team/task_handoff.dart wait-human --id "<id>" --reason "<reason>" [--session "<id>"]');
+  print('  dart run scripts/team/task_handoff.dart resume --id "<id>" [--session "<id>"]');
   print('  dart run scripts/team/task_handoff.dart complete --id "<id>" [--summary "<summary>"] [--session "<id>"]');
+  print('  dart run scripts/team/task_handoff.dart send --to "<agent>" --subject "<title>" --body "<body>" [--from "<agent>"] [--session "<id>"]');
+  print('  dart run scripts/team/task_handoff.dart inbox [--agent "<agent>"] [--unread-only] [--mark-read]');
 }

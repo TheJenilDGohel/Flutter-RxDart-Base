@@ -325,6 +325,7 @@ void _apply(
       'scripts/team',
       '.claude/agents',
       '.claude/rules',
+      '.cursor/rules',
       '.maestro/flows',
       for (final skill in shipped) ...[
         '.agents/skills/$skill',

@@ -3,7 +3,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-/// Inspects swarm state, sessions, and active tasks across single/multi-session modes.
+/// Inspects swarm state, sessions, and active tasks across single/multi-session modes,
+/// including human-in-the-loop blockers.
 ///
 /// Usage:
 ///   dart run scripts/team/heartbeat.dart
@@ -12,7 +13,9 @@ void main() {
   var pending = 0;
   var inProgress = 0;
   var completed = 0;
+  var waitingHuman = 0;
   var activeSessions = 0;
+  final blockedTasks = <String>[];
 
   if (queueFile.existsSync()) {
     try {
@@ -25,6 +28,11 @@ void main() {
         if (status == 'pending') pending++;
         if (status == 'in_progress') inProgress++;
         if (status == 'completed') completed++;
+        if (status == 'waiting_human' || status == 'waiting_input') {
+          waitingHuman++;
+          final reason = t['blocked_reason'] ?? 'needs input';
+          blockedTasks.add('${t['id']} (@${t['assignee']}): $reason');
+        }
       }
     } catch (_) {}
   }
@@ -36,6 +44,12 @@ void main() {
       .length;
 
   print(
-    'Heartbeat: sessions=$activeSessions in_progress=$inProgress pending=$pending completed=$completed | uncommitted_changes=$changedCount',
+    'Heartbeat: sessions=$activeSessions in_progress=$inProgress pending=$pending waiting_human=$waitingHuman completed=$completed | uncommitted_changes=$changedCount',
   );
+  if (blockedTasks.isNotEmpty) {
+    print('  Blocked on human:');
+    for (final b in blockedTasks) {
+      print('    - $b');
+    }
+  }
 }

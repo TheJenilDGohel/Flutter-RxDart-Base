@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "promptCacheTtl": "1h",
   "subagentPromptCacheTtl": "1h",
-  "bashOutputMaxChars": 4000,
+  "bashOutputMaxChars": 3000,
   "teammateMode": "auto",
   "permissions": {
     "allow": [
@@ -21,6 +21,8 @@
       "Bash(fvm flutter pub get)",
       "Bash(dart run scripts/agent/on_edit.dart:*)",
       "Bash(fvm dart run scripts/agent/on_edit.dart:*)",
+      "Bash(dart run scripts/agent/watch.dart:*)",
+      "Bash(fvm dart run scripts/agent/watch.dart:*)",
       "Bash(dart run scripts/agent/verify.dart:*)",
       "Bash(fvm dart run scripts/agent/verify.dart:*)",
       "Bash(dart run scripts/agent/snapshot.dart)",
@@ -33,6 +35,8 @@
       "Bash(fvm dart run scripts/team/task_handoff.dart:*)",
       "Bash(dart run scripts/team/heartbeat.dart:*)",
       "Bash(fvm dart run scripts/team/heartbeat.dart:*)",
+      "Bash(dart run scripts/team/worktree.dart:*)",
+      "Bash(fvm dart run scripts/team/worktree.dart:*)",
       "Bash(maestro test:*)",
       "Bash(mason make bloc:*)",
       "Bash(fvm exec mason make bloc:*)",

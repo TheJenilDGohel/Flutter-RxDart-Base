@@ -363,7 +363,11 @@ vars:
     check('--force keeps AGENTS.md custom section once',
         count(read('AGENTS.md'), '## 8. Payments') == 1);
   } finally {
-    if (app.existsSync()) app.deleteSync(recursive: true);
+    if (app.existsSync()) {
+      try {
+        app.deleteSync(recursive: true);
+      } catch (_) {}
+    }
   }
 
   if (failures.isEmpty) {
