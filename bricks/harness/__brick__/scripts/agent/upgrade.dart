@@ -324,6 +324,7 @@ void _apply(
       'scripts/agent',
       'scripts/team',
       '.claude/agents',
+      '.claude/plugins',
       '.claude/rules',
       '.cursor/rules',
       '.maestro/flows',

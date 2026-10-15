@@ -1,0 +1,23 @@
+{
+  "name": "harness-mods",
+  "owner": {
+    "name": "Flutter-RxDart-Base"
+  },
+  "plugins": [
+    {
+      "name": "golden-guard",
+      "source": "./plugins/golden-guard",
+      "description": "Stop-time analyze + golden-rule gate and /audit"
+    },
+    {
+      "name": "session-flow",
+      "source": "./plugins/session-flow",
+      "description": "/handoff, /pickup and git status line"
+    },
+    {
+      "name": "output-compactor",
+      "source": "./plugins/output-compactor",
+      "description": "Compacts verbose test failures (Maestro, Flutter test, Dart analyze)"
+    }
+  ]
+}

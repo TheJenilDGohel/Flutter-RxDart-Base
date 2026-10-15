@@ -11,6 +11,7 @@
 - Fast verification & diagnostics: `dart run scripts/agent/on_edit.dart` after modifying files, or check `.harness/diagnostics.json` if `dart run scripts/agent/watch.dart` is running.
 - Context & token hygiene: Run `/clear` when switching tasks to keep sessions under 50k context. Run `/compact` mid-task after completing a layer. Read `.harness/system-snapshot.md` before searching files. Never read generated serialization (`*.g.dart`, `*.freezed.dart`). Delegate library/API research to `@docs-scout`.
 - MCP servers: `dart` (`mcp__dart__*`), `maestro` (`mcp__maestro__*`), and `memory` (`mcp__memory__*`) are pre-approved in `.mcp.json`.
+- Plugins in `.claude/plugins/`: `golden-guard` (stop gate + `/audit`), `session-flow` (status bar + `/pickup` & `/handoff`), and `output-compactor` (compact test failure summaries).
 - In FVM projects (`.fvm/` or `.fvmrc`), prefix CLI commands with `fvm` (e.g. `fvm dart run scripts/agent/verify.dart`, `fvm flutter test`).
 
 <!-- harness:project-rules — Everything below this line is yours. `upgrade.dart` keeps it verbatim. -->

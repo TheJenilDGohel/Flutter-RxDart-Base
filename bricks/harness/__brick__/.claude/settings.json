@@ -57,5 +57,18 @@
       "Read(**/*.mobileprovision)"
     ]
   },
-  "enableAllProjectMcpServers": true
+  "enableAllProjectMcpServers": true,
+  "extraKnownMarketplaces": {
+    "harness-mods": {
+      "source": {
+        "source": "directory",
+        "path": "./.claude/plugins"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "golden-guard@harness-mods": true,
+    "session-flow@harness-mods": true,
+    "output-compactor@harness-mods": true
+  }
 }

@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.4.0
+
+- **Integrated Claude Code Plugins / Mods (`.claude/plugins/`)**: Pre-bundled three Anthropic-standard Claude Code mods into the harness:
+  - **`golden-guard`**: Stop-time verification gate (`classic.Stop`) enforcing `AGENTS.md` Golden Rules (R1, R2, R3, R4, R13, and stylistic tokens) alongside `fvm dart analyze`, plus the on-demand `/audit` command.
+  - **`session-flow`**: Real-time terminal status line (`$.ui.status`) showing branch, dirty files, unpushed commits, and worktree count, plus deterministic `/pickup` and `/handoff` session bookends.
+  - **`output-compactor`**: Token-shielding post-tool hook intercepting `Bash` failures (`maestro test`, `flutter test`, `dart analyze`), compacting verbose terminal stack traces and ASCII art into concise, high-signal summaries.
+- **Configured Local Marketplace**: Pre-configured `extraKnownMarketplaces` with `harness-mods` in `.claude/settings.json`, auto-enabling the three plugins across all sessions and worktrees.
+- **Upgraded Sync Engine (`upgrade.dart`)**: Added `.claude/plugins` to managed sync paths to preserve user customizations during harness upgrades.
+
 ## 2.3.0
 
 - **Cross-IDE Path-Scoped Rules (`.cursor/rules/*.mdc`)**: Added first-class Cursor rule definitions (`bloc.mdc`, `endpoints.mdc`, `ui.mdc`, `testing.mdc`) using glob frontmatter targeting specific folders (`lib/**/bloc/`, `lib/**/repo/`, `lib/**/views/`, `test/`), automatically synchronized during `scripts/agent/upgrade.dart`.

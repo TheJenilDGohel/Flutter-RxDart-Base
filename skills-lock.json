@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "mod-builder": {
+      "source": "karanb192/claude-code-mods",
+      "sourceType": "github",
+      "skillPath": "plugins/mod-builder/skills/mod-builder/SKILL.md",
+      "computedHash": "75d5b228093b3cf5558aff662620a76531ea85ced64e6aa14fcaede190acb1d1"
+    }
+  }
+}

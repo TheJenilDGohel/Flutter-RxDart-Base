@@ -1,0 +1,1 @@
+{ "name": "session-flow", "version": "0.1.0", "description": "/handoff and /pickup session bookends plus a git status line (branch, dirty, unpushed, worktrees)" }
