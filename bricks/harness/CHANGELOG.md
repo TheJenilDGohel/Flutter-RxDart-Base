@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.4.1
+
+- **Hardened `/pickup` Command (`session-flow`)**:
+  - Added optional task argument support (`/pickup [task]`) allowing instant resumption of explicit tasks or flows.
+  - Added automatic active WIP discovery from uncommitted files and parsed markdown checklist items (`- [ ]`) from `.harness/active-context.md`.
+  - Replaced the brittle 1-line halt with an interactive numbered candidate menu when multiple tasks are pending, eliminating dead-ends.
+- **Cross-Platform Resilience (`golden-guard`)**:
+  - Removed Windows-only shell assumptions (`cmd /c`) and made `fvm` fallback gracefully to standard `dart analyze`.
+  - Upgraded cache key invalidation from raw file names to content hashing, preventing skipped checks on modified files.
+  - Added loop protection on `classic.Stop` to prevent unresolvable blocking loops.
+- **Failure Header Preservation (`output-compactor`)**:
+  - Preserved root-cause error banners and stack bounds on test execution failures, eliminating blank teardown fallbacks.
+
 ## 2.4.0
 
 - **Integrated Claude Code Plugins / Mods (`.claude/plugins/`)**: Pre-bundled three Anthropic-standard Claude Code mods into the harness:

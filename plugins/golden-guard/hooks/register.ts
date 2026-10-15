@@ -90,12 +90,31 @@ async function changedDart($: any): Promise<string[]> {
 
 async function analyze($: any, files: string[]): Promise<string> {
   try {
-    const r = await $.process.run(['cmd', '/c', 'fvm', 'dart', 'analyze', '--no-fatal-warnings', ...files], { timeoutMs: 120000 })
-    const out = String(r.stdout) + String(r.stderr)
+    const isWin = process.platform === 'win32'
+    const args = ['dart', 'analyze', '--no-fatal-warnings', ...files]
+    // Prefer fvm if available, fallback to direct dart analyze
+    let r = await $.process.run(isWin ? ['cmd', '/c', 'fvm', ...args] : ['fvm', ...args], { timeoutMs: 120000 })
+    if (!r || (r.exitCode !== 0 && /is not recognized|command not found/i.test(String(r.stderr || '')))) {
+      r = await $.process.run(isWin ? ['cmd', '/c', ...args] : args, { timeoutMs: 120000 })
+    }
+    const out = String(r?.stdout || '') + String(r?.stderr || '')
     return lines(out).filter(l => /^error\b|^\s*error\s+-/.test(l)).slice(0, 15).join('\n')
   } catch {
     return ''
   }
+}
+
+async function computeKey($: any, files: string[]): Promise<string> {
+  const parts: string[] = []
+  for (const f of files) {
+    try {
+      const text: string = await $.fs.read(f)
+      parts.push(`${f}:${text.length}`)
+    } catch {
+      parts.push(`${f}:0`)
+    }
+  }
+  return parts.join('|')
 }
 
 async function auditTarget($: any, arg: string) {
@@ -130,6 +149,7 @@ async function auditTarget($: any, arg: string) {
 }
 
 let lastPassed = ''
+let stopBlockCount = 0
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
@@ -145,7 +165,7 @@ export const register: Register = on => {
     if (e.stop_hook_active) return next(e)
     const files = await changedDart($)
     if (files.length === 0) return next(e)
-    const key = files.join('|')
+    const key = await computeKey($, files)
     if (key === lastPassed) return next(e)
 
     const problems: string[] = []
@@ -156,8 +176,17 @@ export const register: Register = on => {
 
     if (problems.length === 0) {
       lastPassed = key
+      stopBlockCount = 0
       return next(e)
     }
+
+    if (stopBlockCount >= 2) {
+      // Avoid infinite block loops if agent cannot resolve hits
+      stopBlockCount = 0
+      return next(e)
+    }
+    stopBlockCount++
+
     return {
       block: `done-gate: fix before finishing, or say why a hit is a false positive.\n${problems.join('\n\n')}`,
     }

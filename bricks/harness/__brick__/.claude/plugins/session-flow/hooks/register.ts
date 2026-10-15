@@ -1,6 +1,5 @@
 import type { Register } from 'claude-code'
 
-
 const git = async ($: any, args: string[]) => {
   try {
     const r = await $.process.run(['git', ...args], { timeoutMs: 15000 })
@@ -13,7 +12,7 @@ const git = async ($: any, args: string[]) => {
 const snapshot = async ($: any) => {
   const branch = (await git($, ['rev-parse', '--abbrev-ref', 'HEAD'])) || '?'
   const porcelain = await git($, ['status', '--porcelain'])
-  const dirty = porcelain ? porcelain.split('\n').length : 0
+  const dirty = porcelain ? porcelain.split('\n').filter(Boolean).length : 0
   const ahead = Number((await git($, ['rev-list', '--count', '@{u}..HEAD'])) || 0)
   const hasUpstream = (await git($, ['rev-parse', '--abbrev-ref', '@{u}'])) !== ''
   const trees = (await git($, ['worktree', 'list', '--porcelain']))
@@ -27,13 +26,27 @@ const line = (s: Awaited<ReturnType<typeof snapshot>>) => {
   return `${s.branch} | ${s.dirty ? s.dirty + ' dirty' : 'clean'} | ${push} | ${s.trees} worktree${s.trees === 1 ? '' : 's'}`
 }
 
-const focus = async ($: any) => {
+const readContext = async ($: any) => {
   try {
     const text: string = await $.fs.read('.harness/active-context.md')
-    const m = text.match(/## Current Focus([\s\S]*?)\n## /)
-    return (m ? m[1] : text.slice(0, 1500)).trim().slice(-1800)
+    const focusMatch = text.match(/## Current Focus([\s\S]*?)(?=\n## |$)/)
+    const currentFocus = focusMatch ? focusMatch[1].trim() : text.slice(0, 1500).trim()
+    
+    // Extract unchecked markdown tasks: - [ ] task description
+    const taskMatches = text.match(/^[ \t]*-[ \t]*\[ \][ \t]*(.+)$/gm) || []
+    const pendingTasks = taskMatches.map((t: string) => t.replace(/^[ \t]*-[ \t]*\[ \][ \t]*/, '').trim())
+
+    return {
+      currentFocus: currentFocus || '(no focus specified)',
+      pendingTasks,
+      raw: text.slice(-2000),
+    }
   } catch {
-    return '(no .harness/active-context.md)'
+    return {
+      currentFocus: '(no .harness/active-context.md)',
+      pendingTasks: [],
+      raw: '',
+    }
   }
 }
 
@@ -55,6 +68,7 @@ export const register: Register = on => {
     await $.command.register({
       name: 'pickup',
       description: 'Open the session: branch state, worktrees, recent commits, current focus, next step',
+      argumentHint: '[task]',
     })
     void refresh($)
     return next(e)
@@ -71,23 +85,49 @@ export const register: Register = on => {
     return ran
   }).catch(($, e, next) => next(e))
 
-  on('command.run', { command: 'pickup' }, async $ => {
+  on('command.run', { command: 'pickup' }, async ($, e) => {
     const s = await snapshot($)
     const log = await git($, ['log', '--oneline', '-5'])
     const trees = await git($, ['worktree', 'list'])
-    const status = (await git($, ['status', '--short'])).split('\n').slice(0, 25).join('\n')
-    const f = await focus($)
+    const rawStatus = await git($, ['status', '--short'])
+    const statusLines = rawStatus ? rawStatus.split('\n').filter(Boolean) : []
+    const status = statusLines.slice(0, 25).join('\n')
+    const ctx = await readContext($)
+    const explicitTask = e?.args?.trim() || ''
+
     const report = [
       `State: ${line(s)}`,
-      `Recent commits:\n${log}`,
-      `Worktrees:\n${trees}`,
-      `Uncommitted:\n${status || '(none)'}`,
-      `Current focus (.harness/active-context.md):\n${f}`,
-    ].join('\n\n')
+      `Recent commits:\n${log || '(none)'}`,
+      `Worktrees:\n${trees || '(default)'}`,
+      `Uncommitted files (${statusLines.length}):\n${status || '(none)'}`,
+      `Current focus (.harness/active-context.md):\n${ctx.currentFocus}`,
+      ctx.pendingTasks.length ? `Pending checklist items (- [ ]):\n${ctx.pendingTasks.map((t: string, i: number) => `  ${i + 1}. ${t}`).join('\n')}` : '',
+    ].filter(Boolean).join('\n\n')
+
+    const taskDirectives = explicitTask
+      ? `The person ran /pickup with an explicit task: "${explicitTask}". Immediately begin working on this requested task.`
+      : [
+          `The person ran /pickup without arguments. Determine the next task using these priorities:`,
+          `1. Active WIP: If uncommitted files exist above (e.g., in features, flows, tests), continue working on that in-progress work first.`,
+          `2. Checklist Tasks: If pending checklist items are listed above, pick up the top item: "${ctx.pendingTasks[0] || ctx.currentFocus}".`,
+          `3. Genuinely Ambiguous / Multiple Competing Choices:`,
+          `   DO NOT STOP SILENTLY OR GIVE A VAGUE 1-LINE DEAD END.`,
+          `   Instead, present a clear numbered choice menu:`,
+          `   - List the candidate tasks with numbers [1], [2], etc., noting where each comes from (e.g., active uncommitted files, active-context.md, branch name).`,
+          `   - Explain what decision or input is needed from the user.`,
+          `   - Prompt the user to reply with a number or run \`/pickup <task>\` to begin immediately.`,
+        ].join('\n')
+
     return {
       text: `Pickup: ${line(s)}`,
       context: [
-        `The person ran /pickup. Raw state below. First reply in at most 5 lines: branch + whether it is pushed, what the last session did, what is uncommitted, the single next task, anything blocked on backend. If another worktree is listed, name it and say not to touch it. Do not re-run git. Then pick up that next task and start it: invoke the matching project skill, follow the project rules, and work until done. Never edit inside another worktree. Stop instead, and say why in one line naming the cause, when: the next task is unclear or .harness/active-context.md contradicts the commits, the next step is blocked on a backend answer, or the task needs a decision only the person can make. Never stop silently.\n\n${report}`,
+        [
+          `The person ran /pickup. Raw state below.`,
+          `First reply: give a concise 3-5 line status summary: branch + whether it is pushed, what the last session did, what is uncommitted, and the selected next task. If another worktree is listed, name it and remind not to touch it. Do not re-run git commands already shown.`,
+          taskDirectives,
+          `Once the task is identified, invoke the matching project skill, follow project rules, and work until done or a concrete blocker is hit. Never edit inside another worktree.`,
+          `\n${report}`,
+        ].join('\n\n'),
       ],
     }
   })
@@ -105,10 +145,10 @@ export const register: Register = on => {
           `git status --short:\n${status || '(clean)'}`,
           `git diff --stat:\n${stat || '(none)'}`,
           `Steps, in order. Stop and report if any step fails.`,
-          `1. Run \`fvm dart analyze lib test\`. Any error: fix it first, never commit red. Trust its output over any earlier note.`,
+          `1. Run \`fvm dart analyze lib test\` (or \`dart analyze lib test\`). Any error: fix it first, never commit red. Trust its output over any earlier note.`,
           `2. Read git status and git diff --stat. Unexpected deletions or files from another session/worktree: restore or leave them out, never commit them. Stage only this branch's files by path.`,
           `3. Commit with a Conventional Commit (feat/fix/refactor/test/chore + scope). Message in normal prose. End with the attribution lines from the system reminder.`,
-          `4. Push the current branch to origin (feature/<name>); never merge into wip/storage-layer or main.`,
+          `4. Push the current branch to origin (feature/<name>); never merge directly into protected branches or main.`,
           `5. Only if a feature or milestone finished: update .harness/active-context.md (Current Focus 2-3 lines, Recent Tasks newest first max 5, Key Decisions, Known Issues). Small edits: skip.`,
           `6. Print: branch, commit hash, pushed yes/no, then a ready-to-paste prompt for the next session (branch, spec path, open backend questions, the next task). Then stop and tell the person to /clear. Do not start the next task.`,
         ].join('\n'),
@@ -116,3 +156,4 @@ export const register: Register = on => {
     }
   })
 }
+

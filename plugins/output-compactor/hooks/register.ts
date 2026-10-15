@@ -32,7 +32,10 @@ const compactMaestro = (raw: string): string => {
     }
   }
 
-  if (kept.length === 0) return lines.slice(-15).join('\n')
+  if (kept.length === 0) {
+    if (lines.length <= 25) return clean
+    return `[Maestro Failure Summary]\n${lines.slice(0, 15).join('\n')}\n...\n${lines.slice(-8).join('\n')}`
+  }
   return `[Maestro Failure Summary]\n${kept.slice(0, 15).join('\n')}`
 }
 
@@ -56,7 +59,10 @@ const compactFlutterTest = (raw: string): string => {
     }
   }
 
-  if (kept.length === 0) return lines.slice(-20).join('\n')
+  if (kept.length === 0) {
+    if (lines.length <= 25) return clean
+    return `[Flutter Test Failure Summary]\n${lines.slice(0, 15).join('\n')}\n...\n${lines.slice(-8).join('\n')}`
+  }
   return `[Flutter Test Failure Summary]\n${kept.slice(0, 20).join('\n')}`
 }
 
