@@ -1,78 +1,82 @@
 # AI Agent Contract & Architecture Standards
 
+Read by every coding agent (Claude Code, Codex, Cursor, Copilot, Gemini CLI, ...).
+Rules marked 🔒 fail the quality gate when broken (`redux_rxdart_lints`).
+
 ## 1. Architecture: Hybrid Redux + RxDart + Dio
-- **Redux (Global)**: App-wide session, auth token, user profile, persistence.
-- **RxDart BLoC (Ephemeral)**: Screen-level state, forms, pagination, searches.
-- **Dio (Networking)**: HTTP/2 with interceptor chain (`AuthInterceptor`, `ErrorMappingInterceptor`).
+- **Redux (global)**: session data that must survive a restart — `authToken`, `userData`, `locale`. Nothing else.
+- **RxDart BLoC (per screen)**: fetch state, forms, pagination, search, toggles.
+- **Dio**: HTTP/2, fixed interceptor order — Connectivity → Auth → PlatformInjector → Retry → ErrorMapping. Never reorder.
 
-## 2. Inviolable Golden Rules
-1. **Repository is Transport ONLY**:
-   - MUST ONLY call `ApiBaseHelper` and return raw `Map<String, dynamic>`.
-   - ❌ NEVER call `Model.fromJson` in Repository.
-2. **BLoC is Business Logic & State Owner**:
-   - Awaits raw response from repo, parses via `Model.fromJson(json)`, catches errors, and emits `ApiResponse<T>` (`LoadingResponse`, `SuccessResponse`, `ErrorResponse`).
-   - Use `e.userMessage` from `exception_ext.dart` for UI errors.
-3. **Zero `setState`**: Strictly forbidden in all widgets. Use stream builders (`AppResponseBuilder`, `StreamBuilder`).
-4. **Zero RxDart Outside BLoC**:
-   - UI widgets MUST NEVER import or use RxDart (`BehaviorSubject`, `PublishSubject`).
-   - UI widgets ONLY consume standard Dart `Stream<T>` / `ApiResponse<T>`.
-5. **Rule of 2 for Widgets**:
-   - If a widget or layout is used in $\ge 2$ places, extract it to `utils/widgets/ui/`.
-   - If an existing widget can be reused with parameter tweaks, reuse it. NEVER duplicate widget trees.
-6. **Universal Presentation**:
-   - Baseline is standard `Scaffold` (do not force specialized wrappers unless requested).
-7. **Form Pattern B (TextEditingController)**:
-   - `StatefulWidget` owns and disposes `TextEditingController`s.
-   - Pass string values directly to BLoC methods: `_bloc.submit(email: _emailCtrl.text)`.
-   - BLoC streams drive loading spinners and error banners.
-8. **Concurrency & Fetch (Pattern A)**:
-   - Signature: `Future<void> fetch({bool refresh = false}) async`.
-   - Always call `createNewToken()` at start of fetch to cancel prior requests.
-   - For live search: use `PublishSubject<String>` with `.debounceTime(Duration(milliseconds: 300)).distinct()`.
-9. **One-Off UI Events (Pattern A)**:
-   - Toasts, snackbars, navigation use `PublishSubject<T>` in BLoC.
-   - UI listens via `StreamSubscription` in `initState()` and cancels in `dispose()`.
-10. **Redux Bridge (Pattern B)**:
-    - When feature mutation updates global session (e.g. profile update):
-    - BLoC emits updated model -> UI dispatches `StoreProvider.of(context).dispatch(...)` after successful render.
-    - Prevents saving corrupt state to disk if UI breaks.
-11. **Token Injection on Public Endpoints**:
-    - `AuthInterceptor` attaches `Bearer <token>` if present to all requests (backends safely ignore on public routes).
-12. **Defensive JSON Parsing**:
-    - Numbers: `(json['id'] as num?)?.toInt() ?? 0`, `(json['amount'] as num?)?.toDouble() ?? 0.0`.
-    - Strings: `json['name']?.toString() ?? ''`.
-    - Lists: `(json['items'] as List<dynamic>? ?? []).map((e) => Item.fromJson(e as Map<String, dynamic>)).toList()`.
-    - Dates: `DateTime.tryParse(json['date']?.toString() ?? '') ?? DateTime.now()`.
+## 2. Golden Rules
+1. 🔒 **Repository is transport only**: call `ApiBaseHelper`, return the raw `Map<String, dynamic>`. Never `fromJson`/`fromMap` (calls or tear-offs) in `repo/` or `*_repo.dart`. **One BLoC, one repo**: a BLoC never holds two repos. Compose shared capabilities (e.g. dropdowns, tags, profile, logout) with `mixin <Capability>Mixin` (`with FooMixin`) — never `extends OtherFeatureRepo` (inheritance leaks unrelated/sensitive methods).
+   - `// ❌ BAD:  Future<User> get() async => User.fromJson(await helper.get(...));`
+   - `// ✅ GOOD: Future<Map<String, dynamic>> get() => helper.get(...);`
+2. 🔒 **BLoC owns logic and state**: await the repo, parse with `Model.fromJson`, emit `ApiResponse<T>`. Widgets show errors with `error.userFacingMessage(context)` (or let `AppResponseBuilder` do it). Never display `e.toString()`.
+   - `// ❌ BAD:  Text(e.toString());`
+   - `// ✅ GOOD: Text(error.userFacingMessage(context)); // or let AppResponseBuilder render it`
+3. 🔒 **Zero `setState`** in feature widgets. Drive UI from streams (`AppResponseBuilder`, `StreamBuilder`). Only design-system primitives in `lib/utils/widgets/ui/` may hold purely visual state.
+   - `// ❌ BAD:  setState(() => _count++); in feature widget`
+   - `// ✅ GOOD: AppResponseBuilder<User>(stream: _bloc.userStream, builder: (ctx, user) => ...)`
+4. 🔒 **Zero RxDart outside BLoCs**: widgets never import `rxdart`; they consume plain `Stream<T>` / `ApiResponse<T>`.
+   - `// ❌ BAD:  import 'package:rxdart/rxdart.dart'; in widget or page`
+   - `// ✅ GOOD: import only plain Dart Streams and ApiResponse<T>`
+5. **Rule of 2**: a widget used in ≥ 2 places moves to `lib/utils/widgets/ui/`. Reuse with parameters before duplicating.
+6. **Presentation**: standard `Scaffold` by default; `AppScaffold` when the shared chrome is wanted.
+7. **Forms**: the `StatefulWidget` owns and disposes `TextEditingController`s and passes values to BLoC methods (`_bloc.submit(email: _email.text)`). BLoC streams drive spinners and error banners.
+8. 🔒 **Fetch**: `Future<void> fetch({bool refresh = false})`; call `createNewToken()` first (a newer fetch cancels the older one; `no_fetch_without_token`); ignore `RequestCancelledException`; emit errors with `retry: fetch`. Live search: `PublishSubject<String>` + `.debounceTime(300ms).distinct()`.
+9. **One-off UI events** (toast, navigation): a `PublishSubject` in the BLoC, subscribed in `initState()`, cancelled in `dispose()`.
+10. **Redux bridge**: when a feature changes session data, the BLoC emits the new model and the UI dispatches to the store after it renders.
+11. **Auth**: `AuthInterceptor` attaches the bearer token only to the `BASE_URL` host. For silent token refresh, a token refresh handler/interceptor intercepts 401, requests a new token via refresh endpoint, replays pending requests, and only dispatches `LogoutAction` if refresh fails or no refresh token exists — don't add per-screen 401 handling.
+12. **Defensive JSON parsing**: `(json['id'] as num?)?.toInt() ?? 0`, `json['name']?.toString() ?? ''`, `(json['items'] as List? ?? []).map(...)`, `DateTime.tryParse(json['at']?.toString() ?? '')`.
+13. 🔒 **ScreenUtil only in public widgets**: `.w/.h/.r/.sp` inside a private (`_Foo`) widget is not rebuilt on resize. Make the widget public.
+   - `// ❌ BAD:  class _Card extends StatelessWidget { Widget build(...) => SizedBox(width: 100.w); }`
+   - `// ✅ GOOD: class Card extends StatelessWidget { Widget build(...) => SizedBox(width: 100.w); }`
+14. 🔒 **No withOpacity in UI**: Avoid `.withOpacity()`; use `Color.withValues(alpha: ...)` or design-system color tokens (`no_with_opacity`).
+   - `// ❌ BAD:  Colors.black.withOpacity(0.5);`
+   - `// ✅ GOOD: Colors.black.withValues(alpha: 0.5); // or ResColors.primary`
+15. 🔒 **Dispose all RxDart subjects**: Every `BehaviorSubject` / `PublishSubject` in a BLoC must be closed in `dispose()` to prevent memory leaks (`no_unclosed_subject`).
+   - `// ❌ BAD:  void dispose() { subscriptions.dispose(); } // left subject unclosed`
+   - `// ✅ GOOD: void dispose() { cancelRequests(); subscriptions.dispose(); _data.close(); }`
 
-## 3. Backend API Discovery
-- Inspect workspace for `*.postman_collection.json` before building network calls.
-- If missing, check OpenAPI/Swagger definitions, documentation, or perform targeted web search.
+## 3. Before Writing Network Code
+Look for `*.postman_collection.json`, then OpenAPI/Swagger, then docs. Ingest contracts with `dart run scripts/agent/ingest_contract.dart <contract.json> --scaffold <endpoint>` to generate models with defensive parsing, mock fixtures, and endpoint constants. Add endpoints to `lib/networking/api_constants.dart`. Never guess a response shape — ask if no contract exists.
 
-## 4. Deterministic Commands & Verification Quality Gate
-- Scaffold + Wire in one step: `dart run scripts/agent/wire_route.dart <name> [optional_path]`
-  Auto-runs `mason make bloc --feature_name <name>` first if the feature doesn't exist yet.
-- Quality Gate: `powershell -ExecutionPolicy Bypass -File scripts/agent/verify.ps1` (Win) or `./scripts/agent/verify.sh` (Mac/Linux).
-  Must pass `dart format --set-exit-if-changed .` and `flutter analyze --fatal-infos`.
-- Hot-reload vs full build: Rely on hot reload/restart during feature work; only full restart on native dependency/asset changes.
+## 4. Tooling for Agents
+- **Context Retrieval & Token Efficiency (RAG)**:
+  - **AST & Symbol Retrieval (LSP)**: Use `mcp__dart` for symbol definitions, method signatures, and type hierarchies instead of reading entire files into context.
+  - **Index-Based Retrieval**: Read `.harness/system-snapshot.md` first for routes, features, and endpoints; never recursively sweep directories.
+  - **Deterministic Path Rules**: Path-scoped rules in `.claude/rules/*.md` (Claude Code) and `.cursor/rules/*.mdc` (Cursor) inject layer-specific constraints only when editing matching files.
+  - **In-flight check & watcher**: Use `dart run scripts/agent/on_edit.dart` on touched files (<1.5s) during active dev. Check `.harness/diagnostics.json` if `dart run scripts/agent/watch.dart` is running. Reserve full `verify.dart` for the pre-commit gate.
+  - **Targeted Research**: Delegate external pub packages and API docs to `@docs-scout` (runs on Haiku, caps digests strictly <200 words).
+  - **Banned Files**: Never read generated serialization (`*.g.dart`, `*.freezed.dart`, `build/`, `.dart_tool/`).
+- **Skills** (`.agents/skills/`; Claude Code: `.claude/skills/`). Load the one that fits before starting: `add-feature` (new screen/flow), `add-endpoint` (API work), `manage-state` (BLoC recipes, Redux changes), `build-ui`, `write-tests`, `fix-bug` (bugs, red gate), `evolve-harness` (lessons, rules, new skills), `flutter-senior-dev` (planning, architecture, review).
+- **Specialist Subagents** (`.claude/agents/`): `@bloc-specialist` (reactive state/streams), `@ui-artisan` (views/widgets/design system), `@device-qa` (Maestro device testing), `@flutter-qa` (architecture review), `@skeptic` (adversarial plan review), `@docs-scout` (token-shielded doc digests). Default to single-agent execution; invoke subagents only when specialized isolation or research is needed.
+- **Swarm coordination, messaging & worktrees**: `dart run scripts/team/task_handoff.dart` (layer handoffs, `send`, `inbox`, `wait-human`), `dart run scripts/team/heartbeat.dart` (liveness & human blocker alerts), and `dart run scripts/team/worktree.dart` (isolated git worktrees, `.harness/team-protocol.md`).
+- **Device testing**: `maestro test .maestro/flows/smoke_launch.yaml` (`.mcp.json` → `maestro mcp`).
+- **Scaffold + route in one step**: `dart run scripts/agent/wire_route.dart <feature_name> [route_path]` (runs `mason make bloc` if the feature is missing).
+- **Quality gate** (must pass before proposing a commit): `dart run scripts/agent/verify.dart` — format, analyze, custom lints, tests, lessons, snapshot. `--fast` = format + analyze only. Wrappers: `bash scripts/agent/verify.sh`, `powershell -File scripts/agent/verify.ps1`.
+- **MCP servers** (`.mcp.json`): `dart` (`mcp__dart__*` for analyzer/LSP/debug), `maestro` (`mcp__maestro__*` for mobile UI testing), and `memory` (`mcp__memory__*` for persistent domain facts).
+- **Learning & memory**: Store lessons simply in `.harness/lessons.md` or Claude Auto-Memory (`MEMORY.md`); promote recurring rules directly into `.claude/rules/` or linter rules. `dart run scripts/agent/learn.dart` is available for offline CLI tracking.
+- **Harness upgrade**: `dart run scripts/agent/upgrade.dart` (keeps `.harness/`, your own skills and everything below the project-rules marker).
+- **FVM projects**: when `.fvm/` or `.fvmrc` exists, prefix bare CLI commands with `fvm` (e.g. `fvm dart run scripts/agent/verify.dart`, `fvm flutter test`). Agent scripts (`verify.dart`, `wire_route.dart`, `on_edit.dart`, `watch.dart`) detect FVM automatically.
 
-## 5. Golden Rules Are Analyzer-Enforced
-Rules #1, #3, #4 (repo-transport-only, zero setState, zero RxDart outside BLoC) are enforced at
-`flutter analyze` time by the `redux_rxdart_lints` custom_lint plugin (`packages/redux_rxdart_lints`
-in the base repo). Violations are compile-gate errors, not just prose — the quality gate above
-will already catch them.
+## 5. Git
+- Never commit or push unless asked. Run the quality gate first.
+- Conventional Commits: `feat(<feature>): ...`, `fix(...)`, `refactor(...)`, `chore(...)`.
 
-## 6. Git Commit Policy
-- Always run `verify.ps1` (or `verify.sh`) locally before proposing a commit.
-- Use Conventional Commits format (`feat:`, `fix:`, `refactor:`, `chore:`).
-- For scaffolded code, use `feat(<feature_name>): scaffold initial architecture`.
+## 6. Project Memory & Retrieval (`.harness/`)
+- **Start of task**: Read `.harness/system-snapshot.md` for the project map (features, routes, endpoints, state, deps). Rely on path-scoped rules in `.claude/rules/` and `.cursor/rules/` for layer standards, and use `mcp__dart` (LSP) for exact symbol definitions and types. Read `.harness/active-context.md` for high-level continuity.
+- **No close-out tax on small edits**: For quick bugfixes, styling tweaks, or iterative coding turns, **skip close-out entirely** — run `dart run scripts/agent/on_edit.dart` and report.
+- **End of feature / milestone close-out**: Only when completing a full feature, epic, or when explicitly requested, ensure `dart run scripts/agent/verify.dart` is green, then update `.harness/active-context.md`:
+  - `Current Focus`: 2-3 lines — what finished, what's next.
+  - `Recent Tasks`: newest first, 1 line each with proof (`file:lib/...` or `feat: <summary>`). Keep max 5; move older items to `.harness/progress.md` as `[YYYY-MM-DD] type(scope): what (proof)`.
+  - `Key Decisions`: 1-2 lines, architectural decision + reason.
+  - `Known Issues`: only what is currently broken or deferred.
+- **Learning & Rule Evolution**: Avoid bureaucratic logging. (1) Transient reflections: handled automatically by Claude Auto-Memory (`MEMORY.md`). (2) Domain facts & API quirks: codify directly into `.claude/rules/<domain>.md` and `.cursor/rules/` so they load automatically when that layer is touched. (3) Permanent team rules: add directly to §7. (4) Offline team sync: `dart run scripts/agent/learn.dart` remains available for tracking and proposing upstream improvements.
+- Project knowledge lives only in `.harness/`, `.claude/rules/`, `.cursor/rules/`, and below the project-rules marker. Shipped skills and template text above the marker are refreshed on upgrade.
+- Never edit `system-snapshot.md` by hand (generated by `verify` and `snapshot`). Read `progress.md` only when asked for project history.
 
-## 7. Project Context (.harness/)
-- **Before starting**: read `.harness/active-context.md` (current state) and `.harness/system-snapshot.md` (project scan).
-- **After completing a task**: update `.harness/active-context.md`:
-  - `Current Focus`: what you just finished + what's next.
-  - `Recent Tasks`: prepend entry with proof (`commit:a1b2c3d` or `file:lib/features/chat/...`). Cap at 5 — move overflow to `progress.md`.
-  - `Key Decisions`: only add if you made an architectural or pattern choice.
-  - `Known Issues`: only add if you found something broken you didn't fix.
-- **Never** edit `.harness/system-snapshot.md` — it is script-generated only.
-- **Never** read `.harness/progress.md` unless explicitly asked for historical context.
-- Regenerate snapshot: `dart run scripts/agent/snapshot.dart`.
+<!-- harness:project-rules — Everything below this line is yours. `upgrade.dart` keeps it verbatim. -->
+## 7. Project-Specific Rules
+_Add team conventions, backend quirks, decisions and project skills that every agent must follow (promoted lessons land here)._

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:redux/redux.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 {{#include_secure_storage}}
@@ -13,58 +14,78 @@ import 'package:{{project_name}}/redux/middleware/persistence_middleware.dart';
 
 /// Redux [Store] helper & token provider for non-widget layers (e.g., Dio interceptors).
 abstract final class AppStore {
-  static late Store<AppState> _store;
+  static Store<AppState>? _store;
 
-  /// Exposes the underlying store instance if needed.
-  static Store<AppState> get store => _store;
+  /// Whether [init] has run.
+  static bool get isInitialized => _store != null;
 
-  /// Current auth token for non-widget code (e.g. AuthInterceptor) without needing BuildContext.
-  static String? get authToken => _store.state.authToken;
+  /// The store instance. Throws if [init] has not been called.
+  static Store<AppState> get store =>
+      _store ?? (throw StateError('AppStore.init() has not been called'));
+
+  /// Current auth token for non-widget code (e.g. AuthInterceptor) without
+  /// needing BuildContext. Null before [init].
+  static String? get authToken => _store?.state.authToken;
 
   /// Current snapshot of global state.
-  static AppState get state => _store.state;
+  static AppState get state => store.state;
 
-  /// Convenience dispatch helper.
-  static void dispatch(AppAction action) => _store.dispatch(action);
+  /// Convenience dispatch helper. No-op before [init].
+  static void dispatch(AppAction action) => _store?.dispatch(action);
 
   /// Hydrates persisted state from SharedPreferences and returns the initialized [Store].
   ///
   /// Call once in main() before runApp().
   static Future<Store<AppState>> init() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    {{#include_secure_storage}}
-    const secureStorage = FlutterSecureStorage();
-    final token = await secureStorage.read(key: 'auth_token');
-    final userDataJson = await secureStorage.read(key: 'user_data');
-    {{/include_secure_storage}}
-    {{^include_secure_storage}}
-    final token = prefs.getString('auth_token');
-    final userDataJson = prefs.getString('user_data');
-    {{/include_secure_storage}}
-
-    final locale = prefs.getString('locale') ?? 'en';
-
-    Map<String, dynamic>? userData;
-    if (userDataJson != null) {
-      userData = Map<String, dynamic>.from(
-        json.decode(userDataJson) as Map,
-      );
-    }
-
-    _store = Store<AppState>(
+    return _store = Store<AppState>(
       appReducer,
-      initialState: AppState(
-        authToken: token,
-        userData: userData,
-        locale: locale,
-      ),
+      initialState: await _hydrate(),
       middleware: [
-        loggingMiddleware,
+        if (kDebugMode) loggingMiddleware,
         persistenceMiddleware,
       ],
     );
+  }
 
-    return _store;
+  /// Reads persisted state. Never throws: unreadable or corrupt storage
+  /// (e.g. a keystore reset after an Android backup restore) is wiped and
+  /// the app starts signed out instead of crashing on launch.
+  static Future<AppState> _hydrate() async {
+    final prefs = await SharedPreferences.getInstance();
+    final locale = prefs.getString(PersistenceKeys.locale) ?? 'en';
+    {{#include_secure_storage}}
+    const secureStorage = FlutterSecureStorage();
+    {{/include_secure_storage}}
+
+    try {
+      {{#include_secure_storage}}
+      final token = await secureStorage.read(key: PersistenceKeys.authToken);
+      final userDataJson =
+          await secureStorage.read(key: PersistenceKeys.userData);
+      {{/include_secure_storage}}
+      {{^include_secure_storage}}
+      final token = prefs.getString(PersistenceKeys.authToken);
+      final userDataJson = prefs.getString(PersistenceKeys.userData);
+      {{/include_secure_storage}}
+
+      final userData = userDataJson == null
+          ? null
+          : Map<String, dynamic>.from(json.decode(userDataJson) as Map);
+
+      return AppState(authToken: token, userData: userData, locale: locale);
+    } catch (e) {
+      debugPrint('AppStore: discarding unreadable session: $e');
+      {{#include_secure_storage}}
+      try {
+        await secureStorage.delete(key: PersistenceKeys.authToken);
+        await secureStorage.delete(key: PersistenceKeys.userData);
+      } catch (_) {}
+      {{/include_secure_storage}}
+      {{^include_secure_storage}}
+      await prefs.remove(PersistenceKeys.authToken);
+      await prefs.remove(PersistenceKeys.userData);
+      {{/include_secure_storage}}
+      return AppState(locale: locale);
+    }
   }
 }

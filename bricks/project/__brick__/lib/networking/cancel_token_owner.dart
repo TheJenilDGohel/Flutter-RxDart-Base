@@ -38,8 +38,9 @@ mixin CancelTokenOwner {
   ///
   /// Useful for pull-to-refresh or re-fetch flows where the old request
   /// should be abandoned.
-  void createNewToken() {
+  CancelToken createNewToken() {
     cancelRequests('Re-fetching data');
     _cancelToken = CancelToken();
+    return _cancelToken!;
   }
 }

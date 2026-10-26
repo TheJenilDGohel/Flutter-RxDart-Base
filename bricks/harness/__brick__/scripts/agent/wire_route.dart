@@ -1,4 +1,10 @@
+// ignore_for_file: avoid_print, prefer_interpolation_to_compose_strings
+
 import 'dart:io';
+
+/// Returns true when FVM manages this project's SDK.
+bool _useFvm() =>
+    Directory('.fvm').existsSync() || File('.fvmrc').existsSync();
 
 void main(List<String> args) {
   if (args.isEmpty) {
@@ -53,7 +59,10 @@ void main(List<String> args) {
     exit(1);
   }
 
-  _ensureFeatureScaffolded(featureSnake);
+  final fvm = _useFvm();
+  if (fvm) print('   FVM detected.');
+
+  _ensureFeatureScaffolded(featureSnake, fvm: fvm);
 
   final routesFile = _findRoutesFile();
   if (routesFile == null) {
@@ -84,11 +93,16 @@ void main(List<String> args) {
     constantName: constantName,
   );
 
-  Process.runSync('dart', [
-    'format',
-    routesFile.path,
-    routerFile.path,
-  ], runInShell: true);
+  Process.runSync(
+    fvm ? 'fvm' : 'dart',
+    [
+      if (fvm) 'dart',
+      'format',
+      routesFile.path,
+      routerFile.path,
+    ],
+    runInShell: true,
+  );
 
   print('✅ Successfully wired route:');
   print(
@@ -165,21 +179,27 @@ String? _extractProjectName(File pubspec) {
   }
 }
 
-void _ensureFeatureScaffolded(String featureSnake) {
+void _ensureFeatureScaffolded(String featureSnake, {required bool fvm}) {
   final pageFile = File('lib/features/$featureSnake/${featureSnake}_page.dart');
   if (pageFile.existsSync()) return;
 
   print(
     '   ℹ️ Feature "$featureSnake" not found. Scaffolding via `mason make bloc`...',
   );
-  final result = Process.runSync('mason', [
-    'make',
-    'bloc',
-    '--feature_name',
-    featureSnake,
-    '-o',
-    '.',
-  ], runInShell: true);
+  final result = Process.runSync(
+    fvm ? 'fvm' : 'mason',
+    [
+      if (fvm) 'exec',
+      if (fvm) 'mason',
+      'make',
+      'bloc',
+      '--feature_name',
+      featureSnake,
+      '-o',
+      '.',
+    ],
+    runInShell: true,
+  );
 
   if (result.exitCode != 0 || !pageFile.existsSync()) {
     print('❌ `mason make bloc --feature_name $featureSnake` failed:');
@@ -264,9 +284,8 @@ String _detectPageClassName(String featureSnake, String fallbackPascal) {
   if (pageFile.existsSync()) {
     try {
       final content = pageFile.readAsStringSync();
-      final match = RegExp(
-        r'class\s+([A-Za-z0-9_]+Page)\s+extends\s+State',
-      ).firstMatch(content);
+      final match = RegExp(r'class\s+([A-Za-z0-9_]+Page)\s+extends\s+State')
+          .firstMatch(content);
       if (match != null) return match.group(1)!;
     } catch (_) {}
   }
@@ -279,7 +298,10 @@ void _injectRouteConstant(
   String routePath,
 ) {
   final content = routesFile.readAsStringSync();
-  if (RegExp('\\b$constantName\\s*=').hasMatch(content)) {
+  if (RegExp(
+    r'^\s*static\s+const\s+(?:String\s+)?' + constantName + r'\s*=',
+    multiLine: true,
+  ).hasMatch(content)) {
     print(
       '   ℹ️ Route constant Routes.$constantName already exists in ${routesFile.path}',
     );
@@ -358,9 +380,8 @@ void _injectRouteCase({
     injected = true;
   } else {
     // If no default: found, find the closing brace of switch (settings.name)
-    final switchMatch = RegExp(
-      r'switch\s*\([^\)]*settings\.name[^\)]*\)\s*\{',
-    ).firstMatch(content);
+    final switchMatch = RegExp(r'switch\s*\([^\)]*settings\.name[^\)]*\)\s*\{')
+        .firstMatch(content);
     if (switchMatch != null) {
       final switchStart = switchMatch.end;
       final switchClose = content.indexOf('}', switchStart);

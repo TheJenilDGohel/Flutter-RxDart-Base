@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:dio_http2_adapter/dio_http2_adapter.dart';
@@ -6,6 +8,7 @@ import 'package:{{project_name}}/networking/interceptors/auth_interceptor.dart';
 import 'package:{{project_name}}/networking/interceptors/platform_injector_interceptor.dart';
 import 'package:{{project_name}}/networking/interceptors/error_mapping_interceptor.dart';
 import 'package:{{project_name}}/networking/api_constants.dart';
+import 'package:{{project_name}}/networking/api_exceptions.dart';
 
 /// Configures [Dio] with the interceptor chain.
 ///
@@ -13,7 +16,7 @@ import 'package:{{project_name}}/networking/api_constants.dart';
 /// 1. [ConnectivityInterceptor] — blocks requests when offline
 /// 2. [AuthInterceptor] — injects Bearer token from AppStore
 /// 3. [PlatformInjectorInterceptor] — injects {"platform": "app"}
-/// 4. [RetryInterceptor] — retries on 502/503/timeout
+/// 4. [RetryInterceptor] — retries idempotent requests on transient failures
 /// 5. [ErrorMappingInterceptor] — maps DioException → ApiException
 class DioClient {
   DioClient._();
@@ -54,16 +57,16 @@ class DioClient {
       // 3. Inject {"platform": "app"} into JSON bodies
       PlatformInjectorInterceptor(),
 
-      // 4. Retry on transient failures with exponential backoff
+      // 4. Retry transient failures with exponential backoff. POST/PATCH
+      //    are never retried: replaying them can duplicate side effects.
       RetryInterceptor(
         dio: dio,
-        retries: 3,
+        retries: 2,
         retryDelays: const [
           Duration(seconds: 1),
-          Duration(seconds: 2),
-          Duration(seconds: 4),
+          Duration(seconds: 3),
         ],
-        retryableExtraStatuses: {502, 503},
+        retryEvaluator: _shouldRetry,
       ),
 
       // 5. Map raw DioException into the sealed ApiException hierarchy
@@ -71,5 +74,16 @@ class DioClient {
     ]);
 
     return dio;
+  }
+
+  static const _idempotentMethods = {'GET', 'HEAD', 'OPTIONS', 'PUT', 'DELETE'};
+  static final _defaultEvaluator =
+      DefaultRetryEvaluator(defaultRetryableStatuses);
+
+  static FutureOr<bool> _shouldRetry(DioException error, int attempt) {
+    if (error.error is ApiException) return false;
+    final method = error.requestOptions.method.toUpperCase();
+    if (!_idempotentMethods.contains(method)) return false;
+    return _defaultEvaluator.evaluate(error, attempt);
   }
 }

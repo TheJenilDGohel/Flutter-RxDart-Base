@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:{{project_name}}/l10n/generated/app_localizations.dart';
 import 'package:toastification/toastification.dart';
 import 'package:redux/redux.dart';
-import 'package:{{project_name}}/networking/api_base_helper.dart';
 import 'package:{{project_name}}/redux/app_state.dart';
 import 'package:{{project_name}}/redux/app_store.dart';
 import 'package:{{project_name}}/resources/res_colors.dart';
@@ -17,12 +16,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load environment variables from .env
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: '.env');
   // Example of injecting variables manually (e.g., merging with Platform.environment):
   // dotenv.env.addAll({'EXTRA_VAR': 'value'});
-
-  // Initialize networking singleton
-  ApiBaseHelper.init();
 
   // Initialize Redux store and hydrate from SharedPreferences
   final Store<AppState> store = await AppStore.init();
@@ -45,7 +41,7 @@ class MyApp extends StatelessWidget {
           return ScreenUtilInit(
             designSize: const Size(375, 812),
             minTextAdapt: true,
-            builder: (_, __) => ToastificationWrapper(
+            builder: (_, _) => ToastificationWrapper(
               child: MaterialApp(
                 debugShowCheckedModeBanner: false,
                 navigatorKey: AppRouter.navigatorKey,

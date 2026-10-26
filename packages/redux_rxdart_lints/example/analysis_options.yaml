@@ -1,0 +1,7 @@
+analyzer:
+  exclude:
+    - build/**
+
+# `dart run tool/check_fixture.dart` (from the package root) adds the plugin
+# under test here with an absolute path while it runs, then restores this
+# file: the analysis server ignores a relative plugin path.

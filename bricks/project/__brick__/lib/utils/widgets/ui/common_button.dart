@@ -87,10 +87,13 @@ class CommonButton extends StatelessWidget {
                     prefix!,
                     SizedBox(width: 8.w),
                   ],
-                  Text(
-                    text,
-                    style: textStyle ??
-                        AppTypography.button().copyWith(color: effectiveText),
+                  Flexible(
+                    child: Text(
+                      text,
+                      style: textStyle ??
+                          AppTypography.button().copyWith(color: effectiveText),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   if (suffix != null) ...[
                     SizedBox(width: 8.w),

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "promptCacheTtl": "1h",
+  "subagentPromptCacheTtl": "1h",
+  "bashOutputMaxChars": 3000,
+  "teammateMode": "auto",
+  "permissions": {
+    "allow": [
+      "mcp__dart",
+      "mcp__maestro",
+      "mcp__memory",
+      "Bash(dart format:*)",
+      "Bash(fvm dart format:*)",
+      "Bash(dart analyze:*)",
+      "Bash(fvm dart analyze:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(fvm flutter analyze:*)",
+      "Bash(flutter test:*)",
+      "Bash(fvm flutter test:*)",
+      "Bash(flutter pub get)",
+      "Bash(fvm flutter pub get)",
+      "Bash(dart run scripts/agent/on_edit.dart:*)",
+      "Bash(fvm dart run scripts/agent/on_edit.dart:*)",
+      "Bash(dart run scripts/agent/watch.dart:*)",
+      "Bash(fvm dart run scripts/agent/watch.dart:*)",
+      "Bash(dart run scripts/agent/verify.dart:*)",
+      "Bash(fvm dart run scripts/agent/verify.dart:*)",
+      "Bash(dart run scripts/agent/snapshot.dart)",
+      "Bash(fvm dart run scripts/agent/snapshot.dart)",
+      "Bash(dart run scripts/agent/wire_route.dart:*)",
+      "Bash(fvm dart run scripts/agent/wire_route.dart:*)",
+      "Bash(dart run scripts/agent/learn.dart:*)",
+      "Bash(fvm dart run scripts/agent/learn.dart:*)",
+      "Bash(dart run scripts/team/task_handoff.dart:*)",
+      "Bash(fvm dart run scripts/team/task_handoff.dart:*)",
+      "Bash(dart run scripts/team/heartbeat.dart:*)",
+      "Bash(fvm dart run scripts/team/heartbeat.dart:*)",
+      "Bash(dart run scripts/team/worktree.dart:*)",
+      "Bash(fvm dart run scripts/team/worktree.dart:*)",
+      "Bash(maestro test:*)",
+      "Bash(mason make bloc:*)",
+      "Bash(fvm exec mason make bloc:*)",
+      "Bash(bash scripts/agent/verify.sh:*)",
+      "Bash(powershell -File scripts/agent/verify.ps1:*)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Read(.dart_tool/**)",
+      "Read(build/**)",
+      "Read(**/*.g.dart)",
+      "Read(**/*.freezed.dart)",
+      "Read(**/*.jks)",
+      "Read(**/*.keystore)",
+      "Read(**/key.properties)",
+      "Read(**/*.p12)",
+      "Read(**/*.mobileprovision)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "extraKnownMarketplaces": {
+    "harness-mods": {
+      "source": {
+        "source": "directory",
+        "path": "./.claude/plugins"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "golden-guard@harness-mods": true,
+    "session-flow@harness-mods": true,
+    "output-compactor@harness-mods": true
+  }
+}

@@ -20,13 +20,8 @@ class ApiBaseHelper {
 
   static ApiBaseHelper? _instance;
 
-  /// Singleton instance. Initialized lazily or via [init].
+  /// Lazily-created singleton instance.
   static ApiBaseHelper get instance => _instance ??= ApiBaseHelper();
-
-  /// Explicitly initializes the singleton. Call once in main().
-  static void init() {
-    _instance = ApiBaseHelper();
-  }
 
   final Dio _dio;
 
@@ -38,11 +33,16 @@ class ApiBaseHelper {
     );
   }
 
-  /// Parses the raw response body safely.
+  /// Parses the raw response body safely. Never throws anything other
+  /// than an [ApiException].
   Map<String, dynamic> _parseResponse(dynamic data) {
     if (data == null || data == '') return {};
     if (data is List) return {'items': data};
-    return data as Map<String, dynamic>;
+    if (data is Map<String, dynamic>) return data;
+    if (data is Map) return Map<String, dynamic>.from(data);
+    throw MalformedResponseException(
+      'Expected a JSON object or array, got ${data.runtimeType}',
+    );
   }
 
   /// HTTP GET.
@@ -52,7 +52,7 @@ class ApiBaseHelper {
     CancelToken? cancelToken,
   }) async {
     try {
-      final response = await _dio.get(
+      final response = await _dio.get<dynamic>(
         url,
         queryParameters: queryParameters,
         cancelToken: cancelToken,
@@ -71,7 +71,7 @@ class ApiBaseHelper {
     CancelToken? cancelToken,
   }) async {
     try {
-      final response = await _dio.post(
+      final response = await _dio.post<dynamic>(
         url,
         data: data,
         queryParameters: queryParameters,
@@ -92,7 +92,7 @@ class ApiBaseHelper {
     void Function(int sent, int total)? onSendProgress,
   }) async {
     try {
-      final response = await _dio.post(
+      final response = await _dio.post<dynamic>(
         url,
         data: FormData.fromMap(data ?? {}),
         queryParameters: queryParameters,
@@ -113,7 +113,7 @@ class ApiBaseHelper {
     CancelToken? cancelToken,
   }) async {
     try {
-      final response = await _dio.put(
+      final response = await _dio.put<dynamic>(
         url,
         data: data,
         queryParameters: queryParameters,
@@ -134,7 +134,7 @@ class ApiBaseHelper {
     void Function(int sent, int total)? onSendProgress,
   }) async {
     try {
-      final response = await _dio.put(
+      final response = await _dio.put<dynamic>(
         url,
         data: FormData.fromMap(data ?? {}),
         queryParameters: queryParameters,
@@ -155,7 +155,7 @@ class ApiBaseHelper {
     CancelToken? cancelToken,
   }) async {
     try {
-      final response = await _dio.delete(
+      final response = await _dio.delete<dynamic>(
         url,
         data: data,
         queryParameters: queryParameters,

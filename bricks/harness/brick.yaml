@@ -1,10 +1,25 @@
 name: harness
 description: >-
-  Scaffolds an Autonomous AI Agent Harness into any Flutter project:
-  AGENTS.md universal cognitive contract, CLAUDE.md native import,
-  .agents/skills/ universal senior-dev skill (mirrored to .cursor/skills/),
-  and scripts/agent/ deterministic CLI verification and route wiring tools.
-version: 1.4.1
+  Scaffolds a self-improving AI agent harness into a Flutter project:
+  AGENTS.md cross-tool contract, CLAUDE.md native import, eight Agent Skills
+  (planning plus task skills for features, endpoints, state, UI, tests,
+  bug fixing and harness evolution), a lessons-based learning loop,
+  and scripts/agent/ tools for verification, route wiring and upgrades.
+version: 2.5.0
 
 environment:
   mason: ">=0.1.0-dev.52 <0.2.0"
+
+vars:
+  project_name:
+    type: string
+    description: Project name in snake_case
+    default: app
+  android_package_name:
+    type: string
+    description: Android package name
+    default: com.example.app
+  ios_bundle_id:
+    type: string
+    description: iOS bundle identifier
+    default: com.example.app

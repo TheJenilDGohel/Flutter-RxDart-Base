@@ -2,6 +2,8 @@
 
 Scaffolds a complete, production-grade Flutter architecture onto an **already-created** Flutter project.
 
+**Supported toolchain:** Flutter ≥ 3.38 (Dart ≥ 3.10). CI tests the minimum (3.38) and the latest stable.
+
 ---
 
 ## 📋 Usage

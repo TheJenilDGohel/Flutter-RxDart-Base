@@ -1,10 +1,6 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
-  {{#include_harness}}
-  plugins:
-    - custom_lint
-  {{/include_harness}}
   language:
     strict-casts: true
     strict-inference: true
@@ -13,6 +9,20 @@ analyzer:
     missing_required_param: error
     missing_return: error
     todo: ignore
+    unrecognized_error_code: ignore
+{{#include_harness}}
+
+# Architecture golden rules (AGENTS.md), run by `flutter analyze`, the IDE and
+# verify.dart. A git plugin source needs Dart 3.13 / Flutter 3.47 or newer;
+# older SDKs skip it silently. Restart the analysis server after editing.
+# fork-url: the fork until upstream (TheJenilDGohel) merges lints 0.4.0.
+plugins:
+  redux_rxdart_lints:
+    git:
+      url: https://github.com/jenilseawind-glitch/Flutter-RxDart-Base.git
+      path: packages/redux_rxdart_lints
+      ref: main
+{{/include_harness}}
 
 linter:
   rules:

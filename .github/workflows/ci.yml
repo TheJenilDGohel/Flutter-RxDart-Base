@@ -1,0 +1,123 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  smoke-test:
+    name: Brick Generation Smoke Test (Flutter ${{ matrix.flutter }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # Latest stable we test on, and the minimum we claim to support.
+        # The minimum leg catches SDK floors set higher than dependencies need.
+        flutter: ['3.47.6', '3.38.10']
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: ${{ matrix.flutter }}
+
+      - name: Install tool dependencies
+        working-directory: tool
+        run: dart pub get
+
+      - name: Run Smoke Test
+        run: dart run tool/smoke.dart
+
+  docs-check:
+    name: Docs Link Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install tool dependencies
+        working-directory: tool
+        run: dart pub get
+
+      - name: Run Docs Check
+        run: dart run tool/docs_check.dart
+
+  packages-lint-test:
+    name: Packages Test (redux_rxdart_lints)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.47.6'
+
+      - name: Install dependencies
+        working-directory: packages/redux_rxdart_lints
+        run: dart pub get
+
+      - name: Format
+        working-directory: packages/redux_rxdart_lints
+        run: dart format --set-exit-if-changed lib
+
+      - name: Analyze
+        working-directory: packages/redux_rxdart_lints
+        run: dart analyze --fatal-infos
+
+      # Fixture project: every rule has expect_lint positives and clean
+      # negatives. Fails on a missing or an unexpected lint.
+      - name: Rule fixtures
+        working-directory: packages/redux_rxdart_lints
+        run: dart run tool/check_fixture.dart
+
+  workspace-checks:
+    name: Workspace format & analyze (tool, hooks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.47.6'
+
+      - name: Resolve dependencies
+        run: |
+          for d in tool bricks/project/hooks bricks/bloc/hooks; do
+            (cd "$d" && dart pub get)
+          done
+
+      - name: Format
+        run: dart format --set-exit-if-changed tool bricks/project/hooks bricks/bloc/hooks
+
+      - name: Analyze
+        run: dart analyze --fatal-infos tool bricks/project/hooks bricks/bloc/hooks
+
+      - name: Harness docs reference only real code
+        run: dart run tool/harness_check.dart
+
+      - name: Harness learning loop end-to-end
+        run: dart run tool/test_harness_learn.dart
+
+      - name: Harness upgrade end-to-end
+        run: |
+          dart pub global activate mason_cli
+          mason get
+          dart run tool/test_harness_upgrade.dart

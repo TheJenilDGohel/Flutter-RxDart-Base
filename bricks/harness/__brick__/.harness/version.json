@@ -1,0 +1,21 @@
+{
+  "brick": "harness",
+  "version": "2.5.0",
+  "upstream_repo": "https://github.com/jenilseawind-glitch/Flutter-RxDart-Base.git",
+  "vars": {
+    "project_name": "{{project_name}}",
+    "android_package_name": "{{android_package_name}}",
+    "ios_bundle_id": "{{ios_bundle_id}}"
+  },
+  "managed_skills": [
+    "add-endpoint",
+    "add-feature",
+    "build-ui",
+    "evolve-harness",
+    "fix-bug",
+    "flutter-senior-dev",
+    "manage-state",
+    "write-tests"
+  ],
+  "history": []
+}

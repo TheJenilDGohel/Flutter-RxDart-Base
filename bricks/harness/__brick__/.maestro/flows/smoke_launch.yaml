@@ -1,0 +1,8 @@
+# Maestro smoke launch flow
+# Usage: maestro test .maestro/flows/smoke_launch.yaml
+appId: com.example.app
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    text: ".*"

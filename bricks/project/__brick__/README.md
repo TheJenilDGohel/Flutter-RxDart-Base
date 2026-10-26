@@ -13,7 +13,7 @@ lib/
 ├── redux/            # Global state: authToken, userData, locale (ONLY these)
 ├── resources/        # Design tokens: colors, typography
 ├── services/         # Notification, device info stubs
-├── screens/          # App screens & showcase
+├── features/         # Feature modules (showcase & user features)
 ├── utils/            # AppScaffold, AppRouter, ShowMessage, CommonUtils, extensions
 └── main.dart         # App entry point
 ```

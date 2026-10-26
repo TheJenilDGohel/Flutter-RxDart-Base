@@ -1,0 +1,25 @@
+name: Version Gate
+
+on:
+  pull_request:
+    paths:
+      - 'bricks/**'
+      - 'packages/redux_rxdart_lints/**'
+      - 'tool/version_gate.dart'
+
+jobs:
+  check-version-bump:
+    name: Ensure versions bumped with changelog
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Check versions
+        run: dart run tool/version_gate.dart origin/${{ github.base_ref }}

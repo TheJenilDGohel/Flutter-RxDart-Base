@@ -1,208 +1,137 @@
-# Flutter Hybrid Architecture — Mason Workspace
+# Flutter RxDart Base
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter)](https://flutter.dev)
-[![Mason](https://img.shields.io/badge/Mason-CLI-blue)](https://pub.dev/packages/mason_cli)
-[![Redux](https://img.shields.io/badge/Redux-Session_Persistence-764ABC?logo=redux)](https://pub.dev/packages/redux)
-[![RxDart](https://img.shields.io/badge/RxDart-Ephemeral_BLoC-D60000)](https://pub.dev/packages/rxdart)
-[![Dio](https://img.shields.io/badge/Dio-HTTP2_Interceptors-0175C2)](https://pub.dev/packages/dio)
+Generate a Flutter app with one fixed architecture (Redux for the session, one RxDart BLoC per screen, Dio for networking), lint rules that enforce it, and an AI agent harness that teaches coding agents to follow it.
 
-A production-grade **Mason Workspace** for bootstrapping robust Flutter applications using a high-performance **Hybrid State Management Architecture**:
-
-- **Redux**: Global, persisted session state (Auth Token, User Profile, Locale).
-- **RxDart**: Local, per-screen, ephemeral state (Screen BLoCs, API fetches, form controls).
-
-Three bricks (`project`, `bloc`, `harness`) plus a standalone `custom_lint` package
-(`redux_rxdart_lints`) that turns the architecture rules into `flutter analyze` errors
-instead of prose an agent has to remember.
+[![Flutter](https://img.shields.io/badge/Flutter-3.38%2B-02569B?logo=flutter)](https://flutter.dev)
+[![Mason](https://img.shields.io/badge/Mason-bricks-blue)](https://pub.dev/packages/mason_cli)
+[![Lints](https://img.shields.io/badge/architecture-analyzer_enforced-green)](packages/redux_rxdart_lints.md)
 
 ---
 
-## 🚀 Quick Start
+## Quick start
 
-### 1. Install Bricks Globally via Mason CLI (from GitHub)
 ```bash
-mason add -g project --git-url https://github.com/TheJenilDGohel/Flutter-RxDart-Base.git --git-path bricks/project
-mason add -g bloc --git-url https://github.com/TheJenilDGohel/Flutter-RxDart-Base.git --git-path bricks/bloc
-mason add -g harness --git-url https://github.com/TheJenilDGohel/Flutter-RxDart-Base.git --git-path bricks/harness
+# 1. Install the bricks (once per machine)
+#    fork-url: the fork until upstream (TheJenilDGohel) merges the 1.6+ work.
+mason add -g project --git-url https://github.com/jenilseawind-glitch/Flutter-RxDart-Base.git --git-path bricks/project
+mason add -g bloc    --git-url https://github.com/jenilseawind-glitch/Flutter-RxDart-Base.git --git-path bricks/bloc
+mason add -g harness --git-url https://github.com/jenilseawind-glitch/Flutter-RxDart-Base.git --git-path bricks/harness
+
+# 2. Create an app and apply the architecture
+flutter create my_app && cd my_app
+mason make project      # asks for the project name, app ids, harness (Y) and secure storage (N)
+
+# 3. Add a screen: scaffolds the feature and wires its route
+dart run scripts/agent/wire_route.dart profile
+
+# 4. Check everything: format, analyze, architecture lints, tests
+dart run scripts/agent/verify.dart
 ```
 
-### 2. Create Your Flutter Project
+`flutter run` works straight away and opens a showcase screen. Without the harness, use `mason make bloc` and add the route by hand.
+
+---
+
+## What's in the box
+
+| | Version | How you use it | What it gives you |
+|---|---|---|---|
+| [`project`](bricks/project.md) | `1.5.0` | `mason make project`, once | Redux session store, Dio client with 5 interceptors, typed errors, router, design tokens, UI kit, l10n (en, hi), showcase screen |
+| [`bloc`](bricks/bloc.md) | `1.2.1` | `mason make bloc`, once per screen | BLoC, repo, model, page, content widget and 7 passing BLoC tests |
+| [`harness`](bricks/harness.md) | `2.5.0` | installed by `project` | `AGENTS.md`, Token Shield, Cursor rules, Claude Code mods, contract ingestion, storage recipes, quality gates, lessons loop |
+| [`redux_rxdart_lints`](packages/redux_rxdart_lints.md) | `0.5.0` | wired in by `project` | Turns eight golden rules into analyzer diagnostics |
+
+---
+
+## The architecture in one minute
+
+- **Redux holds only the session**: auth token, user data, locale. It's persisted and survives restarts. Nothing else goes there.
+- **Each screen has one RxDart BLoC** for everything it shows: fetching, forms, search, paging. The page creates it and disposes it.
+- **Dio does the networking** behind `ApiBaseHelper`, through a fixed chain: connectivity → auth → platform → retry → error mapping. Every failure is a typed `ApiException`, and screens receive a sealed `ApiResponse<T>` (initial, loading, success, or error with retry).
+
+```
+Page ──stream──▶ BLoC ──await──▶ Repo ──▶ ApiBaseHelper ──▶ Dio + interceptors
+                 parses JSON     returns the raw Map
+Page dispatches to Redux only when the session changes (sign-in, profile, logout)
+```
+
+A feature is one folder:
+
+```
+lib/features/profile/
+├── bloc/profile_bloc.dart              # state and logic; public streams end in $
+├── repo/profile_repo.dart              # HTTP only, returns the raw Map
+├── model/profile_model.dart            # defensive fromJson
+├── widgets/profile_content_widget.dart # draws the parsed model
+└── profile_page.dart                   # owns the BLoC, renders with AppResponseBuilder
+```
+
+The architecture lints (in the IDE and in `verify.dart`) reject parsing in repos, `setState` in feature widgets, RxDart in widgets, and ScreenUtil sizes in private widgets. All 13 golden rules are in the generated `AGENTS.md`, and the design is explained in [Architecture](architecture.md).
+
+---
+
+## The Opinionated AI Agent Setup (Harness v2.1.1)
+
+This repository couples architecture with a battle-tested **AI Agent Harness** engineered specifically for frontier coding agents (Claude Code, Cursor, Codex, Gemini CLI). It transforms chaotic LLM edits into a deterministic, token-efficient assembly line:
+
+### 1. 🛡️ Token Shield & Context Slicing
+- **1-Hour Prompt Caching**: Configured `promptCacheTtl: "1h"` and `subagentPromptCacheTtl: "1h"` in `.claude/settings.json` to leverage Anthropic prompt caching across deep conversations.
+- **Context-Slicing Path Rules (`.claude/rules/`)**: Architecture standards (`bloc.md`, `ui.md`, `endpoints.md`, `testing.md`) cost **0 baseline tokens**. They are injected dynamically by Claude Code and Cursor only when matching paths are edited.
+- **Output Clamping & Deny Boundaries**: Terminal outputs clamped to 4,000 chars (`bashOutputMaxChars: 4000`) preventing token-draining build logs. Deny rules strictly guard keystores, provisioning profiles, `.dart_tool/`, and generated files (`*.g.dart`, `*.freezed.dart`).
+
+### 2. 🐝 Specialist Agent Swarm & Coordination
+Instead of one generalist agent running out of context, tasks multiplex across lean specialist agents (`.claude/agents/`) configured with `omitClaudeMd: true`:
+- `@bloc-specialist`: RxDart stream lifecycles, composite subscriptions, emit guards, and concurrency recipes.
+- `@ui-artisan`: ScreenUtil public widgets, ResColors tokens, `AppResponseBuilder`, l10n, and zero `setState`.
+- `@device-qa`: Declarative end-to-end device testing via Maestro CLI and MCP.
+- `@flutter-qa`: One-shot architectural conformance, layer boundary enforcement, and lint audits.
+- `@skeptic`: Adversarial plan reviewer attacking reactive state and stream edge cases before coding begins.
+- `@docs-scout`: Token-efficient library and documentation researcher (<200 words) shielding the main context.
+- **Coordination**: Supports single-terminal in-process handoffs and concurrent multi-session Git worktrees (`.worktreeinclude`) via `scripts/team/task_handoff.dart` and `scripts/team/heartbeat.dart` (`.harness/team-protocol.md`).
+
+### 3. 📱 Declarative Device Automation (Maestro)
+Replaces brittle accessibility tree parsing and screenshot OCR with deterministic **Maestro YAML flows** (`.maestro/flows/smoke_launch.yaml`). The agent tests real mobile apps on emulators and devices via `maestro test` with zero prompt token bloat.
+
+### 4. 📚 Production Repository Recipes
+Codifies production-grade patterns in `.agents/skills/add-endpoint/repo-recipes.md`:
+- Standard CRUD with defensive query filtering (`_sanitizeFilters`).
+- Capability mixins (`SoftDeletableRepoMixin`, `ActiveToggleRepoMixin`).
+- Multipart file and media uploads (`UploadMediaRepoMixin`).
+- Bulk and unpaginated fetches (`all=true` with batching fallback).
+- Binary streaming and PDF document downloads.
+- Cache-aside repositories with in-memory TTL.
+
+### 5. 🧠 5-Tier Memory & Learning Model
+Eliminates ceremonial task close-out blockers in favor of a layered memory architecture:
+1. **Tier 1 (Ambient)**: Claude Code Auto-Memory (`MEMORY.md` + Auto-Dream) for ambient personal learning across sessions.
+2. **Tier 2 (Structured Knowledge Graph)**: Anthropic `@modelcontextprotocol/server-memory` registered in `.mcp.json` for persistent technical facts and API quirks on demand.
+3. **Tier 3 (Path-Scoped Rules)**: Invariant standards codified in `.claude/rules/*.md`.
+4. **Tier 4 (Permanent Team Rules)**: Repository-wide non-negotiables in `AGENTS.md` §7.
+5. **Tier 5 (Offline CLI)**: `scripts/agent/learn.dart` for offline verification and proposing upstream fixes.
+
+Try: *"Add a profile screen for `GET /me`; the Postman collection is in `docs/`."* More in [the harness docs](bricks/harness.md).
+
+---
+
+## Upgrading the harness in an app
+
 ```bash
-flutter create my_app
-cd my_app
+dart run scripts/agent/upgrade.dart
 ```
 
-### 3. Bootstrap Architecture (`mason make project`)
-From inside your new Flutter project directory:
-```bash
-mason make project
-```
-*Prompts for `project_name` (snake_case), `android_package_name` (com.example.myapp), `ios_bundle_id`, and `include_harness` (Y/n, default Y — scaffolds the AI Agent Harness below automatically).*
-
-### 4. Scaffold + Wire Feature Modules
-Whenever adding a new screen or feature module, if the harness is installed, one command does it all:
-```bash
-dart run scripts/agent/wire_route.dart <feature_name> [route_path]
-```
-Auto-runs `mason make bloc --feature_name <name>` first if the feature doesn't exist, then wires
-the route constant + `onGenerateRoute` case. Without the harness, run `mason make bloc` directly
-(prompts for `feature_name`) and wire the route by hand.
+It renders the latest release, updates only harness files, and keeps your memory, lessons, own scripts and project rules. On 1.7.0 or older, install the new `upgrade.dart` first; see [Upgrading from 1.7.0 or older](bricks/harness.md#upgrading-from-170-or-older).
 
 ---
 
-## 🧩 Mason Bricks at a Glance
+## Documentation
 
-| Brick | Command | Execution Frequency | Key Responsibilities |
-|-------|---------|---------------------|----------------------|
-| **`project`** | `mason make project` | **Once** per app | Scaffolds Redux store, Dio HTTP/2 engine with 5 interceptors, `ApiExceptionUIExt`, AppRouter, Toast helper (`ShowMessage`), CommonUtils, ResColors, AppTypography, L10n, and Showcase Demo. |
-| **`bloc`** | `mason make bloc` | **Repeatedly** per feature | Generates BLoC, Repo, Model folder, Page, and Content Widget with AI-friendly architecture guidance headers. |
-| **`harness`** | `mason make harness` | **Once** per project (auto-run by `project`) | Scaffolds `AGENTS.md`/`CLAUDE.md`, `scripts/agent/wire_route.dart` + `verify.ps1`/`verify.sh`, and wires the `redux_rxdart_lints` custom_lint plugin. See [`bricks/harness.md`](bricks/harness.md). |
+- [Architecture](architecture.md): layers, the state rule, networking, trade-offs
+- Bricks: [`project`](bricks/project.md) · [`bloc`](bricks/bloc.md) · [`harness`](bricks/harness.md) · lints: [`redux_rxdart_lints`](packages/redux_rxdart_lints.md)
+- [AI harness research](ai-harness-rnd.md): why the harness works the way it does
+- [Roadmap](roadmap.md) · [Contributing](contributing.md)
 
----
+## Contributing
 
-## 🏛️ The Core Architectural Rule
+Every template change bumps its brick's version and CHANGELOG, and CI generates a real app to test it: see [Contributing](contributing.md). AI agents working on this repository should use the `base-maintainer` skill in `.agents/skills/base-maintainer/`.
 
-> **"Does this data need to survive navigation or a cold app restart?"**
->
-> 🟢 **YES $\rightarrow$ `AppStore` (Redux)**
-> - Auth JWT / Session Token
-> - User Profile Metadata
-> - App Locale Preference
->
-> 🔵 **NO $\rightarrow$ Feature BLoC (`RxDart`)**
-> - Page API Response States
-> - Form Fields & UI Toggles
-> - Screen-specific Ephemeral Data
-
----
-
-## 📁 Generated Architecture Overview
-
-```
-AGENTS.md                                 # Universal AI agent contract (if include_harness)
-CLAUDE.md                                 # @AGENTS.md transclusion (if include_harness)
-scripts/agent/                            # wire_route.dart, verify.ps1, verify.sh (if include_harness)
-lib/
-├── features/                             # Feature-first modules
-│   └── showcase/                         # Architecture & UI toolkit showcase page
-├── l10n/                                 # Localization ARB files (en, hi)
-├── networking/                           # Network engine layer
-│   ├── interceptors/                     # 5-step Dio interceptor chain
-│   │   ├── connectivity_interceptor.dart # 1. ConnectivityInterceptor (offline check)
-│   │   ├── auth_interceptor.dart         # 2. AuthInterceptor (token injection)
-│   │   ├── platform_injector_interceptor.dart # 3. PlatformInjectorInterceptor (header/body injection)
-│   │   │                                 # 4. RetryInterceptor (from dio_smart_retry package)
-│   │   └── error_mapping_interceptor.dart # 5. ErrorMappingInterceptor (DioException mapping)
-│   ├── api_base_helper.dart              # Facade with GET/POST/PUT/DELETE & postFormData/putFormData
-│   ├── api_constants.dart                # Base URL & endpoint registry
-│   ├── api_exceptions.dart               # Sealed ApiException hierarchy (8 subtypes)
-│   ├── api_response.dart                 # Sealed ApiResponse<T> with error, retry, and .data accessor
-│   ├── cancel_token_owner.dart           # CancelTokenOwner mixin for lifecycle request cancellation
-│   └── dio_client.dart                   # HTTP/2 Dio client configuration with 5-step chain
-├── redux/                                # Global session persistence layer
-│   ├── middleware/                       # Logging & SharedPreferences persistence middleware
-│   ├── reducers/                         # Pure reducer with exhaustive switch matching
-│   ├── actions.dart                      # Sealed AppAction hierarchy
-│   ├── app_state.dart                    # Immutable AppState
-│   └── app_store.dart                    # Store hydration & token provider for Dio
-├── resources/                            # Design tokens
-│   ├── app_typography.dart               # Material 3 Type Scale with ScreenUtil .sp
-│   └── res_colors.dart                   # Clean 23-token color palette (with disabled & card tokens)
-├── services/                             # Background & device stubs
-│   ├── device_info_service.dart          # Device info plugin stub
-│   └── notification_service.dart        # Push & local notification stub
-├── utils/                                # Universal utilities & routing
-│   ├── extensions/                       # error.userMessage, context.l10n, context.textTheme
-│   ├── router/                           # AppRouter, Routes registry, navigatorKey
-│   ├── widgets/                          # Design system & interactive components
-│   │   ├── app_scaffold.dart             # Standard scaffold with AppBar & background
-│   │   └── ui/                           # Reusable UI component library
-│   │       ├── ui_components.dart        # Barrel export for clean imports
-│   │       ├── app_response_builder.dart # Declarative ApiResponse stream builder
-│   │       ├── common_button.dart        # Production button with built-in loading spinner
-│   │       ├── app_textformfield.dart    # Styled input with password visibility eye toggle
-│   │       ├── app_dialog.dart           # Confirmation, status, & async confirm dialogs
-│   │       ├── app_card.dart             # Styled card container
-│   │       ├── app_empty_state.dart      # Empty state placeholder
-│   │       ├── app_error_state.dart      # Error state with retry button
-│   │       └── app_loading_state.dart    # Centered loading spinner
-│   ├── common_utils.dart                 # hideKeyboard, launcher recipes, showCommonDialog
-│   └── show_message.dart                 # ShowMessage.success / error / info / warning toasts
-└── main.dart                             # Entry point: Store hydration, AppRouter, ScreenUtil, OverlaySupport
-```
-
----
-
-## ⚡ Key Technical Features & Standards
-
-### 1. Declarative UI Binding (`AppResponseBuilder<T>`)
-- Eliminates 30–50 lines of boilerplate `StreamBuilder` + `switch` per screen by declaratively handling `loadingWidget`, `AppErrorState` with retry callback, and typed `builder(context, data)`.
-
-### 2. Form & Action Toolkit (`CommonButton` & `AppTextFormField`)
-- **`CommonButton`**: Handles loading state out of the box (disables taps and shows spinner), prefix/suffix icons, and custom styling.
-- **`AppTextFormField`**: Form input with labels, hints, prefixes/suffixes, built-in password visibility toggle (`obscureText`), and ScreenUtil responsive scaling.
-
-### 3. Lifecycle-Safe Cancellation (`CancelTokenOwner`)
-- BLoCs mix in `CancelTokenOwner` to manage Dio `CancelToken`s. Pending network calls automatically abort on screen `dispose()` or pull-to-refresh without memory leaks.
-
-### 4. Interactive Dialog Shells (`AppDialog`)
-- Static helpers `AppDialog.showConfirmation`, `AppDialog.showStatus`, and `AppDialog.showAsyncConfirm` (keeps dialog open with spinner during async mutation).
-
-### 5. Multipart & Form-Data Ready (`ApiBaseHelper`)
-- Built-in `postFormData` and `putFormData` with `FormData.fromMap` and `onSendProgress` progress callbacks.
-
----
-
-## 🛠️ Generated Feature Module Structure (`mason make bloc`)
-
-Running `mason make bloc` creates a self-contained feature folder under `lib/features/`:
-
-```
-lib/features/my_feature/
-├── bloc/my_feature_bloc.dart          # Clean BLoC with CancelTokenOwner & $ stream convention
-├── model/                             # Empty model folder for feature response models
-├── repo/my_feature_repo.dart          # Constructor-injectable repository (with CancelToken support)
-├── widgets/my_feature_content_widget.dart # Decoupled UI content widget
-└── my_feature_page.dart               # Clean StatefulWidget with AppScaffold & ui_components
-```
-
----
-
-## 🤖 AI Agent Harness
-
-`mason make harness` (auto-run by `project` unless `include_harness: false`) scaffolds:
-
-- **`AGENTS.md`** — the architecture contract: golden rules, backend API discovery, deterministic
-  commands, git policy. Read natively by Claude Code, Cursor, Copilot, Codex, and 20+ other
-  AGENTS.md-compatible tools. `CLAUDE.md` is a 1-line `@AGENTS.md` transclusion.
-- **`scripts/agent/wire_route.dart`** — one command scaffolds a feature and wires its route.
-- **`scripts/agent/verify.ps1` / `verify.sh`** — deterministic quality gate (format + analyze).
-- **`redux_rxdart_lints`** — a [`custom_lint`](packages/redux_rxdart_lints.md) plugin wired
-  into `pubspec.yaml` / `analysis_options.yaml` automatically. Golden Rules #1 (repo-transport-only),
-  #3 (zero `setState`), #4 (zero RxDart outside BLoC) become `flutter analyze` **errors**, not just
-  prose an agent has to remember.
-
-See [`bricks/harness.md`](bricks/harness.md) for details.
-
----
-
-## 📝 Best Practices & Guidelines
-
-### ✅ DO
-- Use `mason make project` once on a freshly created Flutter app.
-- Use `mason make bloc` for every new screen or module (or `dart run scripts/agent/wire_route.dart <name>` if the harness is installed — scaffolds + wires the route in one step).
-- Use `exception.userFacingMessage` for clean error formatting.
-- Access localizations via `context.l10n` and themes via `context.textTheme`.
-
-### ❌ DON'T
-- Do **NOT** add screen-specific UI state to Redux.
-- Do **NOT** call `flutter create` inside Mason hooks.
-- Do **NOT** use hardcoded pixel sizes — use ScreenUtil `.w`, `.h`, `.r`, `.sp`.
-
----
-
-## 🛠️ Maintaining This Workspace
-See [`CONTRIBUTING.md`](contributing.md) for versioning, README-sync, and lint-propagation rules.
-
-## 📄 License
-This workspace template is released under the **MIT License**. See [`LICENSE`](https://github.com/TheJenilDGohel/Flutter-RxDart-Base/blob/main/LICENSE).
+Released under the [MIT License](https://github.com/jenilseawind-glitch/Flutter-RxDart-Base/blob/main/LICENSE).

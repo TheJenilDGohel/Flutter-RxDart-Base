@@ -1,0 +1,1 @@
+{ "name": "golden-guard", "version": "0.1.0", "description": "Stop-time gate (analyze + golden-rule scan on changed Dart files) and /audit command for branches or modules" }

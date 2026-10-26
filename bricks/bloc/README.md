@@ -1,6 +1,6 @@
 # `bloc` Brick
 
-Generates a minimal, zero-friction feature folder under `lib/features/` with clean BLoC, repository, empty model directory, content widget, and page skeletons, pre-configured with architecture guidance docstrings.
+Generates a feature folder under `lib/features/` that already follows the Golden Rules: an RxDart BLoC with `fetch({bool refresh})`, a transport-only repository, a defensively parsed model, a page bound through `AppResponseBuilder`, and unit tests for every state transition.
 
 ---
 
@@ -9,15 +9,16 @@ Generates a minimal, zero-friction feature folder under `lib/features/` with cle
 From inside your Flutter project root (after bootstrapping with `mason make project`):
 
 ```bash
-mason make bloc
+mason make bloc --feature_name user_profile
 ```
 
-### Prompted Variables
+### Variables
 
 | Variable | Type | Description | Default / Behavior |
 |----------|------|-------------|--------------------|
-| `feature_name` | String | Feature name in `snake_case` (e.g. `user_profile`) | *Required* |
-| `project_name` | String | Project name in `snake_case` | Auto-detected from `pubspec.yaml` if left blank |
+| `feature_name` | String | Feature name; normalised to `snake_case` and validated before any file is written | *Required* |
+
+`project_name` is not a prompt: the `pre_gen` hook reads it from `pubspec.yaml`, so the brick runs non-interactively for CI and AI agents. Run it from the project root.
 
 ---
 
@@ -25,22 +26,26 @@ mason make bloc
 
 ```
 lib/features/{feature_name}/
-├── bloc/{feature_name}_bloc.dart          # Clean RxDart BLoC with CancelTokenOwner & $ stream convention
-├── model/                                 # Empty model directory for feature models (.gitkeep)
-├── repo/{feature_name}_repo.dart          # Injectable repository (ApiBaseHelper DI + CancelToken)
-├── widgets/{feature_name}_content_widget.dart # Decoupled dumb UI content widget
-└── {feature_name}_page.dart               # StatefulWidget managing BLoC lifecycle with Scaffold
+├── bloc/{feature_name}_bloc.dart              # RxDart BLoC: fetch({refresh}), guarded emits, retry, CancelTokenOwner
+├── model/{feature_name}_model.dart            # Response model with defensive fromJson (Golden Rule #12)
+├── repo/{feature_name}_repo.dart              # Transport-only repository (ApiBaseHelper DI + CancelToken)
+├── widgets/{feature_name}_content_widget.dart # Pure widget rendering the parsed model
+└── {feature_name}_page.dart                   # Owns the BLoC; AppResponseBuilder + pull-to-refresh
+test/features/{feature_name}/bloc/
+└── {feature_name}_bloc_test.dart              # 7 tests: success, error+retry, wrapped errors, cancel, refresh, dispose
 ```
+
+All generated files are formatted by the `post_gen` hook, so the harness quality gate passes on a fresh feature.
 
 ---
 
-## 🏛️ Architectural Guidance Included in Template
+## 🏛️ What the Template Demonstrates
 
-1. **Auto-Detection**: The `pre_gen` hook automatically detects the `project_name` from your root `pubspec.yaml`, enabling non-interactive execution for CI/CD and AI agents.
-2. **Lifecycle Safety**: BLoC mixes in `CancelTokenOwner` to auto-abort pending HTTP requests in `dispose()`.
-3. **Pre-scaffolded Model Folder**: Includes an empty `model/` folder so feature models can be added immediately.
-4. **Constructor Injection**: Repositories use `FeatureRepo({ApiBaseHelper? api}) : _api = api ?? ApiBaseHelper.instance;` for easy unit testing.
-5. **Scaffold Shell**: Uses `Scaffold` with consistent styling, app bar title, and design tokens.
+1. **Fetch pattern (Golden Rule #8)**: `createNewToken()` first, so a newer fetch cancels the older one; `refresh: true` keeps current content on screen.
+2. **Safe emissions**: every state goes through one `_emit` guard, so nothing is added after `dispose()`.
+3. **Errors**: `ApiException` → `ErrorResponse` with `retry: fetch`; cancellations are ignored; unexpected errors are wrapped in `MalformedResponseException` and never shown raw to users.
+4. **Constructor injection**: `FeatureRepo({ApiBaseHelper? api})` and `FeatureBloc({FeatureRepo? repo})` for tests.
+5. **UI binding**: the page renders through `AppResponseBuilder` (loading, error with retry, content) with zero `setState`.
 
 ---
 
@@ -52,3 +57,7 @@ run one command instead — it scaffolds the feature (if missing) *and* wires th
 ```bash
 dart run scripts/agent/wire_route.dart <feature_name> [route_path]
 ```
+
+---
+
+See [`CHANGELOG.md`](CHANGELOG.md) for version history.

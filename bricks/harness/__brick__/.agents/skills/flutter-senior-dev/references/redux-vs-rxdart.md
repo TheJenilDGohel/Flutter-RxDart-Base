@@ -11,7 +11,7 @@ Everything else → the feature's own BLoC.
 | A list of search results | Feature BLoC | belongs to one screen, refetched every time it's opened |
 | "is this form field valid" | Feature BLoC | pure UI state, meaningless outside this screen |
 | Selected tab index | Feature BLoC | resets on screen re-entry, that's fine |
-| "has the user seen the onboarding" | Redux, but as a dedicated flag — don't fold it into unrelated state | must survive restart, but keep `AppState` additions narrow and explicit |
+| "has the user seen the onboarding" | Redux, as a dedicated flag, **only with the owner's approval** (`AGENTS.md` §1 allows nothing beyond token, user, locale) | must survive restart; keep `AppState` additions narrow, explicit and recorded in `AGENTS.md` §7 |
 
 ## Adding a new Redux action
 Only when the data genuinely needs the YES side of the rule. Extend the sealed `AppAction`

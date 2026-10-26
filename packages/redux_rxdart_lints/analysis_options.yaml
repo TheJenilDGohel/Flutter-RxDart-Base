@@ -1,0 +1,8 @@
+include: package:lints/recommended.yaml
+
+analyzer:
+  exclude:
+    # Fixture project with its own pubspec; checked by
+    # `dart run tool/check_fixture.dart` (see README).
+    - example/**
+    - tool/**

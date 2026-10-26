@@ -21,7 +21,7 @@ abstract final class ShowMessage {
       alignment: Alignment.bottomCenter,
       autoCloseDuration: duration ?? const Duration(seconds: 3),
       builder: (context, holder) =>
-          _CustomToast(message: message, status: status),
+          CustomToast(message: message, status: status),
     );
   }
 
@@ -60,11 +60,11 @@ extension ToastContextExt on BuildContext {
   void showError(String message) => ShowMessage.error(message);
 }
 
-class _CustomToast extends StatelessWidget {
+class CustomToast extends StatelessWidget {
   final String message;
   final AppStatus status;
 
-  const _CustomToast({required this.message, required this.status});
+  const CustomToast({super.key, required this.message, required this.status});
 
   @override
   Widget build(BuildContext context) {

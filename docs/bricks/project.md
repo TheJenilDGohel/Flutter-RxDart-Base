@@ -2,6 +2,8 @@
 
 Scaffolds a complete, production-grade Flutter architecture onto an **already-created** Flutter project.
 
+**Supported toolchain:** Flutter ≥ 3.38 (Dart ≥ 3.10). CI tests the minimum (3.38) and the latest stable.
+
 ---
 
 ## 📋 Usage
@@ -28,7 +30,10 @@ mason make project
 - **`lib/redux/`**: `AppState`, `AppAction`, reducer, `AppStore` hydration, logging & persistence middleware.
 - **`lib/networking/`**: `ApiBaseHelper`, `DioClient`, 5-interceptor chain, sealed `ApiException`, sealed `ApiResponse<T>`.
 - **`lib/resources/`**: Design tokens (`ResColors`, Material 3 `AppTypography` with ScreenUtil `.sp`).
-- **`lib/utils/`**: `AppScaffold`, core UI states (`AppLoadingState`, `AppErrorState`, `AppEmptyState`), `AppRouter`, `ShowMessage` toasts, `CommonUtils`, context & string extensions.
+- **`lib/utils/`**: Design system & shared components:
+  - `widgets/ui/`: Stateless primitives (`AppCard`, `AppEmptyState`, `AppErrorState`, `AppLoadingState`, `AppResponseBuilder`, `AppScaffold`, `CommonButton`, and barrel export `ui_components.dart`).
+  - `widgets/view/`: RxDart BLoC-driven components upholding Rule 3 (`AppTextFormField` with `AppTextFormFieldBloc`, `AppDialog` with `AppDialogBloc`).
+  - `router/`, `common_utils.dart`, `show_message.dart` toasts, context & string extensions.
 - **`lib/features/`**: The home for your actual app features (generated via `mason make bloc`).
 - **`lib/services/`**: Notification and device info stubs.
 - **`lib/l10n/`**: Localization setup (`app_en.arb`, `app_hi.arb`, `l10n.yaml`).

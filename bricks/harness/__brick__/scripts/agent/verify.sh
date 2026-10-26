@@ -1,20 +1,9 @@
 #!/usr/bin/env bash
+# Quality gate. See verify.dart for options (--fast, --no-snapshot).
 set -e
-
-echo "🔍 [1/4] Checking Dart formatting..."
-dart format --set-exit-if-changed .
-echo "✅ Formatting clean."
-
-echo "🔬 [2/4] Running Flutter analyzer (--fatal-infos)..."
-flutter analyze --fatal-infos
-echo "✅ Analysis clean."
-
-echo "🏗️ [3/4] Running custom architectural lints..."
-dart run custom_lint
-echo "✅ Custom lints clean."
-
-echo "📸 [4/4] Regenerating project snapshot..."
-dart run scripts/agent/snapshot.dart
-echo "✅ Snapshot updated."
-
-echo "🎉 All quality gates passed cleanly!"
+cd "$(dirname "$0")/../.."
+if [ -d ".fvm" ] || [ -f ".fvmrc" ]; then
+  exec fvm dart run scripts/agent/verify.dart "$@"
+else
+  exec dart run scripts/agent/verify.dart "$@"
+fi

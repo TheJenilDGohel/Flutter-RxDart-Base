@@ -8,8 +8,9 @@ on:
       - 'bricks/project/__brick__/pubspec.yaml'
 
 permissions:
-  pull-requests: write
   contents: read
+  issues: write
+  pull-requests: write
 
 jobs:
   check-deps:
@@ -37,18 +38,31 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            if (!fs.existsSync('advisory.md')) {
+              console.log("No advisory.md found.");
+              return;
+            }
             const advisory = fs.readFileSync('advisory.md', 'utf8');
             console.log("Advisory content length:", advisory.length);
             console.log("Advisory content preview:", advisory.substring(0, 100));
             
+            if (process.env.GITHUB_STEP_SUMMARY) {
+              fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, advisory + '\n');
+            }
+            
             if (advisory.includes('⚠️')) {
-              console.log("Found warning emoji, posting comment to PR...");
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: advisory
-              });
+              console.log("Found warning emoji, attempting to post comment to PR...");
+              try {
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: advisory
+                });
+                console.log("Successfully posted PR comment.");
+              } catch (error) {
+                console.warn("Could not post PR comment (read-only token or fork PR):", error.message);
+              }
             } else {
               console.log("No warning emoji found in the advisory.");
             }

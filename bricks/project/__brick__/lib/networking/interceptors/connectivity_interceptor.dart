@@ -7,6 +7,9 @@ import 'package:{{project_name}}/networking/api_exceptions.dart';
 /// Checks device connectivity BEFORE firing the request. Throws
 /// [NoInternetException] (via DioException.error) if the device is offline,
 /// preventing unnecessary network calls.
+///
+/// Uses connectivity_plus 7.x [ConnectivityResult.hasConnectivity] for a
+/// cleaner offline check.
 class ConnectivityInterceptor extends Interceptor {
   @override
   Future<void> onRequest(
@@ -14,7 +17,7 @@ class ConnectivityInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     final result = await Connectivity().checkConnectivity();
-    if (result.contains(ConnectivityResult.none)) {
+    if (!result.hasConnectivity) {
       return handler.reject(
         DioException(
           requestOptions: options,

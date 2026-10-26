@@ -1,9 +1,6 @@
 name: Dependency Audit (Nightly)
 
 on:
-  push:
-    branches:
-      - main
   schedule:
     - cron: '0 18 * * *' # 18:00 UTC = 11:30 PM IST
   workflow_dispatch: # Allow manual trigger
@@ -32,7 +29,7 @@ jobs:
           dart run tool/check_deps.dart --mode=audit > audit_result.json
           cat audit_result.json
 
-      - name: Create PR for Updates
+      - name: Create or Update PR for Updates
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -40,8 +37,8 @@ jobs:
           MINOR_PATCH=$(jq -c '.outdated[] | select(.level == "minor" or .level == "patch")' audit_result.json)
           MAJOR=$(jq -c '.outdated[] | select(.level == "major")' audit_result.json)
           
-          if [ -z "$MINOR_PATCH" ] && [ -z "$MAJOR" ]; then
-            echo "No updates found."
+          if [ -z "$MINOR_PATCH" ]; then
+            echo "No minor or patch updates to apply."
             exit 0
           fi
           
@@ -49,8 +46,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          BRANCH_NAME="deps/update-$(date +%s)"
-          git checkout -b "$BRANCH_NAME"
+          BRANCH_NAME="deps/auto-update"
+          git checkout -B "$BRANCH_NAME"
           
           PR_BODY="## Dependency Updates\n\n"
           
@@ -84,7 +81,6 @@ jobs:
                 fi
                 
                 # Use sed to update pubspec.yaml in place
-                # Matches:   package_name: ^x.y.z
                 sed -i -E "s/^([[:space:]]*)$PKG:[[:space:]]*\^?[0-9]+\.[0-9]+\.[0-9]+.*$/\1$PKG: ^$LATEST/" bricks/project/__brick__/pubspec.yaml
                 
                 PR_BODY="$PR_BODY| $PKG | $CURRENT | $LATEST | $LEVEL | $FLAG_EMOJI |\n"
@@ -100,7 +96,14 @@ jobs:
           fi
           
           git commit -m "chore(deps): update minor and patch dependencies"
-          git push origin "$BRANCH_NAME"
+          git push -f origin "$BRANCH_NAME"
           
-          # Create PR using gh CLI (pre-installed on ubuntu-latest)
-          echo -e "$PR_BODY" | gh pr create --title "chore(deps): auto-update dependencies" --body-file - --base main --head "$BRANCH_NAME"
+          # Check if an open PR for this branch already exists
+          EXISTING_PR=$(gh pr list --head "$BRANCH_NAME" --state open --json number --jq '.[0].number')
+          if [ -n "$EXISTING_PR" ]; then
+            echo "Updating existing PR #$EXISTING_PR..."
+            echo -e "$PR_BODY" | gh pr edit "$EXISTING_PR" --body-file -
+          else
+            echo "Creating new PR..."
+            echo -e "$PR_BODY" | gh pr create --title "chore(deps): auto-update dependencies" --body-file - --base main --head "$BRANCH_NAME"
+          fi

@@ -63,22 +63,24 @@ class _ShowcaseHomePageState extends State<ShowcaseHomePage> {
           children: [
             // ── ScreenUtil Responsive Header ──────────────────────────
             AppCard(
-              backgroundColor: ResColors.primary.withOpacity(0.06),
-              borderColor: ResColors.primary.withOpacity(0.2),
+              backgroundColor: ResColors.primary.withValues(alpha: 0.06),
+              borderColor: ResColors.primary.withValues(alpha: 0.2),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
                       Icon(
-                        Icons.aspect_ratio_rounded,
+                        Icons.devices_outlined,
                         size: 24.r,
                         color: ResColors.primary,
                       ),
                       SizedBox(width: 8.w),
-                      Text(
-                        'ScreenUtil Scaling',
-                        style: AppTypography.headline(color: ResColors.primary),
+                      Expanded(
+                        child: Text(
+                          'ScreenUtil Scaling',
+                          style: AppTypography.headline(color: ResColors.primary),
+                        ),
                       ),
                     ],
                   ),
@@ -90,12 +92,12 @@ class _ShowcaseHomePageState extends State<ShowcaseHomePage> {
                 ],
               ),
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: 16.h),
 
             // ── Redux Global State: Localization ──────────────────────
             Text(
               'Global State (Redux): Localization',
-              style: AppTypography.subheading(color: ResColors.textPrimary),
+              style: AppTypography.title(color: ResColors.textPrimary),
             ),
             SizedBox(height: 8.h),
             AppCard(
@@ -103,8 +105,8 @@ class _ShowcaseHomePageState extends State<ShowcaseHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'The current locale is held in Redux and automatically persisted to SharedPreferences:',
-                    style: AppTypography.body(color: ResColors.textSecondary),
+                    'Select App Language',
+                    style: AppTypography.body().copyWith(fontWeight: FontWeight.w600),
                   ),
                   SizedBox(height: 12.h),
                   StoreConnector<AppState, String>(
@@ -119,20 +121,17 @@ class _ShowcaseHomePageState extends State<ShowcaseHomePage> {
                               },
                               style: OutlinedButton.styleFrom(
                                 backgroundColor: locale == 'en'
-                                    ? ResColors.primary.withOpacity(0.1)
+                                    ? ResColors.primary.withValues(alpha: 0.1)
                                     : ResColors.transparent,
                                 side: BorderSide(
                                   color: locale == 'en'
                                       ? ResColors.primary
                                       : ResColors.border,
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.r),
-                                ),
                               ),
                               child: Text(
-                                'English (EN)',
-                                style: AppTypography.button(
+                                'English (en)',
+                                style: AppTypography.label(
                                   color: locale == 'en'
                                       ? ResColors.primary
                                       : ResColors.textSecondary,
@@ -140,7 +139,7 @@ class _ShowcaseHomePageState extends State<ShowcaseHomePage> {
                               ),
                             ),
                           ),
-                          SizedBox(width: 12.w),
+                          SizedBox(width: 8.w),
                           Expanded(
                             child: OutlinedButton(
                               onPressed: () {
@@ -148,20 +147,17 @@ class _ShowcaseHomePageState extends State<ShowcaseHomePage> {
                               },
                               style: OutlinedButton.styleFrom(
                                 backgroundColor: locale == 'hi'
-                                    ? ResColors.primary.withOpacity(0.1)
+                                    ? ResColors.primary.withValues(alpha: 0.1)
                                     : ResColors.transparent,
                                 side: BorderSide(
                                   color: locale == 'hi'
                                       ? ResColors.primary
                                       : ResColors.border,
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.r),
-                                ),
                               ),
                               child: Text(
-                                'हिंदी (HI)',
-                                style: AppTypography.button(
+                                'Hindi (hi)',
+                                style: AppTypography.label(
                                   color: locale == 'hi'
                                       ? ResColors.primary
                                       : ResColors.textSecondary,
@@ -176,12 +172,12 @@ class _ShowcaseHomePageState extends State<ShowcaseHomePage> {
                 ],
               ),
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: 16.h),
 
             // ── Form & Action Widgets ─────────────────────────────────
             Text(
               'Production Form & Button Toolkit',
-              style: AppTypography.subheading(color: ResColors.textPrimary),
+              style: AppTypography.title(color: ResColors.textPrimary),
             ),
             SizedBox(height: 8.h),
             AppCard(
@@ -224,72 +220,65 @@ class _ShowcaseHomePageState extends State<ShowcaseHomePage> {
                 ],
               ),
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: 16.h),
 
             // ── Dialogs & Overlays ────────────────────────────────────
             Text(
               'Standardized Dialogs (AppDialog)',
-              style: AppTypography.subheading(color: ResColors.textPrimary),
+              style: AppTypography.title(color: ResColors.textPrimary),
             ),
             SizedBox(height: 8.h),
             AppCard(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () {
-                            AppDialog.showConfirmation(
-                              context: context,
-                              title: 'Confirm Action',
-                              message: 'Do you want to proceed with this operation?',
-                              onConfirm: () => ShowMessage.info('Confirmed!'),
-                            );
-                          },
-                          child: const Text('Confirm Dialog'),
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () {
-                            AppDialog.showStatus(
-                              context: context,
-                              title: 'Status Update',
-                              message: 'Operation completed with positive results.',
-                            );
-                          },
-                          child: const Text('Status Alert'),
-                        ),
-                      ),
-                    ],
+                  CommonButton(
+                    text: 'Confirmation Dialog',
+                    onPressed: () {
+                      AppDialog.showConfirmation(
+                        context: context,
+                        title: 'Discard Changes?',
+                        message: 'Any unsaved progress will be permanently lost.',
+                        onConfirm: () => ShowMessage.info('Changes discarded'),
+                      );
+                    },
                   ),
-                  SizedBox(height: 10.h),
-                  OutlinedButton(
+                  SizedBox(height: 8.h),
+                  CommonButton(
+                    text: 'Status Dialog (Success)',
+                    onPressed: () {
+                      AppDialog.showStatus(
+                        context: context,
+                        title: 'Success!',
+                        message: 'Operation completed successfully.',
+                      );
+                    },
+                  ),
+                  SizedBox(height: 8.h),
+                  CommonButton(
+                    text: 'Async Confirm Dialog (with Loader)',
                     onPressed: () {
                       AppDialog.showAsyncConfirm(
                         context: context,
                         title: 'Async Mutation',
                         message: 'This dialog stays open with a spinner while an async task completes.',
                         onConfirmAsync: () async {
-                          await Future.delayed(const Duration(seconds: 2));
+                          await Future<void>.delayed(const Duration(seconds: 2));
                           ShowMessage.success('Async task finished!');
                           return true;
                         },
                       );
                     },
-                    child: const Center(child: Text('Async Confirm Dialog (with Spinner)')),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: 16.h),
 
             // ── Prebuilt ShowMessage Toasts ───────────────────────────
             Text(
               'ShowMessage Toast Notifications',
-              style: AppTypography.subheading(color: ResColors.textPrimary),
+              style: AppTypography.title(color: ResColors.textPrimary),
             ),
             SizedBox(height: 8.h),
             AppCard(

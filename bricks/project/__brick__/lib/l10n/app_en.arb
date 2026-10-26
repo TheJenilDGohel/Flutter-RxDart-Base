@@ -30,5 +30,17 @@
   },
   "@errorGeneric": {
     "description": "Fallback error message for unexpected failures"
+  },
+  "errorTimeout": "The request took too long. Please try again.",
+  "errorForbidden": "You don't have permission to do that.",
+  "errorRateLimited": "Too many attempts. Please wait a moment and try again.",
+  "@errorTimeout": {
+    "description": "Error message when a request times out"
+  },
+  "@errorForbidden": {
+    "description": "Error message for HTTP 403"
+  },
+  "@errorRateLimited": {
+    "description": "Error message for HTTP 429"
   }
 }

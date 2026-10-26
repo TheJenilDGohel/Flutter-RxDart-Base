@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:{{project_name}}/features/{{feature_name.snakeCase()}}/bloc/{{feature_name.snakeCase()}}_bloc.dart';
+import 'package:{{project_name}}/features/{{feature_name.snakeCase()}}/model/{{feature_name.snakeCase()}}_model.dart';
 
-/// Content widget for {{feature_name.titleCase()}}.
+/// Renders loaded {{feature_name.titleCase()}} data. Pure and stateless:
+/// it receives the parsed model, never the BLoC or a stream.
 class {{feature_name.pascalCase()}}ContentWidget extends StatelessWidget {
-  const {{feature_name.pascalCase()}}ContentWidget({
-    super.key,
-    required this.bloc,
-  });
+  const {{feature_name.pascalCase()}}ContentWidget({super.key, required this.data});
 
-  final {{feature_name.pascalCase()}}Bloc bloc;
+  final {{feature_name.pascalCase()}}Model data;
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('{{feature_name.titleCase()}} Content'),
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Text(data.name, style: Theme.of(context).textTheme.titleLarge),
+      ],
     );
   }
 }
