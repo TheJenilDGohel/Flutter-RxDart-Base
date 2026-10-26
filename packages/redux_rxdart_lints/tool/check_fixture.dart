@@ -13,6 +13,9 @@ const _rules = {
   'no_exception_tostring',
   'no_screenutil_in_private_widget',
   'repo_transport_only',
+  'no_with_opacity',
+  'no_unclosed_subject',
+  'no_fetch_without_token',
 };
 
 Future<void> main() async {

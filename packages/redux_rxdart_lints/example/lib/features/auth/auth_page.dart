@@ -29,6 +29,8 @@ class _AuthPageState extends State<AuthPage> {
       return Text(text);
     }
     // Public widget: ScreenUtil is fine here.
+    // expect_lint: no_with_opacity
+    final _ = const Color(0xFF000000).withOpacity(0.5);
     return SizedBox(width: 10.w, child: const _Badge());
   }
 }

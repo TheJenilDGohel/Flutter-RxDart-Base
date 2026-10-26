@@ -17,6 +17,9 @@ on where the project is checked out.
 | `no_screenutil_in_private_widget` | #13 ScreenUtil only in public widgets | `flutter_screenutil` extensions (`.w .h .r .sp ...`, resolved to the package — your own `.w` extension is ignored) inside a private (`_Foo`) widget of any kind, or the `State` of one. ScreenUtil 5.9.x does not rebuild private widgets on resize |
 | `repo_transport_only` | #1 Repository is Transport ONLY | `fromJson` / `fromMap` calls **and tear-offs** (`.map(Model.fromJson)`) in a repository: files under `repo/` or `repository/`, or named `*_repo.dart` / `*_repository.dart` |
 | `no_exception_tostring` | #2 BLoC owns errors, UI shows `userFacingMessage` | `toString()` on an error variable (`e`, `err`, `error`, `exception`) in UI code; BLoCs, repos, `networking/`, `redux/` and `services/` are exempt |
+| `no_with_opacity` | #14 No withOpacity in UI | `.withOpacity()` in widgets; recommends `Color.withValues(alpha: ...)` or design-system color tokens for predictable performance |
+| `no_unclosed_subject` | #15 Dispose all RxDart subjects | `BehaviorSubject`, `PublishSubject`, `ReplaySubject` field in BLoC not closed in `dispose()` |
+| `no_fetch_without_token` | #8 Fetch cancellation | BLoC `fetch()` method that does not call `createNewToken()` to cancel overlapping requests |
 
 ## Testing
 

@@ -2,9 +2,12 @@ import 'package:analysis_server_plugin/plugin.dart';
 import 'package:analysis_server_plugin/registry.dart';
 
 import 'src/rules/no_exception_tostring.dart';
+import 'src/rules/no_fetch_without_token.dart';
 import 'src/rules/no_rxdart_in_ui.dart';
 import 'src/rules/no_screenutil_in_private_widget.dart';
 import 'src/rules/no_setstate_in_widget.dart';
+import 'src/rules/no_unclosed_subject.dart';
+import 'src/rules/no_with_opacity.dart';
 import 'src/rules/repo_transport_only.dart';
 
 /// Entry point the Dart analysis server loads (`lib/main.dart`, top-level
@@ -23,6 +26,9 @@ class ReduxRxdartPlugin extends Plugin {
       ..registerWarningRule(NoScreenutilInPrivateWidget())
       ..registerWarningRule(NoSetStateInWidget())
       ..registerWarningRule(RepoTransportOnly())
-      ..registerWarningRule(NoExceptionToString());
+      ..registerWarningRule(NoExceptionToString())
+      ..registerWarningRule(NoWithOpacity())
+      ..registerWarningRule(NoUnclosedSubject())
+      ..registerWarningRule(NoFetchWithoutToken());
   }
 }

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0
+
+- Added `no_with_opacity` rule: flags `.withOpacity()` in widgets and recommends `Color.withValues(alpha: ...)` or design system tokens.
+- Added `no_unclosed_subject` rule: flags unclosed RxDart subjects (`BehaviorSubject`, `PublishSubject`, `ReplaySubject`) in BLoC classes without `.close()` in `dispose()`.
+- Added `no_fetch_without_token` rule enforcing Golden Rule #8: BLoC `fetch()` methods must call `createNewToken()` to guarantee request cancellation.
+
 ## 0.4.0
 
 - Ported from `custom_lint` to the native Dart analyzer plugin framework (`analysis_server_plugin ^0.3.24` / `analyzer ^14.5.0` on Dart ^3.11).

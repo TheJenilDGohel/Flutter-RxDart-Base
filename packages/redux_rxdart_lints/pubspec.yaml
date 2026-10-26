@@ -2,7 +2,7 @@ name: redux_rxdart_lints
 description: >-
   Dart analyzer plugin enforcing the Redux+RxDart+Dio architecture golden
   rules from the Flutter-RxDart-Base harness (AGENTS.md) at analyze time.
-version: 0.4.0
+version: 0.5.0
 publish_to: 'none'
 
 environment:
