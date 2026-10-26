@@ -1,6 +1,6 @@
 # Flutter RxDart Base
 
-Generate a Flutter app with one fixed architecture (Redux for the session, one RxDart BLoC per screen, Dio for networking), lint rules that enforce it, and an AI agent harness that teaches coding agents to follow it.
+Generate a Flutter app with one fixed, **Omakase** architecture (Redux for session persistence, one RxDart BLoC per screen, domain broadcast services for cross-screen state, Dio for networking), lint rules that enforce it, and an AI agent harness that teaches coding agents to follow it.
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.38%2B-02569B?logo=flutter)](https://flutter.dev)
 [![Mason](https://img.shields.io/badge/Mason-bricks-blue)](https://pub.dev/packages/mason_cli)
@@ -38,20 +38,25 @@ dart run scripts/agent/verify.dart
 |---|---|---|---|
 | [`project`](docs/bricks/project.md) | `1.5.0` | `mason make project`, once | Redux session store, Dio client with 5 interceptors, typed errors, router, design tokens, UI kit, l10n (en, hi), showcase screen |
 | [`bloc`](docs/bricks/bloc.md) | `1.2.1` | `mason make bloc`, once per screen | BLoC, repo, model, page, content widget and 7 passing BLoC tests |
-| [`harness`](docs/bricks/harness.md) | `2.3.0` | installed by `project` | `AGENTS.md`, Token Shield, Cursor rules, anti-loop guard, specialist swarm, Maestro testing, quality gates, lessons loop |
+| [`harness`](docs/bricks/harness.md) | `2.4.1` | installed by `project` | `AGENTS.md`, Token Shield, Cursor rules, anti-loop guard, specialist swarm, Claude Code plugins, Maestro testing, quality gates, lessons loop |
 | [`redux_rxdart_lints`](docs/packages/redux_rxdart_lints.md) | `0.4.0` | wired in by `project` | Turns five golden rules into analyzer errors |
 
 ---
 
-## The architecture in one minute
+## The architecture in one minute (The Omakase Menu)
 
-- **Redux holds only the session**: auth token, user data, locale. It's persisted and survives restarts. Nothing else goes there.
-- **Each screen has one RxDart BLoC** for everything it shows: fetching, forms, search, paging. The page creates it and disposes it.
-- **Dio does the networking** behind `ApiBaseHelper`, through a fixed chain: connectivity → auth → platform → retry → error mapping. Every failure is a typed `ApiException`, and screens receive a sealed `ApiResponse<T>` (initial, loading, success, or error with retry).
+Instead of debating state libraries per feature, this repository serves a fixed, opinionated **Omakase** menu:
+
+- **Redux holds only the session**: auth token, user data, locale, theme mode. It's persisted to disk and survives cold restarts. Nothing else goes there.
+- **Domain Services hold cross-screen reactive state**: live badge counts (e.g. unread bell count), multi-step wizard progress, and real-time feeds live in `lib/services/` exposing a `StreamController.broadcast()`.
+- **Each screen has one RxDart BLoC**: for everything it shows: fetching, forms, search, paging. The page creates it and disposes it.
+- **Dio does the networking**: behind `ApiBaseHelper`, through a fixed 5-step chain: connectivity → auth → platform → retry → error mapping. Every failure is a sealed `ApiException` (13 subtypes), and screens bind via `AppResponseBuilder<T>` (automatic loading, error banner with retry).
+- **Navigation is declarative and typed**: centralized in `lib/utils/router/app_router.dart` (`onGenerateRoute`, `navigatorKey`, and strongly typed `RouteArgs`).
 
 ```
-Page ──stream──▶ BLoC ──await──▶ Repo ──▶ ApiBaseHelper ──▶ Dio + interceptors
+Page ──stream──▶ BLoC ──await──▶ Repo ──▶ ApiBaseHelper ──▶ Dio + 5 interceptors
                  parses JSON     returns the raw Map
+Page ──stream──▶ Domain Services (broadcast streams for cross-screen counters & live feeds)
 Page dispatches to Redux only when the session changes (sign-in, profile, logout)
 ```
 
@@ -66,11 +71,11 @@ lib/features/profile/
 └── profile_page.dart                   # owns the BLoC, renders with AppResponseBuilder
 ```
 
-The architecture lints (in the IDE and in `verify.dart`) reject parsing in repos, `setState` in feature widgets, RxDart in widgets, and ScreenUtil sizes in private widgets. All 13 golden rules are in the generated `AGENTS.md`, and the design is explained in [Architecture](docs/architecture.md).
+The architecture lints (in the IDE and in `verify.dart`) reject parsing in repos, `setState` in feature widgets, RxDart in widgets, and ScreenUtil sizes in private widgets. All 15 golden rules are in the generated `AGENTS.md`, and the design is explained in [Architecture](docs/architecture.md).
 
 ---
 
-## The Opinionated AI Agent Setup (Harness v2.1.1)
+## The Opinionated AI Agent Setup (Harness v2.5.0)
 
 This repository couples architecture with a battle-tested **AI Agent Harness** engineered specifically for frontier coding agents (Claude Code, Cursor, Codex, Gemini CLI). It transforms chaotic LLM edits into a deterministic, token-efficient assembly line:
 
@@ -108,6 +113,12 @@ Eliminates ceremonial task close-out blockers in favor of a layered memory archi
 3. **Tier 3 (Path-Scoped Rules)**: Invariant standards codified in `.claude/rules/*.md`.
 4. **Tier 4 (Permanent Team Rules)**: Repository-wide non-negotiables in `AGENTS.md` §7.
 5. **Tier 5 (Offline CLI)**: `scripts/agent/learn.dart` for offline verification and proposing upstream fixes.
+
+### 6. 🔌 Pre-Bundled Claude Code Plugins & Interactive Commands
+Ships three native Anthropic Claude Code mods in `.claude/plugins/`:
+- **`golden-guard`**: Stop-time verification gate (`classic.Stop`) enforcing Golden Rules before turn completion, plus the on-demand `/audit` command.
+- **`session-flow`**: Real-time terminal status line (`$.ui.status`) + interactive `/pickup [task]` (resumes tasks with active WIP auto-discovery) and `/handoff` session bookends.
+- **`output-compactor`**: Intercepts command failure traces, stripping framework boilerplate while preserving error banners.
 
 Try: *"Add a profile screen for `GET /me`; the Postman collection is in `docs/`."* More in [the harness docs](docs/bricks/harness.md).
 
