@@ -12,7 +12,7 @@ The data path is fixed: `ApiConstants` → repo (transport) → BLoC (parse + st
 2. Check the Knowledge Graph (`search_nodes` / `read_graph`) or run `dart run scripts/agent/learn.dart list add-endpoint`.
 
 ## 1. Read the contract, don't guess it
-Look for `*.postman_collection.json`, then OpenAPI/Swagger, then docs (`AGENTS.md` §3). Write down the method, path and path params, query params, request body, **one real success response**, and the error shape. No real response → ask for one. Never infer field names or types from the endpoint's name.
+Look for `*.postman_collection.json`, then OpenAPI/Swagger, then docs (`AGENTS.md` §3). Ingest contracts using `dart run scripts/agent/ingest_contract.dart <contract.json> --scaffold <endpoint>` to generate defensive models, endpoint constants, and create test fixtures in `test/fixtures/`. Write down the method, path and path params, query params, request body, **one real success response**, and the error shape. No real response → ask for one. Never infer field names or types from the endpoint's name.
 
 Check the contract against what the base does to every call:
 - A top-level JSON array comes back as `{'items': [...]}`. An empty body becomes `{}`. A non-JSON body throws `MalformedResponseException`.

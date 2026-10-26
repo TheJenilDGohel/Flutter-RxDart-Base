@@ -15,14 +15,16 @@ The brick has no hooks and does not edit `pubspec.yaml`. `project` adds the `red
 
 | Path | What it does |
 |---|---|
-| `AGENTS.md` | The rulebook every agent reads: architecture, 13 golden rules (🔒 = enforced by lints), skill index, tooling, memory. Everything below the `harness:project-rules` marker is yours. |
+| `AGENTS.md` | The rulebook every agent reads: architecture, 15 golden rules (🔒 = enforced by lints), skill index, tooling, memory. Everything below the `harness:project-rules` marker is yours. |
 | `CLAUDE.md` | Claude Code's entry: imports `AGENTS.md`, adds the app ids, loads `.harness/active-context.md`. |
 | `.agents/skills/` | Eight skills, one per kind of work (table below). Claude Code reads the entry points in `.claude/skills/`. |
 | `.claude/rules/` | Path-scoped rules loaded on-demand: `bloc.md`, `ui.md`, `endpoints.md`, `testing.md`. |
 | `.cursor/rules/` | Cursor path-scoped rules with glob frontmatter: `bloc.mdc`, `ui.mdc`, `endpoints.mdc`, `testing.mdc`. |
+| `.claude/plugins/` | Pre-bundled Claude Code mods (v2.4.x): `golden-guard` (stop-time golden rules gate + `/audit`), `session-flow` (statusline + `/pickup` & `/handoff`), and `output-compactor` (failure trace compactor). |
 | `.claude/agents/` | Specialist subagent swarm: `@bloc-specialist`, `@ui-artisan`, `@device-qa`, `@flutter-qa`, `@skeptic`, `@docs-scout`. |
 | `scripts/agent/on_edit.dart` | Fast (<1.5s) in-flight format/analyze check with compact error stripping and anti-loop circuit breaker. |
 | `scripts/agent/watch.dart` | Background incremental diagnostics watcher updating `.harness/diagnostics.json` with zero token overhead. |
+| `scripts/agent/ingest_contract.dart` | Ingests OpenAPI/Postman JSON contracts to generate models with defensive parsing (Rule 12), mock fixtures, and endpoint constants. |
 | `scripts/team/` | Distributed swarm coordination: `task_handoff.dart` (messaging & human blockers), `heartbeat.dart`, and `worktree.dart` (`.harness/team-protocol.md`). |
 | `.maestro/` | Declarative E2E mobile testing flows (`flows/smoke_launch.yaml`). |
 | `scripts/agent/verify.dart` | The quality gate: format → analyze (including architecture lints) → tests → lessons → snapshot with framework stack trace pruning. |
@@ -39,7 +41,7 @@ The brick has no hooks and does not edit `pubspec.yaml`. `project` adds the `red
 |---|---|
 | `add-feature` | A new screen or flow: contract → spec → scaffold → layers → tests → gate |
 | `add-endpoint` | Any API work: transport-only repo, defensive model, BLoC call, tests with real JSON (backed by `repo-recipes.md`) |
-| `manage-state` | Where state lives; BLoC recipes (submit, search, pagination, events, several loads, timers); Redux changes |
+| `manage-state` | Where state lives; BLoC recipes (submit, search, pagination, events, several loads, timers); storage & offline cache recipes; Redux changes |
 | `build-ui` | Page/content split, tokens, ScreenUtil, l10n, shared widgets, dialogs, accessibility |
 | `write-tests` | BLoC, model, widget, reducer, regression tests, and Maestro device journeys |
 | `fix-bug` | Symptom → layer table, every gate step and lint rule |
@@ -59,6 +61,24 @@ Tasks multiplex across lean, role-bounded subagents in `.claude/agents/` configu
 - `@docs-scout`: Token-efficient package and documentation researcher (<200 words).
 
 Coordination works across single-terminal in-process handoffs and concurrent multi-session Git worktrees (`.worktreeinclude`) via `scripts/team/task_handoff.dart`, `scripts/team/heartbeat.dart`, and `scripts/team/worktree.dart` (`.harness/team-protocol.md`).
+
+### Pre-Bundled Claude Code Plugins & Interactive Commands (v2.4.x)
+
+Harness v2.4.x bundles three native Anthropic Claude Code plugins located in `.claude/plugins/`:
+- **`golden-guard`**: A stop-time verification hook (`classic.Stop`) enforcing Golden Rules (R1, R2, R3, R4, R13) and design tokens before finishing any turn, plus the on-demand `/audit` command.
+- **`session-flow`**: Real-time terminal status line (`$.ui.status`) showing current branch, dirty files, unpushed commits, and worktree count. Provides deterministic session bookends:
+  - `/pickup [task]`: Resumes work by auto-detecting uncommitted WIP and parsed `- [ ]` checklist items from `.harness/active-context.md`, presenting an interactive selection menu.
+  - `/handoff`: Performs pre-commit hygiene, verifies gates, and saves clean task hand-off notes.
+- **`output-compactor`**: Intercepts `Bash` command failures (`maestro test`, `flutter test`, `dart analyze`), stripping verbose framework stack traces while preserving root-cause error banners and line numbers.
+
+### Universal Foundation vs IDE Enhancements
+
+| Tier | Supported Agents | What it Provides |
+|---|---|---|
+| **Universal Foundation** | Cursor, Codex, Gemini CLI, Claude Code | `AGENTS.md` locked Golden Rules, `redux_rxdart_lints`, `.agents/skills/`, and pre-commit verification (`scripts/agent/verify.dart`, `wire_route.dart`). |
+| **Cursor Path Rules** | Cursor IDE | `.cursor/rules/*.mdc` glob-frontmatter rules (`bloc.mdc`, `ui.mdc`, `endpoints.mdc`, `testing.mdc`) and `.cursor/mcp.json`. |
+| **Claude Code Enhancements** | Claude Code CLI | Pre-bundled plugins (`.claude/plugins/`), 1h prompt caching (`promptCacheTtl: "1h"`), specialist swarm (`.claude/agents/`), and `/pickup` session flows. |
+
 
 ### Token Conservation & High-Efficiency Operations
 

@@ -44,9 +44,17 @@ Future<ProcessResult> _run(
   final useFvm = _useFvm();
   final String exe;
   final List<String> cmdArgs;
-  if (useFvm && (executable == 'flutter' || executable == 'dart')) {
-    exe = 'fvm';
-    cmdArgs = [executable, ...args];
+  if (useFvm) {
+    if (executable == 'flutter' || executable == 'dart') {
+      exe = 'fvm';
+      cmdArgs = [executable, ...args];
+    } else if (executable == 'mason') {
+      exe = 'fvm';
+      cmdArgs = ['dart', 'pub', 'global', 'run', 'mason_cli:mason', ...args];
+    } else {
+      exe = executable;
+      cmdArgs = args;
+    }
   } else {
     exe = executable;
     cmdArgs = args;

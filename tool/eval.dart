@@ -11,6 +11,7 @@ import 'package:path/path.dart' as p;
 /// 3. Token-saving error compaction & stack trace pruning.
 /// 4. Cross-IDE Cursor rule portability (.cursor/rules/*.mdc).
 /// 5. Agent instruction grounding & anti-ceremony standards.
+/// 6. Contract ingestion CLI tool (scripts/agent/ingest_contract.dart).
 ///
 /// Run from the repository root:
 ///   dart run tool/eval.dart
@@ -224,7 +225,7 @@ Analyzing /project...
   }
 
   // ── 5. Agent Instructions Grounding & Compaction ──────────────
-  print('\n[5/5] Evaluating Agent Instructions Grounding (AGENTS.md)...');
+  print('\n[5/6] Evaluating Agent Instructions Grounding (AGENTS.md)...');
   final agentsMd =
       File('bricks/harness/__brick__/AGENTS.md').readAsStringSync();
 
@@ -239,6 +240,34 @@ Analyzing /project...
       !agentsMd.contains(
               'Before touching any file, you must search the knowledge graph') &&
           agentsMd.contains('LSP'));
+  check(
+      'AGENTS.md codifies Golden Rules 14 (no_with_opacity) and 15 (no_unclosed_subject)',
+      agentsMd.contains('no_with_opacity') &&
+          agentsMd.contains('no_unclosed_subject'));
+  check('AGENTS.md §3 grounds network contracts in ingest_contract.dart',
+      agentsMd.contains('ingest_contract.dart'));
+
+  // ── 6. Contract Ingestion Tool ────────────────────────────────
+  print(
+      '\n[6/6] Evaluating Contract Ingestion CLI (scripts/agent/ingest_contract.dart)...');
+  final ingestScript =
+      File('bricks/harness/__brick__/scripts/agent/ingest_contract.dart');
+  check('ingest_contract.dart script exists in harness brick',
+      ingestScript.existsSync());
+
+  final ingestRun = await Process.run(
+    'dart',
+    ['run', ingestScript.path, '--help'],
+    runInShell: true,
+  );
+  final ingestOutput = '${ingestRun.stdout}\n${ingestRun.stderr}';
+  check(
+    'ingest_contract.dart runs and outputs options (--list, --scaffold, --fixtures)',
+    ingestRun.exitCode == 0 &&
+        ingestOutput.contains('--scaffold') &&
+        ingestOutput.contains('--fixtures'),
+    ingestOutput.trim(),
+  );
 
   // ── Summary ──────────────────────────────────────────────────
   print('\n===========================================================');

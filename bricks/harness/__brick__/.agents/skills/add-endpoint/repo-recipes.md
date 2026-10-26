@@ -262,3 +262,57 @@ class ProfileRepo {
   }
 }
 ```
+
+---
+
+## Recipe H: Silent Token Refresh Flow & Queued Request Replay
+
+For applications with short-lived access tokens (e.g., 15-minute expiration) and a refresh token. When a 401 occurs, this handler pauses subsequent requests, requests a fresh token, updates `AppStore`, and replays the original request before `ErrorMappingInterceptor` triggers a logout.
+
+```dart
+import 'dart:async';
+import 'package:dio/dio.dart';
+
+class SessionRefreshHandler {
+  SessionRefreshHandler._();
+  static final SessionRefreshHandler instance = SessionRefreshHandler._();
+
+  Completer<String?>? _refreshCompleter;
+
+  /// Checks if a 401 response can be silently refreshed, updating the store
+  /// and returning the new token, or null if refresh fails.
+  Future<String?> refreshToken({
+    required Dio dio,
+    required String refreshToken,
+  }) async {
+    // If a refresh is already in flight, await that same future (mutex lock).
+    if (_refreshCompleter != null) {
+      return _refreshCompleter!.future;
+    }
+
+    _refreshCompleter = Completer<String?>();
+    try {
+      final response = await dio.post<Map<String, dynamic>>(
+        ApiConstants.refreshTokenEndpoint,
+        data: {'refresh_token': refreshToken},
+        options: Options(headers: {'Requires-Token': 'false'}),
+      );
+
+      final data = response.data;
+      final newToken = data?['access_token']?.toString();
+      if (newToken != null && newToken.isNotEmpty) {
+        AppStore.dispatch(SetAuthTokenAction(newToken));
+        _refreshCompleter!.complete(newToken);
+        return newToken;
+      }
+      _refreshCompleter!.complete(null);
+      return null;
+    } catch (e) {
+      _refreshCompleter!.complete(null);
+      return null;
+    } finally {
+      _refreshCompleter = null;
+    }
+  }
+}
+```

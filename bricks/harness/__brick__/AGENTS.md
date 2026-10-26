@@ -24,17 +24,23 @@ Rules marked 🔒 fail the quality gate when broken (`redux_rxdart_lints`).
 5. **Rule of 2**: a widget used in ≥ 2 places moves to `lib/utils/widgets/ui/`. Reuse with parameters before duplicating.
 6. **Presentation**: standard `Scaffold` by default; `AppScaffold` when the shared chrome is wanted.
 7. **Forms**: the `StatefulWidget` owns and disposes `TextEditingController`s and passes values to BLoC methods (`_bloc.submit(email: _email.text)`). BLoC streams drive spinners and error banners.
-8. **Fetch**: `Future<void> fetch({bool refresh = false})`; call `createNewToken()` first (a newer fetch cancels the older one); ignore `RequestCancelledException`; emit errors with `retry: fetch`. Live search: `PublishSubject<String>` + `.debounceTime(300ms).distinct()`.
+8. 🔒 **Fetch**: `Future<void> fetch({bool refresh = false})`; call `createNewToken()` first (a newer fetch cancels the older one; `no_fetch_without_token`); ignore `RequestCancelledException`; emit errors with `retry: fetch`. Live search: `PublishSubject<String>` + `.debounceTime(300ms).distinct()`.
 9. **One-off UI events** (toast, navigation): a `PublishSubject` in the BLoC, subscribed in `initState()`, cancelled in `dispose()`.
 10. **Redux bridge**: when a feature changes session data, the BLoC emits the new model and the UI dispatches to the store after it renders.
-11. **Auth**: `AuthInterceptor` attaches the bearer token only to the `BASE_URL` host. A 401 with a token dispatches `LogoutAction` automatically — don't add per-screen 401 handling.
+11. **Auth**: `AuthInterceptor` attaches the bearer token only to the `BASE_URL` host. For silent token refresh, a token refresh handler/interceptor intercepts 401, requests a new token via refresh endpoint, replays pending requests, and only dispatches `LogoutAction` if refresh fails or no refresh token exists — don't add per-screen 401 handling.
 12. **Defensive JSON parsing**: `(json['id'] as num?)?.toInt() ?? 0`, `json['name']?.toString() ?? ''`, `(json['items'] as List? ?? []).map(...)`, `DateTime.tryParse(json['at']?.toString() ?? '')`.
 13. 🔒 **ScreenUtil only in public widgets**: `.w/.h/.r/.sp` inside a private (`_Foo`) widget is not rebuilt on resize. Make the widget public.
    - `// ❌ BAD:  class _Card extends StatelessWidget { Widget build(...) => SizedBox(width: 100.w); }`
    - `// ✅ GOOD: class Card extends StatelessWidget { Widget build(...) => SizedBox(width: 100.w); }`
+14. 🔒 **No withOpacity in UI**: Avoid `.withOpacity()`; use `Color.withValues(alpha: ...)` or design-system color tokens (`no_with_opacity`).
+   - `// ❌ BAD:  Colors.black.withOpacity(0.5);`
+   - `// ✅ GOOD: Colors.black.withValues(alpha: 0.5); // or ResColors.primary`
+15. 🔒 **Dispose all RxDart subjects**: Every `BehaviorSubject` / `PublishSubject` in a BLoC must be closed in `dispose()` to prevent memory leaks (`no_unclosed_subject`).
+   - `// ❌ BAD:  void dispose() { subscriptions.dispose(); } // left subject unclosed`
+   - `// ✅ GOOD: void dispose() { cancelRequests(); subscriptions.dispose(); _data.close(); }`
 
 ## 3. Before Writing Network Code
-Look for `*.postman_collection.json`, then OpenAPI/Swagger, then docs. Add endpoints to `lib/networking/api_constants.dart`. Never guess a response shape — ask if no contract exists.
+Look for `*.postman_collection.json`, then OpenAPI/Swagger, then docs. Ingest contracts with `dart run scripts/agent/ingest_contract.dart <contract.json> --scaffold <endpoint>` to generate models with defensive parsing, mock fixtures, and endpoint constants. Add endpoints to `lib/networking/api_constants.dart`. Never guess a response shape — ask if no contract exists.
 
 ## 4. Tooling for Agents
 - **Context Retrieval & Token Efficiency (RAG)**:

@@ -18,9 +18,9 @@ Two homes, one rule: **session data that must survive a restart goes in Redux; e
 | A new app-wide preference that must persist (theme, onboarding seen) | **Stop and ask the owner.** `AGENTS.md` §1 limits Redux to `authToken`, `userData` and `locale`. If they approve, add one narrow field with `.agents/skills/manage-state/redux-changes.md`. |
 | Fetched data, form input, validation, search, page, tab, toggle, selection | The screen's BLoC |
 | Device capability (push, GPS, scanner, file system) | A service in `lib/services/`, consumed by BLoCs |
-| A cache shared by several screens | Ask. It's a base extension (a service or repository cache), not Redux. |
+| A cache shared by several screens | Local database / cache-aside (see `.agents/skills/manage-state/storage-recipes.md`), not Redux. |
 
-Worked examples: `.agents/skills/flutter-senior-dev/references/redux-vs-rxdart.md`.
+Worked examples: `.agents/skills/flutter-senior-dev/references/redux-vs-rxdart.md`. Storage & offline recipes: `.agents/skills/manage-state/storage-recipes.md`.
 
 ## 2. The BLoC contract (what every BLoC here does)
 Copy the shape `mason make bloc` generates. Never invent a new one.

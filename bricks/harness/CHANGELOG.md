@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.5.0
+
+- **API Contract Ingestion Tool (`scripts/agent/ingest_contract.dart`)**:
+  - Scaffolds models with defensive JSON parsing per Golden Rule #12 (`(json['id'] as num?)?.toInt() ?? 0`, list maps, date parsing).
+  - Automatically extracts and formats mock response fixtures into `test/fixtures/` and outputs `ApiConstants` entries.
+  - Supports both OpenAPI / Swagger (v2, v3) and Postman Collection (v2, v2.1) JSON contracts.
+- **Silent Token Refresh & Queued Request Replay**:
+  - Updated `AGENTS.md` Rule 11 to formally support silent token refresh flows.
+  - Added Recipe H to `.agents/skills/add-endpoint/repo-recipes.md` implementing `SessionRefreshHandler` with mutex deduplication and queued replay before dispatching `LogoutAction`.
+- **Storage & Offline Cache Architecture**:
+  - Added `.agents/skills/manage-state/storage-recipes.md` documenting transparent cache-aside with SQLite / Drift (`LocalCacheMixin`), key-value persistence (`LocalStorage`), and offline mutation queues (`OfflineSyncQueue`).
+  - Linked storage recipes into `.agents/skills/manage-state/SKILL.md`.
+- **Custom Linter Hardening (`redux_rxdart_lints 0.5.0`)**:
+  - Locked Rule 8 with `no_fetch_without_token`: enforces `createNewToken()` in BLoC `fetch()` methods.
+  - Added Rule 14 `no_with_opacity`: flags `.withOpacity()` in widget trees, enforcing `Color.withValues(alpha: ...)` or design-system tokens.
+  - Added Rule 15 `no_unclosed_subject`: flags unclosed `BehaviorSubject` / `PublishSubject` instances in BLoC `dispose()`.
+- **Headless Compliance & Eval Suite (`tool/eval.dart`)**:
+  - Expanded benchmark suite to 6 pillars, validating contract ingestion tooling, all 8 lint rules, and anti-ceremony standards.
+
 ## 2.4.1
 
 - **Hardened `/pickup` Command (`session-flow`)**:

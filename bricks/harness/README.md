@@ -15,7 +15,7 @@ The brick has no hooks and does not edit `pubspec.yaml`. `project` adds the `red
 
 | Path | What it does |
 |---|---|
-| `AGENTS.md` | The rulebook every agent reads: architecture, 13 golden rules (🔒 = enforced by lints), skill index, tooling, memory. Everything below the `harness:project-rules` marker is yours. |
+| `AGENTS.md` | The rulebook every agent reads: architecture, 15 golden rules (🔒 = enforced by lints), skill index, tooling, memory. Everything below the `harness:project-rules` marker is yours. |
 | `CLAUDE.md` | Claude Code's entry: imports `AGENTS.md`, adds the app ids, loads `.harness/active-context.md`. |
 | `.agents/skills/` | Eight skills, one per kind of work (table below). Claude Code reads the entry points in `.claude/skills/`. |
 | `.claude/rules/` | Path-scoped rules loaded on-demand: `bloc.md`, `ui.md`, `endpoints.md`, `testing.md`. |
@@ -23,6 +23,7 @@ The brick has no hooks and does not edit `pubspec.yaml`. `project` adds the `red
 | `.claude/agents/` | Specialist subagent swarm: `@bloc-specialist`, `@ui-artisan`, `@device-qa`, `@flutter-qa`, `@skeptic`, `@docs-scout`. |
 | `scripts/agent/on_edit.dart` | Fast (<1.5s) in-flight format/analyze check with compact error stripping and anti-loop circuit breaker. |
 | `scripts/agent/watch.dart` | Background incremental diagnostics watcher updating `.harness/diagnostics.json` with zero token overhead. |
+| `scripts/agent/ingest_contract.dart` | Ingests OpenAPI/Postman JSON contracts to generate models with defensive parsing (Rule 12), mock fixtures, and endpoint constants. |
 | `scripts/team/` | Distributed swarm coordination: `task_handoff.dart` (messaging & human blockers), `heartbeat.dart`, and `worktree.dart` (`.harness/team-protocol.md`). |
 | `.maestro/` | Declarative E2E mobile testing flows (`flows/smoke_launch.yaml`). |
 | `scripts/agent/verify.dart` | The quality gate: format → analyze (including architecture lints) → tests → lessons → snapshot with framework stack trace pruning. |
@@ -39,7 +40,7 @@ The brick has no hooks and does not edit `pubspec.yaml`. `project` adds the `red
 |---|---|
 | `add-feature` | A new screen or flow: contract → spec → scaffold → layers → tests → gate |
 | `add-endpoint` | Any API work: transport-only repo, defensive model, BLoC call, tests with real JSON (backed by `repo-recipes.md`) |
-| `manage-state` | Where state lives; BLoC recipes (submit, search, pagination, events, several loads, timers); Redux changes |
+| `manage-state` | Where state lives; BLoC recipes (submit, search, pagination, events, several loads, timers); storage & offline cache recipes; Redux changes |
 | `build-ui` | Page/content split, tokens, ScreenUtil, l10n, shared widgets, dialogs, accessibility |
 | `write-tests` | BLoC, model, widget, reducer, regression tests, and Maestro device journeys |
 | `fix-bug` | Symptom → layer table, every gate step and lint rule |
