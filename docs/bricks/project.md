@@ -31,7 +31,7 @@ mason make project
 - **`lib/networking/`**: `ApiBaseHelper`, `DioClient` (default `dart:io` adapter; native stack opt-in), 4-interceptor chain, sealed `ApiException`, sealed `ApiResponse<T>`.
 - **`lib/resources/`**: Design tokens (`ResColors`, Material 3 `AppTypography` with ScreenUtil `.sp`) and `AppBreakpoints` / `WindowSize` (Material 3 window size classes).
 - **`lib/utils/`**: Design system & shared components:
-  - `widgets/ui/`: Stateless primitives (`AppCard`, `AppEmptyState`, `AppErrorState`, `AppLoadingState`, `AppResponseBuilder`, `AppScaffold`, `CommonButton`, and barrel export `ui_components.dart`).
+  - `widgets/ui/`: Stateless primitives (`AppCard`, `AppEmptyState`, `AppErrorState`, `AppLoadingState`, `AppResponseBuilder`, `AppScaffold`, `AppContentWidth` (readable width on tablets), `CommonButton`, and barrel export `ui_components.dart`).
   - `widgets/view/`: RxDart BLoC-driven components upholding Rule 3 (`AppTextFormField` with `AppTextFormFieldBloc`, `AppDialog` with `AppDialogBloc`).
   - `router/`, `common_utils.dart`, `show_message.dart` toasts, context & string extensions.
 - **`lib/features/`**: The home for your actual app features (generated via `mason make bloc`).
@@ -57,4 +57,4 @@ no dependency injection happens at generation time.
   scaffold the AI Agent Harness. Non-fatal if it fails — prints a note that it can be installed
   anytime via `mason make harness`.
 
-See [`CHANGELOG.md`](https://github.com/TheJenilDGohel/Flutter-RxDart-Base/blob/main/bricks/project/CHANGELOG.md) for version history.
+See [`CHANGELOG.md`](https://github.com/jenilseawind-glitch/Flutter-RxDart-Base/blob/main/bricks/project/CHANGELOG.md) for version history.

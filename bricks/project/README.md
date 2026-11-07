@@ -30,7 +30,10 @@ mason make project
 - **`lib/redux/`**: `AppState`, `AppAction`, reducer, `AppStore` hydration, logging & persistence middleware.
 - **`lib/networking/`**: `ApiBaseHelper`, `DioClient` (default `dart:io` adapter; native stack opt-in), 4-interceptor chain, sealed `ApiException`, sealed `ApiResponse<T>`.
 - **`lib/resources/`**: Design tokens (`ResColors`, Material 3 `AppTypography` with ScreenUtil `.sp`) and `AppBreakpoints` / `WindowSize` (Material 3 window size classes).
-- **`lib/utils/`**: `AppScaffold`, core UI states (`AppLoadingState`, `AppErrorState`, `AppEmptyState`), `AppContentWidth`, `AppRouter`, `ShowMessage` toasts, `CommonUtils`, context & string extensions.
+- **`lib/utils/`**: Design system & shared components:
+  - `widgets/ui/`: Stateless primitives (`AppCard`, `AppEmptyState`, `AppErrorState`, `AppLoadingState`, `AppResponseBuilder`, `AppScaffold`, `AppContentWidth` (readable width on tablets), `CommonButton`, and barrel export `ui_components.dart`).
+  - `widgets/view/`: RxDart BLoC-driven components upholding Rule 3 (`AppTextFormField` with `AppTextFormFieldBloc`, `AppDialog` with `AppDialogBloc`).
+  - `router/`, `common_utils.dart`, `show_message.dart` toasts, context & string extensions.
 - **`lib/features/`**: The home for your actual app features (generated via `mason make bloc`).
 - **`lib/services/`**: Notification and device info stubs.
 - **`lib/l10n/`**: Localization setup (`app_en.arb`, `app_hi.arb`, `l10n.yaml`).

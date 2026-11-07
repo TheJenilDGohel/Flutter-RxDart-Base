@@ -105,10 +105,10 @@ jobs:
           done
 
       - name: Format
-        run: dart format --set-exit-if-changed tool bricks/project/hooks bricks/bloc/hooks
+        run: dart format --set-exit-if-changed tool bricks/project/hooks bricks/bloc/hooks bricks/harness/__brick__/scripts/agent
 
       - name: Analyze
-        run: dart analyze --fatal-infos tool bricks/project/hooks bricks/bloc/hooks
+        run: dart analyze --fatal-infos tool bricks/project/hooks bricks/bloc/hooks bricks/harness/__brick__/scripts/agent
 
       - name: Harness docs reference only real code
         run: dart run tool/harness_check.dart
@@ -123,3 +123,12 @@ jobs:
           dart pub global activate mason_cli
           mason get
           dart run tool/test_harness_upgrade.dart
+
+      # Compliance gate: brick budget, mods wired and enabled, root
+      # marketplace serves the brick copies, on_edit/loop guard behaviour.
+      - name: Harness evaluation gates
+        run: dart run tool/eval.dart
+
+      # Generated app: hostile edits caught, wire_route, full verify.dart.
+      - name: Harness adversarial end-to-end
+        run: dart run tool/adversarial_test.dart

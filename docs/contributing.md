@@ -61,8 +61,15 @@ analyzer-enforced.
 - **Linter Package Analysis**: Run `dart analyze --fatal-infos` inside `packages/redux_rxdart_lints/`.
 - **Formatting & Analysis**: Run `dart format --set-exit-if-changed .` and `dart analyze` across all touched packages and hook directories (`bricks/*/hooks/`).
 - **Harness checks**: `dart run tool/harness_check.dart` (docs name only generated paths, types
-  and lint rules; skills are consistent), `dart run tool/test_harness_upgrade.dart` and
-  `dart run tool/test_harness_learn.dart` (the real `upgrade.dart` and `learn.dart`, end to end).
+  and lint rules; skills are consistent), `dart run tool/eval.dart` (budget, mods wired and
+  enabled, the root marketplace serves the brick's mods), `dart run tool/test_harness_upgrade.dart`,
+  `dart run tool/test_harness_learn.dart` and `dart run tool/test_harness_budget.dart` (the real
+  scripts, end to end), and `dart run tool/adversarial_test.dart` (a generated app survives
+  hostile edits and passes `verify.dart`).
+- **Claude Code mods**: `claude plugin test` and `claude plugin validate --strict .` in each
+  `bricks/harness/__brick__/.claude/plugins/<mod>/`, and `claude plugin validate --strict .` for
+  the root and brick marketplaces. CI has no `claude` CLI, so run these locally when a mod changes.
+  The root `.claude-plugin/marketplace.json` points at the brick's folders: never copy a mod.
 - If you change `wire_route.dart` or a hook's file-injection logic, dry-run it against the real
   templates in a scratch copy before trusting the regex — don't assume it's correct from reading
   it. (Silent no-ops in generated/injected files are the failure mode to watch for.)
@@ -104,7 +111,7 @@ don't guess.
 ### Temporary exception: fork URLs until upstream merges
 
 Development currently happens in the fork `jenilseawind-glitch/Flutter-RxDart-Base`, which is
-ahead of upstream (fork: project 2.0.0, bloc 1.2.2, harness 2.6.1, `redux_rxdart_lints` 0.5.0 as a native
+ahead of upstream (fork: project 2.0.0, bloc 1.2.2, harness 2.6.2, `redux_rxdart_lints` 0.5.0 as a native
 analyzer plugin; upstream: project 1.1.0, bloc 1.0.0, harness 1.4.1). Upstream `main` still ships `redux_rxdart_lints` 0.1.0 on analyzer 7 /
 `custom_lint_builder ^0.7`, which conflicts with the template and crashes
 on Flutter 3.47. Pointing generated apps at upstream today would break `flutter pub get` in
@@ -117,7 +124,7 @@ every new project, so these **functional** URLs intentionally name the fork:
 | `bricks/harness/__brick__/.harness/version.json` | `upstream_repo` used by `upgrade.dart` |
 | `bricks/harness/__brick__/scripts/agent/upgrade.dart` | fallback `upstream` URL (`--check-only`, `mason add` hint) |
 | `packages/redux_rxdart_lints/README.md`, `docs/packages/redux_rxdart_lints.md` | install snippet |
-| `docs/bricks/bloc.md`, `docs/bricks/harness.md` | CHANGELOG links |
+| `docs/bricks/project.md`, `docs/bricks/bloc.md`, `docs/bricks/harness.md` | CHANGELOG links |
 | `bricks/harness/README.md`, `docs/bricks/harness.md` | `curl` of the current `upgrade.dart` for projects on ≤ 1.7.0 |
 | `docs/index.md`, `docs/roadmap.md` | LICENSE and `base-gaps.md` links (pages outside `docs/`) |
 

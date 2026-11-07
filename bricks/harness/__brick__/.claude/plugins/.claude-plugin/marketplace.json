@@ -3,6 +3,7 @@
   "owner": {
     "name": "Flutter-RxDart-Base"
   },
+  "description": "This project's AI harness mods: golden-rule Stop gate, git status line, output compaction, read and screenshot guards.",
   "plugins": [
     {
       "name": "golden-guard",

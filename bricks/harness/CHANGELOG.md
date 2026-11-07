@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.2
+
+- The mods' marketplace (`.claude/plugins/.claude-plugin/marketplace.json`) has a `description`, so `claude plugin validate --strict` passes for the marketplace, not only for each mod.
+- Repository (not shipped): the root `.claude-plugin/marketplace.json` served stale copies of three mods (`golden-guard` 0.1.0 still read `process.platform` and carried another app's rules) and missed `read-guard` and `shot-shrink`. It now points at the brick's folders, the copies are deleted, and `tool/eval.dart` fails if the two marketplaces list different mods or the root one serves anything but the brick. CI now runs `tool/eval.dart` and `tool/adversarial_test.dart` and formats and analyzes the harness scripts.
+
 ## 2.6.1
 
 Found upgrading a real app (Windows, native-asset dependencies) from 2.4.1.

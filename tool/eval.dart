@@ -309,6 +309,32 @@ Analyzing /project...
     );
   }
 
+  // The repository's own marketplace serves the brick's copies, so it can
+  // never drift from what `mason make harness` installs.
+  final rootMarket = jsonDecode(
+    File('.claude-plugin/marketplace.json').readAsStringSync(),
+  ) as Map<String, dynamic>;
+  final brickMods = {
+    for (final m in market['plugins'] as List) m['name'] as String,
+  };
+  final rootMods = {
+    for (final m in rootMarket['plugins'] as List)
+      m['name'] as String: m['source'] as String,
+  };
+  check(
+    'Root marketplace lists exactly the brick mods',
+    rootMods.keys.toSet().containsAll(brickMods) &&
+        brickMods.containsAll(rootMods.keys),
+    'root: ${rootMods.keys.toList()}, brick: ${brickMods.toList()}',
+  );
+  rootMods.forEach((name, source) {
+    check(
+      'Root marketplace mod $name is served from the harness brick',
+      source == './$brick/.claude/plugins/$name',
+      'source is $source',
+    );
+  });
+
   // ── Summary ──────────────────────────────────────────────────
   print('\n===========================================================');
   if (failures.isEmpty) {

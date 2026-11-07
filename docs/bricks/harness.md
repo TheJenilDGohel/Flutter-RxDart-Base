@@ -21,7 +21,7 @@ The brick has no hooks and does not edit `pubspec.yaml`. `project` adds the `red
 | `.claude/rules/` | Path-scoped rules loaded on-demand: `bloc.md`, `ui.md`, `endpoints.md`, `testing.md`. |
 | `.cursor/rules/` | Cursor path-scoped rules with glob frontmatter: `bloc.mdc`, `ui.mdc`, `endpoints.mdc`, `testing.mdc`. |
 | `.claude/plugins/` | Pre-bundled Claude Code mods: `golden-guard` (stop-time golden rules gate + `/audit`), `session-flow` (git status line), `output-compactor` (failure trace compactor), `read-guard` (refuses generated/build/oversized Reads without a range) and `shot-shrink` (big screenshots read as an 800px copy). |
-| `.claude/agents/` | Specialist subagent swarm: `@bloc-specialist`, `@ui-artisan`, `@device-qa`, `@flutter-qa`, `@skeptic`, `@docs-scout`. |
+| `.claude/agents/` | Specialist subagents (used sparingly, cheapest model that works): `@bloc-specialist`, `@ui-artisan`, `@device-qa`, `@flutter-qa`, `@skeptic`, `@docs-scout`. |
 | `scripts/agent/on_edit.dart` | Format/analyze check of changed files, golden-rule lints included (~20 s cold; the warm `mcp__dart` analyze tool takes milliseconds but skips analyzer-plugin lints) with compact error stripping and anti-loop circuit breaker. |
 | `scripts/agent/affected_tests.dart` | Runs only the tests that mirror the changed `lib/` files and prints failures only; the per-change test step (full `verify.dart` stays for shared-code commits and milestones). |
 | `scripts/agent/watch.dart` | Background incremental diagnostics watcher updating `.harness/diagnostics.json` with zero token overhead. |
@@ -77,7 +77,7 @@ The harness bundles five native Anthropic Claude Code plugins located in `.claud
 |---|---|---|
 | **Universal Foundation** | Cursor, Codex, Gemini CLI, Claude Code | `AGENTS.md` locked Golden Rules, `redux_rxdart_lints`, `.agents/skills/`, and pre-commit verification (`scripts/agent/verify.dart`, `wire_route.dart`). |
 | **Cursor Path Rules** | Cursor IDE | `.cursor/rules/*.mdc` glob-frontmatter rules (`bloc.mdc`, `ui.mdc`, `endpoints.mdc`, `testing.mdc`) and `.cursor/mcp.json`. |
-| **Claude Code Enhancements** | Claude Code CLI | Pre-bundled plugins (`.claude/plugins/`), 1h prompt caching (`promptCacheTtl: "1h"`), specialist swarm (`.claude/agents/`). |
+| **Claude Code Enhancements** | Claude Code CLI | Pre-bundled plugins (`.claude/plugins/`), 1h prompt caching (`promptCacheTtl: "1h"`), specialist subagents used sparingly (`.claude/agents/`). |
 
 
 ### Token Conservation & High-Efficiency Operations

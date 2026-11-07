@@ -38,7 +38,7 @@ dart scripts/agent/verify.dart
 |---|---|---|---|
 | [`project`](docs/bricks/project.md) | `2.0.0` | `mason make project`, once | Redux session store, Dio client with 4 interceptors, typed errors, go_router, design tokens and window size classes, UI kit, l10n (en, hi), showcase screen |
 | [`bloc`](docs/bricks/bloc.md) | `1.2.2` | `mason make bloc`, once per screen | BLoC, repo, model, page, content widget and 7 passing BLoC tests |
-| [`harness`](docs/bricks/harness.md) | `2.6.1` | installed by `project` | `AGENTS.md`, Token Shield, Cursor rules, Claude Code mods, contract ingestion, storage recipes, quality gates, lessons loop |
+| [`harness`](docs/bricks/harness.md) | `2.6.2` | installed by `project` | `AGENTS.md`, Token Shield, Cursor rules, Claude Code mods, contract ingestion, storage recipes, quality gates, lessons loop |
 | [`redux_rxdart_lints`](docs/packages/redux_rxdart_lints.md) | `0.5.0` | wired in by `project` | Turns eight golden rules into analyzer diagnostics |
 
 ---

@@ -3,21 +3,32 @@
   "owner": {
     "name": "Flutter-RxDart-Base"
   },
+  "description": "Claude Code mods of the Flutter-RxDart-Base AI harness, served from the harness brick (bricks/harness/__brick__/.claude/plugins), the same copies `mason make harness` installs.",
   "plugins": [
     {
       "name": "golden-guard",
-      "source": "./plugins/golden-guard",
+      "source": "./bricks/harness/__brick__/.claude/plugins/golden-guard",
       "description": "Stop-time analyze + golden-rule gate and /audit"
     },
     {
       "name": "session-flow",
-      "source": "./plugins/session-flow",
+      "source": "./bricks/harness/__brick__/.claude/plugins/session-flow",
       "description": "Git status line"
     },
     {
       "name": "output-compactor",
-      "source": "./plugins/output-compactor",
+      "source": "./bricks/harness/__brick__/.claude/plugins/output-compactor",
       "description": "Compacts verbose test failures (Maestro, Flutter test, Dart analyze)"
+    },
+    {
+      "name": "read-guard",
+      "source": "./bricks/harness/__brick__/.claude/plugins/read-guard",
+      "description": "Refuses Reads of generated Dart, build output and oversized files without offset/limit"
+    },
+    {
+      "name": "shot-shrink",
+      "source": "./bricks/harness/__brick__/.claude/plugins/shot-shrink",
+      "description": "Screenshot Reads over 1000px use an 800px copy"
     }
   ]
 }
