@@ -38,12 +38,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Changelog Bot Runner Nyaomaru
-        uses: nyaomaru/changelog-bot@v0.8.0
+        uses: nyaomaru/changelog-bot@v0.11.1
         with:
           changelog-path: 'CHANGELOG.md'
           base-branch: 'main'
