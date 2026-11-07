@@ -43,8 +43,11 @@ Future<void> main(List<String> args) async {
   ];
   final client = http.Client();
 
-  final entries =
-      dependencies.entries.where((e) => !skipPackages.contains(e.key)).toList();
+  // Only hosted constraints (`^1.2.3`): git, path and sdk dependencies are
+  // maps, pinned on purpose (adaptive_units by tag), and not on pub.dev.
+  final entries = dependencies.entries
+      .where((e) => !skipPackages.contains(e.key) && e.value is String)
+      .toList();
 
   for (int i = 0; i < entries.length; i++) {
     final entry = entries[i];
