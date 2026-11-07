@@ -4,7 +4,7 @@ import 'dart:io';
 
 /// The harness size gate: what loads on every request stays small.
 ///
-///   dart run scripts/agent/budget.dart [root]
+///   dart scripts/agent/budget.dart [root]
 ///
 /// Fails (exit 1) and names the file and the overshoot when
 /// - `CLAUDE.md` + `AGENTS.md` + `.harness/active-context.md` > 12k characters,
@@ -49,7 +49,10 @@ List<String> budgetProblems(String root) {
   final rules = Directory('$root/.claude/rules');
   if (rules.existsSync()) {
     final files =
-        rules.listSync().whereType<File>().where((f) => f.path.endsWith('.md'))
+        rules
+            .listSync()
+            .whereType<File>()
+            .where((f) => f.path.endsWith('.md'))
             .toList()
           ..sort((a, b) => a.path.compareTo(b.path));
     for (final file in files) {
@@ -70,7 +73,7 @@ List<String> budgetProblems(String root) {
     if (lines > lessonsMaxLines) {
       problems.add(
         '.harness/lessons.md is $lines lines, ${lines - lessonsMaxLines} over '
-        '$lessonsMaxLines. Run `dart run scripts/agent/learn.dart review`, '
+        '$lessonsMaxLines. Run `dart scripts/agent/learn.dart review`, '
         'then promote or delete.',
       );
     }
@@ -79,8 +82,10 @@ List<String> budgetProblems(String root) {
 }
 
 /// Characters, not bytes: Hindi/Gujarati or emoji must not skew the budget.
+/// `\r` is not counted, so a CRLF checkout (Windows, `core.autocrlf`) gets the
+/// same result as LF.
 int _chars(String path) {
   final file = File(path);
   if (!file.existsSync()) return 0;
-  return file.readAsStringSync().runes.length;
+  return file.readAsStringSync().replaceAll('\r', '').runes.length;
 }

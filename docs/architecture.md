@@ -196,7 +196,7 @@ mason make project \
 mason make bloc --feature_name user_profile
 
 # With the AI harness: scaffold feature and wire its route in one step
-dart run scripts/agent/wire_route.dart user_profile
+dart scripts/agent/wire_route.dart user_profile
 ```
 
 ### 4.2 Feature Brick Output (`mason make bloc`)

@@ -75,7 +75,7 @@ Future<void> main() async {
     // Run 1: Should fail format with exitCode != 0, write count=1
     final r1 = await Process.run(
       'dart',
-      ['run', 'scripts/agent/on_edit.dart', 'lib/test_bad.dart'],
+      ['scripts/agent/on_edit.dart', 'lib/test_bad.dart'],
       workingDirectory: tempDir.path,
       runInShell: true,
     );
@@ -93,7 +93,7 @@ Future<void> main() async {
     // Run 2: Should fail format, count=2
     await Process.run(
       'dart',
-      ['run', 'scripts/agent/on_edit.dart', 'lib/test_bad.dart'],
+      ['scripts/agent/on_edit.dart', 'lib/test_bad.dart'],
       workingDirectory: tempDir.path,
       runInShell: true,
     );
@@ -109,7 +109,7 @@ Future<void> main() async {
     // Run 3: Identical failure 3rd time -> trips circuit breaker (exit code 2)
     final r3 = await Process.run(
       'dart',
-      ['run', 'scripts/agent/on_edit.dart', 'lib/test_bad.dart'],
+      ['scripts/agent/on_edit.dart', 'lib/test_bad.dart'],
       workingDirectory: tempDir.path,
       runInShell: true,
     );
@@ -121,7 +121,7 @@ Future<void> main() async {
     // Reset guard
     final rReset = await Process.run(
       'dart',
-      ['run', 'scripts/agent/on_edit.dart', '--reset-guard'],
+      ['scripts/agent/on_edit.dart', '--reset-guard'],
       workingDirectory: tempDir.path,
       runInShell: true,
     );
@@ -275,7 +275,7 @@ Analyzing /project...
   const brick = 'bricks/harness/__brick__';
   final budgetRun = await Process.run(
     'dart',
-    ['run', '$brick/scripts/agent/budget.dart', brick],
+    ['$brick/scripts/agent/budget.dart', brick],
     runInShell: true,
   );
   check(

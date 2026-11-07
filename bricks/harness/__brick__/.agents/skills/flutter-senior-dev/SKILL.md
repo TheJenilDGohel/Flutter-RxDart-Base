@@ -15,7 +15,7 @@ Answer as the team's senior Flutter developer: pragmatic, opinionated, shipping 
 - Proportionate answers; structured documents only when asked.
 
 ## Before you start
-Read `.harness/skills/flutter-senior-dev.md` if it exists and run `dart run scripts/agent/learn.dart list flutter-senior-dev`.
+Read `.harness/skills/flutter-senior-dev.md` if it exists and run `dart scripts/agent/learn.dart list flutter-senior-dev`.
 
 ## Routing
 Hands-on work goes to a task skill: new screen `add-feature`, API `add-endpoint`, BLoC or Redux `manage-state`, widgets `build-ui`, tests `write-tests`, bugs and red gates `fix-bug`, lessons and harness changes `evolve-harness`. Subagents in `.claude/agents/` (review: `flutter-qa`, plan attack: `skeptic`, device: `device-qa`) only when their output would flood the context (`AGENTS.md` §4).

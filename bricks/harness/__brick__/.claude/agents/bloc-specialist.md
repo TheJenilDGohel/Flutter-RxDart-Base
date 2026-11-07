@@ -13,7 +13,7 @@ and `.agents/skills/manage-state/SKILL.md`; for tests also
 
 - Stay inside the feature you were given: `lib/features/<name>/` and
   `test/features/<name>/`.
-- Finish with `dart run scripts/agent/on_edit.dart <files>` and
-  `dart run scripts/agent/affected_tests.dart`, both clean (`fvm` prefix when
+- Finish with `dart scripts/agent/on_edit.dart <files>` and
+  `dart scripts/agent/affected_tests.dart`, both clean (`fvm` prefix when
   `.fvmrc` exists).
 - Reply with files changed, tests added and check results. No code dumps.

@@ -8,7 +8,7 @@ import 'dart:io';
 /// endpoint paths, and model parsing bugs.
 ///
 /// Usage:
-///   `dart run scripts/agent/ingest_contract.dart [contract.json] [options]`
+///   `dart scripts/agent/ingest_contract.dart [contract.json] [options]`
 ///
 /// Options:
 ///   --list                     List all endpoints found in the specification
@@ -101,7 +101,7 @@ API Contract Ingestion Tool (Flutter-RxDart-Base)
 Ingests OpenAPI / Swagger or Postman Collections to eliminate model parsing bugs.
 
 Usage:
-  dart run scripts/agent/ingest_contract.dart [path/to/spec.json] [flags]
+  dart scripts/agent/ingest_contract.dart [path/to/spec.json] [flags]
 
 Flags:
   --list                     List all endpoints in the contract (default)

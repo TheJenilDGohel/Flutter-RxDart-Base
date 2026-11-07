@@ -9,14 +9,14 @@ import 'dart:io';
 /// command.
 ///
 /// ```
-/// dart run scripts/agent/learn.dart list [scope]      # start of a task
-/// dart run scripts/agent/learn.dart add <scope> <lesson...> [--proof <ref>] [--force]
-/// dart run scripts/agent/learn.dart hit <id> [--proof <ref>]
-/// dart run scripts/agent/learn.dart promote <id> <target>...   # deletes the lesson
-/// dart run scripts/agent/learn.dart retire <id>
-/// dart run scripts/agent/learn.dart prune             # deletes stale one-offs
-/// dart run scripts/agent/learn.dart review            # what to promote or prune
-/// dart run scripts/agent/learn.dart check             # format check (verify.dart)
+/// dart scripts/agent/learn.dart list [scope]      # start of a task
+/// dart scripts/agent/learn.dart add <scope> <lesson...> [--proof <ref>] [--force]
+/// dart scripts/agent/learn.dart hit <id> [--proof <ref>]
+/// dart scripts/agent/learn.dart promote <id> <target>...   # deletes the lesson
+/// dart scripts/agent/learn.dart retire <id>
+/// dart scripts/agent/learn.dart prune             # deletes stale one-offs
+/// dart scripts/agent/learn.dart review            # what to promote or prune
+/// dart scripts/agent/learn.dart check             # format check (verify.dart)
 /// ```
 ///
 /// `<scope>` is a skill in `.agents/skills/` or `general`. A `<target>` is
@@ -74,7 +74,7 @@ const _activeCap = 30;
 const _maxLength = 240;
 
 const _usage = '''
-Usage: dart run scripts/agent/learn.dart <command>
+Usage: dart scripts/agent/learn.dart <command>
   list [scope]                       lessons for a skill (plus `general`)
   add <scope> <lesson...> [--proof <ref>] [--force]
   hit <id> [--proof <ref>]           the same lesson happened again
@@ -263,7 +263,9 @@ void _prune() {
 /// Seen once and not since: a one-off, not a pattern.
 bool _isStale(_Lesson l, DateTime today) {
   final seen = DateTime.tryParse(l.date);
-  return l.hits == 1 && seen != null && today.difference(seen).inDays > _staleDays;
+  return l.hits == 1 &&
+      seen != null &&
+      today.difference(seen).inDays > _staleDays;
 }
 
 void _review() {
@@ -654,9 +656,10 @@ List<String> _memoryLeaks() {
     File('.harness/progress.md'),
     for (final dir in ['.harness/skills', '.harness/specs'])
       if (Directory(dir).existsSync())
-        ...Directory(
-          dir,
-        ).listSync().whereType<File>().where((f) => f.path.endsWith('.md')),
+        ...Directory(dir)
+            .listSync()
+            .whereType<File>()
+            .where((f) => f.path.endsWith('.md')),
   ];
   final leaks = <String>[];
   for (final file in files.where((f) => f.existsSync())) {
@@ -698,11 +701,12 @@ const _stopWords = {
   'only',
 };
 
-Set<String> _words(String text) => RegExp(r'[a-z0-9_]+')
-    .allMatches(text.toLowerCase())
-    .map((m) => m[0]!)
-    .where((w) => w.length >= 3 && !_stopWords.contains(w))
-    .toSet();
+Set<String> _words(String text) =>
+    RegExp(r'[a-z0-9_]+')
+        .allMatches(text.toLowerCase())
+        .map((m) => m[0]!)
+        .where((w) => w.length >= 3 && !_stopWords.contains(w))
+        .toSet();
 
 /// Jaccard similarity of content words: catches re-recorded lessons, not
 /// paraphrases (agents run `list` first and use `hit` for those).

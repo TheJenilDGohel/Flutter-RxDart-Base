@@ -12,9 +12,9 @@ import 'dart:io';
 /// every feature: the script says so and suggests the full suite.
 ///
 /// Usage:
-///   dart run scripts/agent/affected_tests.dart            # uncommitted changes
-///   dart run scripts/agent/affected_tests.dart --since main
-///   dart run scripts/agent/affected_tests.dart --dry-run  # list targets only
+///   dart scripts/agent/affected_tests.dart            # uncommitted changes
+///   dart scripts/agent/affected_tests.dart --since main
+///   dart scripts/agent/affected_tests.dart --dry-run  # list targets only
 Future<void> main(List<String> args) async {
   final dryRun = args.contains('--dry-run');
   final sinceIndex = args.indexOf('--since');
@@ -47,7 +47,7 @@ Future<void> main(List<String> args) async {
   if (shared.isNotEmpty) {
     print(
       'Shared code changed (${shared.length} files): run the full suite '
-      'before committing (dart run scripts/agent/verify.dart).',
+      'before committing (dart scripts/agent/verify.dart).',
     );
   }
   if (targets.isEmpty) {

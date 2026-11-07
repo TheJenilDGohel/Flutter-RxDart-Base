@@ -33,7 +33,7 @@ Root `AGENTS.md` (gates and maintainer rules) and `docs/contributing.md` (the de
 - Never write to project-owned paths from the brick: `.harness/` memory and anything below the `harness:project-rules` marker.
 
 ## 3. Lessons proposed by apps (upstream intake)
-Apps send output from `dart run scripts/agent/learn.dart upstream`: one line per lesson, with its skill scope and hit count.
+Apps send output from `dart scripts/agent/learn.dart upstream`: one line per lesson, with its skill scope and hit count.
 1. **Verify** each against the current bricks. Is the skill really wrong or missing a step, or was the app off-architecture? Reproduce it in a generated app when it's about code.
 2. **Fix it at the narrowest durable place**: a sentence or step in the skill, a recipe, a template fix, or, if it's mechanical, a lint rule (which beats prose because agents can't forget it).
 3. **Ship** it as a normal harness change (step 1), with a CHANGELOG line naming the lesson ("from app lessons: ..."). Apps get it through `upgrade.dart` and can then delete their local overlay entry.

@@ -8,7 +8,7 @@ description: Decides where state lives and implements it in this Flutter Redux +
 `AGENTS.md` §1: session data that must survive a restart goes in Redux, everything else in the screen's BLoC. Most bugs here are state in the wrong home or a BLoC breaking its lifecycle contract.
 
 ## 0. Load what this project learned
-Read `.harness/skills/manage-state.md` if it exists (it wins over this file) and run `dart run scripts/agent/learn.dart list manage-state`.
+Read `.harness/skills/manage-state.md` if it exists (it wins over this file) and run `dart scripts/agent/learn.dart list manage-state`.
 
 ## 1. Decide the home
 | The state is... | Home |

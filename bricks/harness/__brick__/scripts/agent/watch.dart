@@ -12,9 +12,12 @@ import 'dart:io';
 /// AI agents can read `.harness/diagnostics.json` instantly with zero execution overhead.
 ///
 /// Usage:
-///   dart run scripts/agent/watch.dart
+///   dart scripts/agent/watch.dart
 void main() {
-  final roots = ['lib', 'test'].map(Directory.new).where((d) => d.existsSync()).toList();
+  final roots = [
+    'lib',
+    'test',
+  ].map(Directory.new).where((d) => d.existsSync()).toList();
 
   if (roots.isEmpty) {
     stderr.writeln('watch: neither lib/ nor test/ directory found.');
@@ -35,7 +38,9 @@ void main() {
     'diagnostics': <String>[],
   });
 
-  print('watch: watching ${roots.map((d) => d.path).join(', ')} for changes (FVM: $fvm)...');
+  print(
+    'watch: watching ${roots.map((d) => d.path).join(', ')} for changes (FVM: $fvm)...',
+  );
 
   Timer? debounceTimer;
   final pendingFiles = <String>{};
@@ -60,21 +65,24 @@ void main() {
           final errors = <String>[];
 
           // 1. Format check
-          final formatRes = await Process.run(
-            cmd,
-            [...prefix, 'format', '--output=none', '--set-exit-if-changed', file],
-            runInShell: true,
-          );
+          final formatRes = await Process.run(cmd, [
+            ...prefix,
+            'format',
+            '--output=none',
+            '--set-exit-if-changed',
+            file,
+          ], runInShell: true);
           if (formatRes.exitCode != 0) {
             errors.add('Format violation: run `dart format $file`');
           }
 
           // 2. Analyze check
-          final analyzeRes = await Process.run(
-            cmd,
-            [...prefix, 'analyze', '--fatal-infos', file],
-            runInShell: true,
-          );
+          final analyzeRes = await Process.run(cmd, [
+            ...prefix,
+            'analyze',
+            '--fatal-infos',
+            file,
+          ], runInShell: true);
           if (analyzeRes.exitCode != 0) {
             final output = '${analyzeRes.stdout}${analyzeRes.stderr}'.trim();
             errors.addAll(
@@ -114,6 +122,9 @@ String _timestamp() {
 
 void _saveDiagnostics(File file, Map<String, dynamic> data) {
   try {
-    file.writeAsStringSync(const JsonEncoder.withIndent('  ').convert(data), flush: true);
+    file.writeAsStringSync(
+      const JsonEncoder.withIndent('  ').convert(data),
+      flush: true,
+    );
   } catch (_) {}
 }

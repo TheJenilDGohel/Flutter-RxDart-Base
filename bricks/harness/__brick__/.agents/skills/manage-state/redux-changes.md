@@ -68,4 +68,4 @@ StoreConnector<AppState, (String, String)>(
 ## Tests
 - Reducer: a pure function. Assert the new action, `LogoutAction` behavior, and that unrelated fields are unchanged.
 - Persistence round trip: call `SharedPreferences.setMockInitialValues({})`, create a store with `persistenceMiddleware`, dispatch, `await persistenceIdle`, then check the stored value. `AppStore.init()` hydrates from the same mock.
-- `dart run scripts/agent/verify.dart`. The snapshot lists the new `AppState` field, so review that diff too.
+- `dart scripts/agent/verify.dart`. The snapshot lists the new `AppState` field, so review that diff too.

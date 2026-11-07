@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.6.1
+
+Found upgrading a real app (Windows, native-asset dependencies) from 2.4.1.
+
+- **Agent scripts run as `dart scripts/agent/<x>.dart`, not `dart run`**: `dart run` resolves the app's packages and runs their build hooks first, so in an app with a native-asset dependency (`pdfium_dart`, `sqlite3`, ...) and no C compiler every harness command failed with "Running build hooks failed" before the script started, and so did `verify.dart`'s budget, lessons and snapshot steps. The scripts import only `dart:` libraries, so the plain VM form skips pub resolution and hooks (and works before `pub get`). Docs, skills, agents, `.claude/settings.json` permissions, `verify.dart` steps and the repo's tests use it. Existing apps keep their `settings.json`: `upgrade.dart` prints the new permission lines to add.
+- `budget.dart` no longer counts `\r`: a CRLF checkout on Windows was reported about one character per line over.
+- `.harness/.gitignore` also ignores the upgrade's `.backup_*/` and `.staging_upgrade/` (an app had committed the staging folder). `upgrade.dart` appends ignore lines the template has and an existing `.harness/.gitignore` lacks, keeping the project's own.
+- `AGENTS.md` §6 and `evolve-harness` name `.harness/guard-rules.json` (2.6.0) as a promotion target for project conventions a regex can catch.
+
 ## 2.6.0
 
 - **Token budget by default** (from a project that burned its weekly limit on a PM + builder + helper setup):
@@ -23,9 +32,10 @@
   - Lints that silently do not run: a git-sourced analyzer plugin needs Dart 3.13 / Flutter 3.47, and older SDKs skip it without an error. `verify.dart` now prints a warning up front (pin a newer SDK with FVM, or upgrade) and ends with "passed WITHOUT the golden-rule lints"; `AGENTS.md` says the 🔒 rules then need a manual check.
   - Path-scoped rules that never loaded: `ui.md` matched `views/` but not `*_page.dart`, `endpoints.md` matched `models/` but the bloc brick writes `model/`, `bloc.md` matched `*_event.dart` / `*_state.dart` that this architecture never creates. Globs fixed in `.claude/rules/` and `.cursor/rules/`; `tool/harness_check.dart` now fails when a glob matches no generated file or the Claude and Cursor globs differ.
   - `AGENTS.md` no longer calls `on_edit.dart` "the edit hook" (nothing runs it as one) and points at the warm `mcp__dart` analyze first; `on_edit.dart` no longer claims "<1.5s".
-  - `affected_tests.dart` treats `lib/main.dart`, `lib/redux/`, `lib/networking/`, `lib/services/`, `lib/resources/`, `lib/l10n/` and `lib/utils/` as shared code (it listed `lib/core/` and `lib/config/`, which the bricks never generate, and missed Redux).
+  - `affected_tests.dart` treats everything in `lib/` outside `lib/features/` as shared code (a fixed list named `lib/core/` and `lib/config/`, which the bricks never generate, and missed `lib/redux/` and any folder an app adds).
 - **Mods**:
   - `golden-guard` 0.2.0: dropped rules from another app (`lib/storage/`, `AuthSession.signOut`, `AppDateFormat`, `gu` ARB, `Future.delayed`, BLoC text and file-name literals) that blocked Stop on base code; R4 uses the same allow-list as `no_rxdart_in_ui`; new R14 `withOpacity`; the Stop gate keeps warning-level golden lints from the analyzer (`no_fetch_without_token`, `no_unclosed_subject`, `no_with_opacity` were dropped with every non-error); `fvm` only when the project uses it; `/audit` diffs against origin's default branch instead of `main`. It also no longer reads `process.platform`, which is undefined in a hooks module, so the analyzer step used to fail silently and return nothing.
+  - `golden-guard` project rules: regex rules in `.harness/guard-rules.json` (`pattern`, `message`, optional `paths` / `exclude`) are reported as `P <message>` at Stop and in `/audit`, and its `audit` text extends the `/audit` review. The file ships empty and `upgrade.dart` adds it when missing and never overwrites it, so an app keeps its conventions across upgrades instead of patching the shipped mod.
   - `output-compactor` 0.2.0: compacted `dart analyze` output keeps warnings and infos (errors first) instead of errors only, since `--fatal-infos` fails on them.
   - `shot-shrink` works on macOS (`sips`) and Linux (ImageMagick), not only Windows, and writes a `*` `.gitignore` into each `.small/` folder.
   - Every mod manifest has an `author`, so `claude plugin validate --strict` passes.

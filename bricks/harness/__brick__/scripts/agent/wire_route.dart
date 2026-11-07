@@ -8,11 +8,11 @@ bool _useFvm() => Directory('.fvm').existsSync() || File('.fvmrc').existsSync();
 void main(List<String> args) {
   if (args.isEmpty) {
     print(
-      'Usage: dart run scripts/agent/wire_route.dart <feature_name> [route_path]',
+      'Usage: dart scripts/agent/wire_route.dart <feature_name> [route_path]',
     );
-    print('Example: dart run scripts/agent/wire_route.dart inquiries');
+    print('Example: dart scripts/agent/wire_route.dart inquiries');
     print(
-      'Example: dart run scripts/agent/wire_route.dart agent_profile /agent/profile',
+      'Example: dart scripts/agent/wire_route.dart agent_profile /agent/profile',
     );
     print(
       'If the feature does not exist yet, it is scaffolded automatically via `mason make bloc`.',

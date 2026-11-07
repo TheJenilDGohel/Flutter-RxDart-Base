@@ -8,7 +8,7 @@ description: Builds or changes Flutter UI in this Redux + RxDart app the house w
 Widgets render state, they don't own it (rules 3, 4, 13 in `AGENTS.md` §2 are linted). Everything visual comes from tokens, so a design change touches one file. Work from the BLoC's public stream contract and model fields only, never raw JSON or test logs.
 
 ## 0. Load what this project learned
-Read `.harness/skills/build-ui.md` if it exists (it wins over this file), run `dart run scripts/agent/learn.dart list build-ui`, and check `lib/utils/widgets/ui/` first: the widget may exist.
+Read `.harness/skills/build-ui.md` if it exists (it wins over this file), run `dart scripts/agent/learn.dart list build-ui`, and check `lib/utils/widgets/ui/` first: the widget may exist.
 
 ## 1. Structure
 - **Page** (`<name>_page.dart`, `StatefulWidget`): creates and disposes the BLoC and controllers, subscribes to one-off events, binds streams (rules 6, 7, 9).

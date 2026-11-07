@@ -8,8 +8,8 @@ This repository is the Mason Workspace source repository providing templates, br
 .
 ├── bricks/
 │   ├── project/                  # Scaffolds initial Flutter app architecture (v2.0.0)
-│   ├── bloc/                     # Scaffolds feature modules with BLoC and tests (v1.2.1)
-│   └── harness/                  # Scaffolds AI Agent Harness onto apps (v2.6.0)
+│   ├── bloc/                     # Scaffolds feature modules with BLoC and tests (v1.2.2)
+│   └── harness/                  # Scaffolds AI Agent Harness onto apps (v2.6.1)
 ├── packages/
 │   └── redux_rxdart_lints/       # Custom lint package enforcing golden rules (v0.5.0)
 ├── tool/

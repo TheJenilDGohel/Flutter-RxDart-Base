@@ -1,6 +1,6 @@
 # Quality gate failures
 
-`dart run scripts/agent/verify.dart` stops at the first failing step and prints that tool's output. Fix the first failure and run the gate again, since later steps may pass once it's fixed.
+`dart scripts/agent/verify.dart` stops at the first failing step and prints that tool's output. Fix the first failure and run the gate again, since later steps may pass once it's fixed.
 
 ## 1. Formatting
 `dart format lib test` and re-run. The edit hook already formats each file Claude Code edits, so a format failure usually means a file changed outside it (a generator, a copied snippet, or another agent).

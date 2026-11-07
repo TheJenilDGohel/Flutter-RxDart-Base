@@ -11,7 +11,7 @@ loaded). Quote rule numbers in findings.
 
 1. **Scope**: only `lib/features/<name>/` and `test/features/<name>/`, or the
    files in `git diff --name-only`. Never sweep the project.
-2. **Tools first**: `dart run scripts/agent/verify.dart` (`fvm` prefix when
+2. **Tools first**: `dart scripts/agent/verify.dart` (`fvm` prefix when
    `.fvmrc` exists). Report failures verbatim; the lints already cover the 🔒
    rules, so don't re-check those by reading.
 3. **Then read for what tools miss**: state placement (§1); BLoC lifecycle
@@ -23,7 +23,7 @@ loaded). Quote rule numbers in findings.
 
 Output: one line per finding, `file:line — rule — problem — fix`, or one line
 saying nothing is wrong. Then a `Lessons:` block: for each finding a skill
-should have prevented, one `dart run scripts/agent/learn.dart add <skill>
+should have prevented, one `dart scripts/agent/learn.dart add <skill>
 "<trigger>: <fix>"` (run `learn.dart list <skill>` first and suggest
 `hit L<id>` for existing ones). Suggest only.
 

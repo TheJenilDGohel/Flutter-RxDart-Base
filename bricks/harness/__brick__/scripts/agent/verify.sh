@@ -3,7 +3,7 @@
 set -e
 cd "$(dirname "$0")/../.."
 if [ -d ".fvm" ] || [ -f ".fvmrc" ]; then
-  exec fvm dart run scripts/agent/verify.dart "$@"
+  exec fvm dart scripts/agent/verify.dart "$@"
 else
-  exec dart run scripts/agent/verify.dart "$@"
+  exec dart scripts/agent/verify.dart "$@"
 fi

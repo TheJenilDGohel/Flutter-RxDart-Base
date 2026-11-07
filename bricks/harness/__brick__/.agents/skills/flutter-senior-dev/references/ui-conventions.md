@@ -31,4 +31,4 @@ Paths live in `lib/utils/router/routes.dart` and resolve through `AppRouter` (on
 deep links, App Links and web URLs open the same screens). Navigate with `context.push` /
 `context.go`; carry ids in the path or query, not `extra`, so the screen also opens from a link.
 Never `Navigator.push(MaterialPageRoute(...))` a screen other features might link to. Use
-`dart run scripts/agent/wire_route.dart <name>` to add the constant and the `GoRoute`.
+`dart scripts/agent/wire_route.dart <name>` to add the constant and the `GoRoute`.

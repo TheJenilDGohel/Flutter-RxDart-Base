@@ -8,7 +8,7 @@ description: Writes and fixes tests for this Flutter Redux + RxDart + Dio app - 
 A test proves a contract the architecture promises: states arrive in order, errors are typed and retryable, nothing emits after dispose, wire data can't crash a screen. Test through public streams and widgets, never private fields.
 
 ## 0. Load what this project learned
-Read `.harness/skills/write-tests.md` if it exists (it wins over this file) and run `dart run scripts/agent/learn.dart list write-tests`.
+Read `.harness/skills/write-tests.md` if it exists (it wins over this file) and run `dart scripts/agent/learn.dart list write-tests`.
 
 ## 1. What to test
 | Layer | Test | When |

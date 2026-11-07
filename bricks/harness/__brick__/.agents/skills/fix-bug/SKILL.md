@@ -8,7 +8,7 @@ description: Diagnoses and fixes bugs and red quality gates in this Flutter Redu
 Find the wrong layer, fix it there, prove it with a test, leave a lesson. Patching a symptom in a widget usually breaks a rule and hides the cause.
 
 ## 0. Load what this project learned
-Read `.harness/skills/fix-bug.md` if it exists (it wins over this file) and run `dart run scripts/agent/learn.dart list fix-bug`: a matching lesson is the fastest fix.
+Read `.harness/skills/fix-bug.md` if it exists (it wins over this file) and run `dart scripts/agent/learn.dart list fix-bug`: a matching lesson is the fastest fix.
 
 ## 1. Get the exact failure
 - **Red gate**: the first failing step of `verify.dart`; each step and lint is covered in `.agents/skills/fix-bug/gate-failures.md`.

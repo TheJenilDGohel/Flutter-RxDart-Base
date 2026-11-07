@@ -22,10 +22,10 @@ flutter create my_app && cd my_app
 mason make project      # asks for the project name, app ids, harness (Y) and secure storage (N)
 
 # 3. Add a screen: scaffolds the feature and wires its route
-dart run scripts/agent/wire_route.dart profile
+dart scripts/agent/wire_route.dart profile
 
 # 4. Check everything: format, analyze, architecture lints, tests
-dart run scripts/agent/verify.dart
+dart scripts/agent/verify.dart
 ```
 
 `flutter run` works straight away and opens a showcase screen. Without the harness, use `mason make bloc` and add the route by hand.
@@ -37,8 +37,8 @@ dart run scripts/agent/verify.dart
 | | Version | How you use it | What it gives you |
 |---|---|---|---|
 | [`project`](bricks/project.md) | `2.0.0` | `mason make project`, once | Redux session store, Dio client with 4 interceptors, typed errors, go_router, design tokens and window size classes, UI kit, l10n (en, hi), showcase screen |
-| [`bloc`](bricks/bloc.md) | `1.2.1` | `mason make bloc`, once per screen | BLoC, repo, model, page, content widget and 7 passing BLoC tests |
-| [`harness`](bricks/harness.md) | `2.6.0` | installed by `project` | `AGENTS.md`, Token Shield, Cursor rules, Claude Code mods, contract ingestion, storage recipes, quality gates, lessons loop |
+| [`bloc`](bricks/bloc.md) | `1.2.2` | `mason make bloc`, once per screen | BLoC, repo, model, page, content widget and 7 passing BLoC tests |
+| [`harness`](bricks/harness.md) | `2.6.1` | installed by `project` | `AGENTS.md`, Token Shield, Cursor rules, Claude Code mods, contract ingestion, storage recipes, quality gates, lessons loop |
 | [`redux_rxdart_lints`](packages/redux_rxdart_lints.md) | `0.5.0` | wired in by `project` | Turns eight golden rules into analyzer diagnostics |
 
 ---
@@ -116,7 +116,7 @@ Try: *"Add a profile screen for `GET /me`; the Postman collection is in `docs/`.
 ## Upgrading the harness in an app
 
 ```bash
-dart run scripts/agent/upgrade.dart
+dart scripts/agent/upgrade.dart
 ```
 
 It renders the latest release, updates only harness files, and keeps your memory, lessons, own scripts and project rules. On 1.7.0 or older, install the new `upgrade.dart` first; see [Upgrading from 1.7.0 or older](bricks/harness.md#upgrading-from-170-or-older).

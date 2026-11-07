@@ -6,11 +6,11 @@ import 'dart:io';
 /// Upgrades the AI agent harness in this project without losing context.
 ///
 /// ```
-/// dart run scripts/agent/upgrade.dart                 # latest upstream release
-/// dart run scripts/agent/upgrade.dart --ref <git-ref> # a branch, tag or commit
-/// dart run scripts/agent/upgrade.dart --brick <dir>   # a local harness brick
-/// dart run scripts/agent/upgrade.dart --check-only    # report, change nothing
-/// dart run scripts/agent/upgrade.dart --force         # re-apply the same version
+/// dart scripts/agent/upgrade.dart                 # latest upstream release
+/// dart scripts/agent/upgrade.dart --ref <git-ref> # a branch, tag or commit
+/// dart scripts/agent/upgrade.dart --brick <dir>   # a local harness brick
+/// dart scripts/agent/upgrade.dart --check-only    # report, change nothing
+/// dart scripts/agent/upgrade.dart --force         # re-apply the same version
 /// ```
 ///
 /// Three tiers:
@@ -362,6 +362,7 @@ void _apply(
   ]) {
     if (!File(f).existsSync()) _copyFile('$staged/$f', f);
   }
+  _appendMissingLines('$staged/.harness/.gitignore', '.harness/.gitignore');
 
   // Config you may have customised: add only when missing.
   for (final f in ['.claude/settings.json', '.mcp.json', '.cursor/mcp.json']) {
@@ -415,7 +416,7 @@ void _apply(
 
   _logTask(current, target);
   print('Upgraded harness $current → $target.');
-  print('Run `dart run scripts/agent/verify.dart` to confirm.');
+  print('Run `dart scripts/agent/verify.dart` to confirm.');
 }
 
 /// Writes every file the brick ships under [rel] and returns the project's
@@ -472,9 +473,9 @@ void _reportSettings(String templatePath) {
       }
     }
   }
-  final missingHooks = _hookCommands(
-    template,
-  ).where((c) => !commands.contains(c)).toList();
+  final missingHooks = _hookCommands(template)
+      .where((c) => !commands.contains(c))
+      .toList();
   if (missingHooks.isNotEmpty) {
     print(
       'The template also registers these hook commands; add them to '
@@ -653,9 +654,8 @@ String _legacyCustom(String text, Map<String, String> vars) {
 
 bool _isHarnessImport(String line) =>
     line.startsWith('@') &&
-    RegExp(
-      r'^@(\./)?(AGENTS\.md|CLAUDE\.md|\.harness/|\.agents/|\.claude/)',
-    ).hasMatch(line);
+    RegExp(r'^@(\./)?(AGENTS\.md|CLAUDE\.md|\.harness/|\.agents/|\.claude/)')
+        .hasMatch(line);
 
 /// Whether [line] appeared in a harness `CLAUDE.md`/`AGENTS.md` template
 /// before 1.6.0 (FNV-1a of the whitespace-normalised line; a rendered
@@ -862,9 +862,8 @@ Map<String, String> _resolveVars(Map<String, dynamic> manifest) {
   // Pre-1.6 projects: recover ids from the old CLAUDE.md, then the platforms.
   final claude = File('CLAUDE.md');
   if ((android == null || ios == null) && claude.existsSync()) {
-    final m = RegExp(
-      r'Android package: `([^`]+)`\. iOS bundle id: `([^`]+)`',
-    ).firstMatch(claude.readAsStringSync());
+    final m = RegExp(r'Android package: `([^`]+)`\. iOS bundle id: `([^`]+)`')
+        .firstMatch(claude.readAsStringSync());
     android ??= m?.group(1);
     ios ??= m?.group(2);
   }
@@ -875,9 +874,9 @@ Map<String, String> _resolveVars(Map<String, dynamic> manifest) {
     if (android != null) break;
     final f = File(gradle);
     if (f.existsSync()) {
-      android = RegExp(
-        r'''applicationId\s*=?\s*["']([^"']+)["']''',
-      ).firstMatch(f.readAsStringSync())?.group(1);
+      android = RegExp(r'''applicationId\s*=?\s*["']([^"']+)["']''')
+          .firstMatch(f.readAsStringSync())
+          ?.group(1);
     }
   }
   final pbx = File('ios/Runner.xcodeproj/project.pbxproj');
@@ -894,6 +893,25 @@ Map<String, String> _resolveVars(Map<String, dynamic> manifest) {
     'android_package_name': android ?? 'com.example.$name',
     'ios_bundle_id': ios ?? android ?? 'com.example.$name',
   };
+}
+
+/// Appends the template's ignore patterns that [path] lacks; the project's
+/// own lines stay as they are.
+void _appendMissingLines(String template, String path) {
+  final from = File(template);
+  final to = File(path);
+  if (!from.existsSync() || !to.existsSync()) return;
+  final have = to.readAsLinesSync().map((l) => l.trim()).toSet();
+  final missing = [
+    for (final l in from.readAsLinesSync())
+      if (l.trim().isNotEmpty && !l.startsWith('#') && !have.contains(l.trim()))
+        l.trim(),
+  ];
+  if (missing.isEmpty) return;
+  final text = to.readAsStringSync();
+  final sep = text.isEmpty || text.endsWith('\n') ? '' : '\n';
+  to.writeAsStringSync('$text$sep${missing.join('\n')}\n');
+  print('$path: added ${missing.join(', ')}.');
 }
 
 Directory _backup() {
@@ -972,12 +990,7 @@ List<String> _missingPermissions(String template, String mine) {
   return allow(template).where((e) => !have.contains(e)).toList();
 }
 
-const _skipBackupDirNames = {
-  'worktrees',
-  '.git',
-  '.dart_tool',
-  'build',
-};
+const _skipBackupDirNames = {'worktrees', '.git', '.dart_tool', 'build'};
 
 void _replaceDir(Directory from, Directory to) {
   if (!from.existsSync()) return;
@@ -1026,9 +1039,8 @@ Map<String, dynamic> _readJson(File file) {
 /// `bricks/harness/brick.yaml` on the default branch, falling back to the
 /// highest `v1.2.3` / `harness-v1.2.3` tag. Null when neither is reachable.
 Future<String?> _latestUpstreamVersion(String repo) async {
-  final gh = RegExp(
-    r'github\.com[/:]([^/]+)/([^/]+?)(?:\.git)?/?$',
-  ).firstMatch(repo);
+  final gh = RegExp(r'github\.com[/:]([^/]+)/([^/]+?)(?:\.git)?/?$')
+      .firstMatch(repo);
   if (gh != null) {
     final client = HttpClient()
       ..connectionTimeout = const Duration(seconds: 10);
@@ -1057,29 +1069,30 @@ Future<String?> _latestUpstreamVersion(String repo) async {
   }
 
   try {
-    final r = await Process.run(
-      'git',
-      [
-        '-c',
-        'credential.helper=',
-        '-c',
-        'core.askPass=',
-        'ls-remote',
-        '--tags',
-        repo,
-      ],
-      environment: const {
-        'GIT_TERMINAL_PROMPT': '0',
-        // An IDE terminal (VS Code and forks) exports its own GIT_ASKPASS,
-        // which overrides core.askPass and waits on a GUI credential prompt.
-        'GIT_ASKPASS': '',
-        'SSH_ASKPASS': '',
-        'GCM_INTERACTIVE': 'never',
-      },
-    ).timeout(
-      const Duration(seconds: 10),
-      onTimeout: () => ProcessResult(0, 1, '', 'timeout'),
-    );
+    final r =
+        await Process.run(
+          'git',
+          [
+            '-c',
+            'credential.helper=',
+            '-c',
+            'core.askPass=',
+            'ls-remote',
+            '--tags',
+            repo,
+          ],
+          environment: const {
+            'GIT_TERMINAL_PROMPT': '0',
+            // An IDE terminal (VS Code and forks) exports its own GIT_ASKPASS,
+            // which overrides core.askPass and waits on a GUI credential prompt.
+            'GIT_ASKPASS': '',
+            'SSH_ASKPASS': '',
+            'GCM_INTERACTIVE': 'never',
+          },
+        ).timeout(
+          const Duration(seconds: 10),
+          onTimeout: () => ProcessResult(0, 1, '', 'timeout'),
+        );
     if (r.exitCode != 0) return null;
     final versions =
         RegExp(

@@ -104,7 +104,7 @@ don't guess.
 ### Temporary exception: fork URLs until upstream merges
 
 Development currently happens in the fork `jenilseawind-glitch/Flutter-RxDart-Base`, which is
-ahead of upstream (fork: project 2.0.0, bloc 1.2.1, harness 2.6.0, `redux_rxdart_lints` 0.5.0 as a native
+ahead of upstream (fork: project 2.0.0, bloc 1.2.2, harness 2.6.1, `redux_rxdart_lints` 0.5.0 as a native
 analyzer plugin; upstream: project 1.1.0, bloc 1.0.0, harness 1.4.1). Upstream `main` still ships `redux_rxdart_lints` 0.1.0 on analyzer 7 /
 `custom_lint_builder ^0.7`, which conflicts with the template and crashes
 on Flutter 3.47. Pointing generated apps at upstream today would break `flutter pub get` in

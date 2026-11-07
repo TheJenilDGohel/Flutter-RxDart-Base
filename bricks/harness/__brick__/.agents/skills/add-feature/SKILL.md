@@ -8,7 +8,7 @@ description: Builds a new screen or user flow end to end on this Flutter Redux +
 Spec, scaffold, fill in from the network up, green gate. Rules: `AGENTS.md` §2. Don't skip steps for a small request: the shortcuts are where agent-written features break.
 
 ## 0. Load what this project learned
-Read `.harness/skills/add-feature.md` if it exists (it wins over this file), run `dart run scripts/agent/learn.dart list add-feature`, and grep `.harness/system-snapshot.md` for related features and routes: extend one instead of creating a near-duplicate.
+Read `.harness/skills/add-feature.md` if it exists (it wins over this file), run `dart scripts/agent/learn.dart list add-feature`, and grep `.harness/system-snapshot.md` for related features and routes: extend one instead of creating a near-duplicate.
 
 ## 1. Contract and spec
 No contract (`AGENTS.md` §3) → stop and ask for a sample response; an invented shape passes the generated tests and fails on the first real request. Then write `.harness/specs/<feature>.md`, under ~30 lines:
@@ -25,7 +25,7 @@ Out of scope / Open questions: ...
 Each criterion becomes a test in step 5. A vague request (no states, no data source, unclear role) → confirm the spec with the user first; otherwise write your assumptions into it and carry on.
 
 ## 2. Scaffold and route
-`dart run scripts/agent/wire_route.dart <feature_name> [/route-path]` runs `mason make bloc` when `lib/features/<feature_name>/` is missing and adds the `Routes` constant and the route in `AppRouter` (a `GoRoute`; a `case` in apps still on `onGenerateRoute`). It refuses with `auto_route`: wire by hand. Then `verify.dart --fast`: a green start makes every later failure yours.
+`dart scripts/agent/wire_route.dart <feature_name> [/route-path]` runs `mason make bloc` when `lib/features/<feature_name>/` is missing and adds the `Routes` constant and the route in `AppRouter` (a `GoRoute`; a `case` in apps still on `onGenerateRoute`). It refuses with `auto_route`: wire by hand. Then `verify.dart --fast`: a green start makes every later failure yours.
 
 ## 3. Fill in, network first
 1. Endpoint, repo, model, BLoC fetch: `.agents/skills/add-endpoint/SKILL.md` per endpoint (replace the scaffold's placeholder path).

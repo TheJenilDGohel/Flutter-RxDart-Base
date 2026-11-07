@@ -8,10 +8,10 @@ description: Connects a backend API endpoint to this Flutter Redux + RxDart + Di
 The data path is fixed: `ApiConstants` → repo (transport, rule 1) → BLoC (parse + state, rules 2 and 8) → widget (render). `AGENTS.md` §2-3 holds the rules; this skill holds the steps and the base's wire behaviour.
 
 ## 0. Load what this project learned
-Read `.harness/skills/add-endpoint.md` if it exists (it wins over this file) and run `dart run scripts/agent/learn.dart list add-endpoint`.
+Read `.harness/skills/add-endpoint.md` if it exists (it wins over this file) and run `dart scripts/agent/learn.dart list add-endpoint`.
 
 ## 1. Read the contract, don't guess it
-Find the contract (`AGENTS.md` §3) and run `dart run scripts/agent/ingest_contract.dart <contract.json> --scaffold <endpoint>` for the model, constant and test fixture. Write down method, path and query params, body, **one real success response** and the error shape. No real response → ask. Never infer fields from the endpoint name.
+Find the contract (`AGENTS.md` §3) and run `dart scripts/agent/ingest_contract.dart <contract.json> --scaffold <endpoint>` for the model, constant and test fixture. Write down method, path and query params, body, **one real success response** and the error shape. No real response → ask. Never infer fields from the endpoint name.
 
 What the base does to every call:
 - A top-level JSON array arrives as `{'items': [...]}`; an empty body as `{}`; a non-JSON body throws `MalformedResponseException`.

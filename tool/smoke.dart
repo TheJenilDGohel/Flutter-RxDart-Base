@@ -186,7 +186,7 @@ Future<void> main() async {
     print('  ${testLines.last.trim()}');
 
     await _run('Checking the harness lessons store', 'dart',
-        ['run', 'scripts/agent/learn.dart', 'check'],
+        ['scripts/agent/learn.dart', 'check'],
         workingDirectory: tempDir.path);
 
     print('--- Smoke test completed successfully! ---');

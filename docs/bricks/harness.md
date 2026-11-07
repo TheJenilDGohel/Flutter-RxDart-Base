@@ -65,7 +65,7 @@ One session is the default; the harness ships no multi-session tooling. For owne
 ### Pre-Bundled Claude Code Plugins & Interactive Commands
 
 The harness bundles five native Anthropic Claude Code plugins located in `.claude/plugins/`:
-- **`golden-guard`**: A stop-time verification hook (`classic.Stop`) enforcing Golden Rules (R1, R2, R3, R4, R13, R14, plus golden-rule lints from the analyzer, warnings included) and colour tokens before finishing any turn, plus the on-demand `/audit` command.
+- **`golden-guard`**: A stop-time verification hook (`classic.Stop`) enforcing Golden Rules (R1, R2, R3, R4, R13, R14, plus golden-rule lints from the analyzer, warnings included) and colour tokens before finishing any turn, plus the on-demand `/audit` command. Project conventions go in `.harness/guard-rules.json` (regex rules reported as `P <message>`, plus extra `/audit` checks); `upgrade.dart` never overwrites that file.
 - **`session-flow`**: Real-time terminal status line (`$.ui.status`) showing current branch, dirty files, unpushed commits, and worktree count. (`/pickup` and `/handoff` were removed in 2.6.0: `active-context.md` already loads every session, and their prompts cost more than they saved.)
 - **`output-compactor`**: Intercepts `Bash` command failures (`maestro test`, `flutter test`, `dart analyze`), stripping verbose framework stack traces while preserving root-cause error banners and line numbers.
 - **`read-guard`**: Refuses `Read` of `*.g.dart`, `*.freezed.dart`, `build/`, `.dart_tool/` and files over 30k chars without `offset`/`limit` (AGENTS.md §4).
@@ -83,10 +83,10 @@ The harness bundles five native Anthropic Claude Code plugins located in `.claud
 ### Token Conservation & High-Efficiency Operations
 
 Token waste is eliminated systematically across all agent interactions:
-- **Fast In-Flight Checks & Anti-Loop Circuit Breaker**: `dart run scripts/agent/on_edit.dart` strips analyzer noise and halts runaway retry loops with exit code 2 on the 3rd consecutive identical failure.
+- **Fast In-Flight Checks & Anti-Loop Circuit Breaker**: `dart scripts/agent/on_edit.dart` strips analyzer noise and halts runaway retry loops with exit code 2 on the 3rd consecutive identical failure.
 - **Framework Stack Trace Pruning**: `scripts/agent/verify.dart` prunes internal Flutter framework traces (`package:flutter/src/`, `test_api/`, `dart:async/`), delivering ~80% token savings on test/build failures.
 - **Layer-Boundary Compaction Protocol**: Skills (`add-feature`, `build-ui`) enforce explicit checkpoints between BLoC tests and UI creation, dropping raw network schemas and test output.
-- **Background Watcher**: `dart run scripts/agent/watch.dart` provides live status in `.harness/diagnostics.json` without spawning extra processes.
+- **Background Watcher**: `dart scripts/agent/watch.dart` provides live status in `.harness/diagnostics.json` without spawning extra processes.
 - **Token Shield**: `.claude/settings.json` enforces `bashOutputMaxChars: 3000`, 1h prompt cache TTL, and denies reads to generated serialization files (`*.g.dart`, `*.freezed.dart`, `build/`, `.dart_tool/`).
 - **Research Offload**: `@docs-scout` uses Haiku and enforces <200 word digests for library/API documentation.
 - **System Snapshot**: `.harness/system-snapshot.md` eliminates expensive directory sweeps and repetitive tool calls.
@@ -113,8 +113,8 @@ Memory and context retrieval are structured to eliminate token bloat and adminis
 ## Upgrading
 
 ```bash
-dart run scripts/agent/upgrade.dart                 # latest upstream release
-dart run scripts/agent/upgrade.dart --check-only    # just report
+dart scripts/agent/upgrade.dart                 # latest upstream release
+dart scripts/agent/upgrade.dart --check-only    # just report
 ```
 
 - **What it renders:** the harness from `upstream_repo` in `.harness/version.json`, in a throwaway mason workspace. A `mason.yaml` pin in your project or a stale `mason add -g` copy can't hold you back. `--ref <git-ref>` picks a branch, tag or commit; `--brick <dir>` uses a local brick. Offline, it falls back to your registered brick and says so.
@@ -129,10 +129,10 @@ The installed `upgrade.dart` runs the upgrade, and engines up to 1.7.0 render wh
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/jenilseawind-glitch/Flutter-RxDart-Base/main/bricks/harness/__brick__/scripts/agent/upgrade.dart -o scripts/agent/upgrade.dart
-dart run scripts/agent/upgrade.dart
+dart scripts/agent/upgrade.dart
 ```
 
-Your app ids come from `.harness/version.json` (or, for old projects, `CLAUDE.md` and the platform files), never a `com.example` guess. After upgrading, add `"Bash(dart run scripts/agent/learn.dart:*)"` to `.claude/settings.json` if the upgrade lists it.
+Your app ids come from `.harness/version.json` (or, for old projects, `CLAUDE.md` and the platform files), never a `com.example` guess. After upgrading, add `"Bash(dart scripts/agent/learn.dart:*)"` to `.claude/settings.json` if the upgrade lists it.
 
 ---
 

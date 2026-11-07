@@ -16,8 +16,8 @@ import 'dart:io';
 ///   runaway agent retries.
 ///
 /// Usage:
-///   dart run scripts/agent/on_edit.dart [file1.dart file2.dart ...]
-///   dart run scripts/agent/on_edit.dart --reset-guard
+///   dart scripts/agent/on_edit.dart [file1.dart file2.dart ...]
+///   dart scripts/agent/on_edit.dart --reset-guard
 Future<void> main(List<String> args) async {
   final guardFile = File('.harness/.loop_guard.json');
 
@@ -183,7 +183,7 @@ void _handleFailure(
       'Recommended: Revert changes (`git checkout <file>`) or pause to clarify requirements with user.',
     );
     stderr.writeln(
-      'Reset with: dart run scripts/agent/on_edit.dart --reset-guard\n',
+      'Reset with: dart scripts/agent/on_edit.dart --reset-guard\n',
     );
     exit(2);
   }

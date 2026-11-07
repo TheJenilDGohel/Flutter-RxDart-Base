@@ -119,7 +119,6 @@ Future<void> main() async {
         'initial verify --fast',
         'dart',
         [
-          'run',
           'scripts/agent/verify.dart',
           '--fast',
         ],
@@ -158,7 +157,6 @@ Future<void> main() async {
         'on_edit turn 1',
         'dart',
         [
-          'run',
           'scripts/agent/on_edit.dart',
           'lib/features/adversarial_feature/adversarial_feature_page.dart',
         ],
@@ -175,7 +173,6 @@ Future<void> main() async {
         'on_edit turn 2',
         'dart',
         [
-          'run',
           'scripts/agent/on_edit.dart',
           'lib/features/adversarial_feature/adversarial_feature_page.dart',
         ],
@@ -187,7 +184,6 @@ Future<void> main() async {
         'on_edit turn 3',
         'dart',
         [
-          'run',
           'scripts/agent/on_edit.dart',
           'lib/features/adversarial_feature/adversarial_feature_page.dart',
         ],
@@ -206,7 +202,6 @@ Future<void> main() async {
         'reset guard',
         'dart',
         [
-          'run',
           'scripts/agent/on_edit.dart',
           '--reset-guard',
         ],
@@ -235,7 +230,6 @@ Future<void> main() async {
         'verify on failing test',
         'dart',
         [
-          'run',
           'scripts/agent/verify.dart',
         ],
         workingDirectory: tempDir.path,
@@ -272,7 +266,6 @@ Future<void> main() async {
         'wire_route profile',
         'dart',
         [
-          'run',
           'scripts/agent/wire_route.dart',
           'profile',
           '/profile',
@@ -298,7 +291,6 @@ Future<void> main() async {
         'full verify.dart',
         'dart',
         [
-          'run',
           'scripts/agent/verify.dart',
         ],
         workingDirectory: tempDir.path,

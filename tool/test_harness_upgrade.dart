@@ -39,7 +39,7 @@ Future<void> main() async {
   Future<ProcessResult> run(String exe, List<String> args, String dir) =>
       Process.run(exe, args, workingDirectory: dir, runInShell: true);
   Future<ProcessResult> upgrade([List<String> args = const []]) =>
-      run('dart', ['run', 'scripts/agent/upgrade.dart', ...args], app.path);
+      run('dart', ['scripts/agent/upgrade.dart', ...args], app.path);
   String out(ProcessResult r) => '${r.stdout}${r.stderr}';
 
   final brickDir = p.join(root, 'bricks/harness');
@@ -116,6 +116,9 @@ Migrating checkout to Stripe PaymentSheet.
         'AGENTS.md',
         '${File(p.join(fixture, 'AGENTS.md')).readAsStringSync().replaceFirst('## 3. Backend API Discovery', '13. **White-label**: brand and asset work goes through the white-label pipeline.\n\n## 3. Backend API Discovery')}'
             '\n## 8. Payments\nNever log card numbers.\n');
+
+    // A .harness/.gitignore from an older harness, with a team line.
+    write('.harness/.gitignore', '.loop_guard.json\nteam-scratch/');
 
     // Files older harness versions shipped, and one the team added.
     write('.agents/agents/flutter-qa.md', 'legacy qa agent');
@@ -254,6 +257,15 @@ vars:
     check('lessons store created for old projects',
         read('.harness/lessons.md').contains('## Active'));
     check('learn.dart installed', exists('scripts/agent/learn.dart'));
+    final ignore = read('.harness/.gitignore');
+    check(
+        '.harness/.gitignore gains the missing template lines, keeps its own',
+        ignore.contains('team-scratch/') &&
+            ignore.contains('.backup_*/') &&
+            ignore.contains('diagnostics.json') &&
+            '.loop_guard.json'.allMatches(ignore).length == 1);
+    check('guard-rules.json created for old projects',
+        read('.harness/guard-rules.json').contains('"rules"'));
 
     final backups = Directory(p.join(app.path, '.harness'))
         .listSync()

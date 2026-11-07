@@ -13,7 +13,7 @@ read first: `AGENTS.md` §2 (rules 2, 3, 5, 7, 13, 14 matter most) and
 - Stay inside the feature you were given; a widget used twice moves to
   `lib/utils/widgets/ui/` (rule 5).
 - New strings go in both ARB files.
-- Finish with `dart run scripts/agent/on_edit.dart <files>` and
-  `dart run scripts/agent/affected_tests.dart`, both clean (`fvm` prefix when
+- Finish with `dart scripts/agent/on_edit.dart <files>` and
+  `dart scripts/agent/affected_tests.dart`, both clean (`fvm` prefix when
   `.fvmrc` exists).
 - Reply with files changed and check results. No code dumps.

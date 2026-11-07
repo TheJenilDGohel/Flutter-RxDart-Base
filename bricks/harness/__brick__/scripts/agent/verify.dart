@@ -5,9 +5,9 @@ import 'dart:io';
 /// The project's quality gate. Cross-platform; `verify.sh` / `verify.ps1`
 /// are thin wrappers around it.
 ///
-///   dart run scripts/agent/verify.dart            # full gate
-///   dart run scripts/agent/verify.dart --fast     # budget + format + analyze only
-///   dart run scripts/agent/verify.dart --no-snapshot
+///   dart scripts/agent/verify.dart            # full gate
+///   dart scripts/agent/verify.dart --fast     # budget + format + analyze only
+///   dart scripts/agent/verify.dart --no-snapshot
 ///
 /// Steps stop at the first failure and print compact, actionable failure output,
 /// stripping internal framework stack traces and boilerplate to protect agent token context.
@@ -40,7 +40,7 @@ Future<void> main(List<String> args) async {
   final sources = ['lib', 'test'].where((d) => Directory(d).existsSync());
   final steps = <_Step>[
     if (File('scripts/agent/budget.dart').existsSync())
-      const _Step('Budget', 'dart', ['run', 'scripts/agent/budget.dart']),
+      const _Step('Budget', 'dart', ['scripts/agent/budget.dart']),
     _Step('Formatting', 'dart', [
       'format',
       '--set-exit-if-changed',
@@ -57,12 +57,11 @@ Future<void> main(List<String> args) async {
       ]),
     if (!fast && File('scripts/agent/learn.dart').existsSync())
       const _Step('Lessons', 'dart', [
-        'run',
         'scripts/agent/learn.dart',
         'check',
       ], echo: true),
     if (snapshot)
-      const _Step('Snapshot', 'dart', ['run', 'scripts/agent/snapshot.dart']),
+      const _Step('Snapshot', 'dart', ['scripts/agent/snapshot.dart']),
   ];
 
   for (var i = 0; i < steps.length; i++) {
