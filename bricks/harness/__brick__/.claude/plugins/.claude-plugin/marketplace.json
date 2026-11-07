@@ -1,0 +1,34 @@
+{
+  "name": "harness-mods",
+  "owner": {
+    "name": "Flutter-RxDart-Base"
+  },
+  "description": "This project's AI harness mods: golden-rule Stop gate, git status line, output compaction, read and screenshot guards.",
+  "plugins": [
+    {
+      "name": "golden-guard",
+      "source": "./golden-guard",
+      "description": "Stop-time analyze + golden-rule gate and /audit"
+    },
+    {
+      "name": "session-flow",
+      "source": "./session-flow",
+      "description": "Git status line"
+    },
+    {
+      "name": "output-compactor",
+      "source": "./output-compactor",
+      "description": "Compacts verbose test failures (Maestro, Flutter test, Dart analyze)"
+    },
+    {
+      "name": "read-guard",
+      "source": "./read-guard",
+      "description": "Refuses Reads of generated Dart, build output and oversized files without offset/limit"
+    },
+    {
+      "name": "shot-shrink",
+      "source": "./shot-shrink",
+      "description": "Screenshot Reads over 1000px use an 800px copy"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:adaptive_units/adaptive_units.dart';
 import 'package:{{project_name}}/resources/app_typography.dart';
 import 'package:{{project_name}}/resources/res_colors.dart';
 
@@ -87,10 +87,13 @@ class CommonButton extends StatelessWidget {
                     prefix!,
                     SizedBox(width: 8.w),
                   ],
-                  Text(
-                    text,
-                    style: textStyle ??
-                        AppTypography.button().copyWith(color: effectiveText),
+                  Flexible(
+                    child: Text(
+                      text,
+                      style: textStyle ??
+                          AppTypography.button().copyWith(color: effectiveText),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   if (suffix != null) ...[
                     SizedBox(width: 8.w),

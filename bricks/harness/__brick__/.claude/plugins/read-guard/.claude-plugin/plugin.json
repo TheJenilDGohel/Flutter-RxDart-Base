@@ -1,0 +1,1 @@
+{ "name": "read-guard", "version": "0.1.0", "description": "Refuses Reads of generated Dart, build output and oversized files without offset/limit (enforces CLAUDE.md)", "author": { "name": "Flutter-RxDart-Base" } }

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:adaptive_units/adaptive_units.dart';
 import 'package:{{project_name}}/resources/res_colors.dart';
 
 /// Reusable card container with standardized borders, shadows, and padding.
@@ -28,9 +28,10 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(borderRadius ?? 16.r);
+    final padding = this.padding ?? EdgeInsets.all(16.w);
 
-    Widget content = Container(
-      padding: padding ?? EdgeInsets.all(16.w),
+    final Widget content = Container(
+      padding: padding,
       margin: margin,
       decoration: BoxDecoration(
         color: backgroundColor ?? ResColors.cardBackground,
@@ -42,7 +43,7 @@ class AppCard extends StatelessWidget {
         boxShadow: boxShadow ??
             [
               BoxShadow(
-                color: ResColors.black.withOpacity(0.04),
+                color: ResColors.black.withValues(alpha: 0.04),
                 blurRadius: 12.r,
                 offset: Offset(0, 4.h),
               ),

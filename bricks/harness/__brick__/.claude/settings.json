@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "model": "sonnet",
+  "crossSessionInbound": "hold",
+  "promptCacheTtl": "1h",
+  "subagentPromptCacheTtl": "5m",
+  "bashOutputMaxChars": 3000,
+  "permissions": {
+    "allow": [
+      "mcp__dart",
+      "mcp__maestro",
+      "Bash(dart format:*)",
+      "Bash(fvm dart format:*)",
+      "Bash(dart analyze:*)",
+      "Bash(fvm dart analyze:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(fvm flutter analyze:*)",
+      "Bash(flutter test:*)",
+      "Bash(fvm flutter test:*)",
+      "Bash(flutter pub get)",
+      "Bash(fvm flutter pub get)",
+      "Bash(dart scripts/agent/on_edit.dart:*)",
+      "Bash(fvm dart scripts/agent/on_edit.dart:*)",
+      "Bash(dart scripts/agent/watch.dart:*)",
+      "Bash(fvm dart scripts/agent/watch.dart:*)",
+      "Bash(dart scripts/agent/affected_tests.dart:*)",
+      "Bash(fvm dart scripts/agent/affected_tests.dart:*)",
+      "Bash(dart scripts/agent/verify.dart:*)",
+      "Bash(fvm dart scripts/agent/verify.dart:*)",
+      "Bash(dart scripts/agent/snapshot.dart)",
+      "Bash(fvm dart scripts/agent/snapshot.dart)",
+      "Bash(dart scripts/agent/wire_route.dart:*)",
+      "Bash(fvm dart scripts/agent/wire_route.dart:*)",
+      "Bash(dart scripts/agent/learn.dart:*)",
+      "Bash(fvm dart scripts/agent/learn.dart:*)",
+      "Bash(maestro test:*)",
+      "Bash(mason make bloc:*)",
+      "Bash(fvm exec mason make bloc:*)",
+      "Bash(bash scripts/agent/verify.sh:*)",
+      "Bash(powershell -File scripts/agent/verify.ps1:*)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Read(.dart_tool/**)",
+      "Read(build/**)",
+      "Read(**/*.g.dart)",
+      "Read(**/*.freezed.dart)",
+      "Read(**/*.jks)",
+      "Read(**/*.keystore)",
+      "Read(**/key.properties)",
+      "Read(**/*.p12)",
+      "Read(**/*.mobileprovision)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "extraKnownMarketplaces": {
+    "harness-mods": {
+      "source": {
+        "source": "directory",
+        "path": "./.claude/plugins"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "golden-guard@harness-mods": true,
+    "session-flow@harness-mods": true,
+    "output-compactor@harness-mods": true,
+    "read-guard@harness-mods": true,
+    "shot-shrink@harness-mods": true
+  }
+}

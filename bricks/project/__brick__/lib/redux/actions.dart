@@ -25,7 +25,7 @@ final class SetLocaleAction extends AppAction {
   final String locale;
 }
 
-/// Clears all persisted state and resets to defaults.
+/// Clears the session (token + user data). The locale preference is kept.
 final class LogoutAction extends AppAction {
   const LogoutAction();
 }

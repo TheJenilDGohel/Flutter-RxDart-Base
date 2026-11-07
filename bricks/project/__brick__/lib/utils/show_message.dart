@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:adaptive_units/adaptive_units.dart';
 import 'package:toastification/toastification.dart';
 import 'package:{{project_name}}/resources/res_colors.dart';
 import 'package:{{project_name}}/resources/app_typography.dart';
@@ -21,7 +21,7 @@ abstract final class ShowMessage {
       alignment: Alignment.bottomCenter,
       autoCloseDuration: duration ?? const Duration(seconds: 3),
       builder: (context, holder) =>
-          _CustomToast(message: message, status: status),
+          CustomToast(message: message, status: status),
     );
   }
 
@@ -60,11 +60,11 @@ extension ToastContextExt on BuildContext {
   void showError(String message) => ShowMessage.error(message);
 }
 
-class _CustomToast extends StatelessWidget {
+class CustomToast extends StatelessWidget {
   final String message;
   final AppStatus status;
 
-  const _CustomToast({required this.message, required this.status});
+  const CustomToast({super.key, required this.message, required this.status});
 
   @override
   Widget build(BuildContext context) {

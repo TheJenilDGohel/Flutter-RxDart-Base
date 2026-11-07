@@ -1,13 +1,18 @@
+// ignore_for_file: avoid_print, prefer_interpolation_to_compose_strings
+
 import 'dart:io';
+
+/// Returns true when FVM manages this project's SDK.
+bool _useFvm() => Directory('.fvm').existsSync() || File('.fvmrc').existsSync();
 
 void main(List<String> args) {
   if (args.isEmpty) {
     print(
-      'Usage: dart run scripts/agent/wire_route.dart <feature_name> [route_path]',
+      'Usage: dart scripts/agent/wire_route.dart <feature_name> [route_path]',
     );
-    print('Example: dart run scripts/agent/wire_route.dart inquiries');
+    print('Example: dart scripts/agent/wire_route.dart inquiries');
     print(
-      'Example: dart run scripts/agent/wire_route.dart agent_profile /agent/profile',
+      'Example: dart scripts/agent/wire_route.dart agent_profile /agent/profile',
     );
     print(
       'If the feature does not exist yet, it is scaffolded automatically via `mason make bloc`.',
@@ -39,13 +44,12 @@ void main(List<String> args) {
   }
   print('   Project: $projectName');
 
-  // Check for incompatible router packages in brownfield codebases
+  // go_router (the base since project 2.0.0) and onGenerateRoute (older
+  // apps) are both wired below; auto_route generates code, so it is not.
   if (_hasIncompatibleRouter(pubspecFile)) {
+    print('❌ auto_route detected in pubspec.yaml.');
     print(
-      '❌ Incompatible router detected in pubspec.yaml (e.g. go_router, auto_route).',
-    );
-    print(
-      '   wire_route.dart is designed for onGenerateRoute architectures (Redux-RxDart-Base standard).',
+      '   wire_route.dart wires go_router and onGenerateRoute routers only.',
     );
     print(
       '   Please manually configure the route for $featureSnake in your declarative router.',
@@ -53,7 +57,10 @@ void main(List<String> args) {
     exit(1);
   }
 
-  _ensureFeatureScaffolded(featureSnake);
+  final fvm = _useFvm();
+  if (fvm) print('   FVM detected.');
+
+  _ensureFeatureScaffolded(featureSnake, fvm: fvm);
 
   final routesFile = _findRoutesFile();
   if (routesFile == null) {
@@ -84,7 +91,8 @@ void main(List<String> args) {
     constantName: constantName,
   );
 
-  Process.runSync('dart', [
+  Process.runSync(fvm ? 'fvm' : 'dart', [
+    if (fvm) 'dart',
     'format',
     routesFile.path,
     routerFile.path,
@@ -165,14 +173,16 @@ String? _extractProjectName(File pubspec) {
   }
 }
 
-void _ensureFeatureScaffolded(String featureSnake) {
+void _ensureFeatureScaffolded(String featureSnake, {required bool fvm}) {
   final pageFile = File('lib/features/$featureSnake/${featureSnake}_page.dart');
   if (pageFile.existsSync()) return;
 
   print(
     '   ℹ️ Feature "$featureSnake" not found. Scaffolding via `mason make bloc`...',
   );
-  final result = Process.runSync('mason', [
+  final result = Process.runSync(fvm ? 'fvm' : 'mason', [
+    if (fvm) 'exec',
+    if (fvm) 'mason',
     'make',
     'bloc',
     '--feature_name',
@@ -194,20 +204,18 @@ void _ensureFeatureScaffolded(String featureSnake) {
 
 bool _hasIncompatibleRouter(File pubspec) {
   try {
-    final content = pubspec.readAsStringSync();
-    final hasGoRouter = RegExp(
-      r'^\s*go_router\s*:',
-      multiLine: true,
-    ).hasMatch(content);
-    final hasAutoRoute = RegExp(
+    return RegExp(
       r'^\s*auto_route\s*:',
       multiLine: true,
-    ).hasMatch(content);
-    return hasGoRouter || hasAutoRoute;
+    ).hasMatch(pubspec.readAsStringSync());
   } catch (_) {
     return false;
   }
 }
+
+/// A go_router router file: one that builds `GoRouter(` or `GoRoute(`.
+bool _isGoRouter(String content) =>
+    content.contains('GoRouter(') || content.contains('GoRoute(');
 
 File? _findRoutesFile() {
   final direct = File('lib/utils/router/routes.dart');
@@ -252,7 +260,9 @@ File? _findRouterFile(String routePath) {
       final filename = entity.uri.pathSegments.last.toLowerCase();
       if (filename.contains('router') && !filename.contains('routes')) {
         final content = entity.readAsStringSync();
-        if (content.contains('onGenerateRoute')) return entity;
+        if (content.contains('onGenerateRoute') || _isGoRouter(content)) {
+          return entity;
+        }
       }
     }
   }
@@ -264,9 +274,8 @@ String _detectPageClassName(String featureSnake, String fallbackPascal) {
   if (pageFile.existsSync()) {
     try {
       final content = pageFile.readAsStringSync();
-      final match = RegExp(
-        r'class\s+([A-Za-z0-9_]+Page)\s+extends\s+State',
-      ).firstMatch(content);
+      final match = RegExp(r'class\s+([A-Za-z0-9_]+Page)\s+extends\s+State')
+          .firstMatch(content);
       if (match != null) return match.group(1)!;
     } catch (_) {}
   }
@@ -279,7 +288,10 @@ void _injectRouteConstant(
   String routePath,
 ) {
   final content = routesFile.readAsStringSync();
-  if (RegExp('\\b$constantName\\s*=').hasMatch(content)) {
+  if (RegExp(
+    r'^\s*static\s+const\s+(?:String\s+)?' + constantName + r'\s*=',
+    multiLine: true,
+  ).hasMatch(content)) {
     print(
       '   ℹ️ Route constant Routes.$constantName already exists in ${routesFile.path}',
     );
@@ -330,6 +342,11 @@ void _injectRouteCase({
     }
   }
 
+  if (_isGoRouter(content)) {
+    _injectGoRoute(routerFile, content, pageClassName, constantName);
+    return;
+  }
+
   // 2. Add route case in onGenerateRoute
   if (RegExp('\\bcase\\s+Routes\\.$constantName\\s*:').hasMatch(content)) {
     print(
@@ -358,9 +375,8 @@ void _injectRouteCase({
     injected = true;
   } else {
     // If no default: found, find the closing brace of switch (settings.name)
-    final switchMatch = RegExp(
-      r'switch\s*\([^\)]*settings\.name[^\)]*\)\s*\{',
-    ).firstMatch(content);
+    final switchMatch = RegExp(r'switch\s*\([^\)]*settings\.name[^\)]*\)\s*\{')
+        .firstMatch(content);
     if (switchMatch != null) {
       final switchStart = switchMatch.end;
       final switchClose = content.indexOf('}', switchStart);
@@ -388,4 +404,48 @@ void _injectRouteCase({
 
   routerFile.writeAsStringSync(content);
   print('   ✔ Injected switch case for Routes.$constantName');
+}
+
+/// Adds `GoRoute(path: Routes.<constant>, ...)` above the
+/// `// wire_route:routes` marker, or first in the top-level `routes: [` list.
+void _injectGoRoute(
+  File routerFile,
+  String content,
+  String pageClassName,
+  String constantName,
+) {
+  if (RegExp(r'path:\s*Routes\.' + constantName + r'\b').hasMatch(content)) {
+    print(
+      '   ℹ️ GoRoute for Routes.$constantName already present in ${routerFile.path}',
+    );
+    routerFile.writeAsStringSync(content);
+    return;
+  }
+
+  final route =
+      '      GoRoute(\n'
+      '        path: Routes.$constantName,\n'
+      '        builder: (_, _) => const $pageClassName(),\n'
+      '      ),\n';
+
+  final marker = RegExp(
+    r'^[ \t]*// wire_route:routes',
+    multiLine: true,
+  ).firstMatch(content);
+  final list = RegExp(r'\broutes:\s*(?:<[^>]*>)?\s*\[\s*\n')
+      .firstMatch(content);
+  final at = marker?.start ?? list?.end;
+  if (at == null) {
+    print(
+      '❌ Could not find `// wire_route:routes` or a `routes: [` list in ${routerFile.path}.',
+    );
+    print('   Please add the route by hand:');
+    print(route);
+    exit(1);
+  }
+
+  routerFile.writeAsStringSync(
+    content.substring(0, at) + route + content.substring(at),
+  );
+  print('   ✔ Added GoRoute for Routes.$constantName');
 }

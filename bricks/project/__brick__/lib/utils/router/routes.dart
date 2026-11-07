@@ -1,8 +1,8 @@
-/// Central route path registry.
+/// Central route path registry: every path `AppRouter` resolves, so deep
+/// links and in-app navigation use the same strings.
 ///
-/// Use these constants as the name argument to [Navigator.pushNamed]:
 /// ```dart
-/// Navigator.pushNamed(context, Routes.showcase);
+/// context.push(Routes.showcase); // package:go_router/go_router.dart
 /// ```
 abstract final class Routes {
   /// Initial showcase demo route.

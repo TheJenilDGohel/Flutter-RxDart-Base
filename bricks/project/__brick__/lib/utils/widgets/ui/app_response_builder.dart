@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:{{project_name}}/networking/api_response.dart';
 import 'package:{{project_name}}/utils/extensions/context_ext.dart';
 import 'package:{{project_name}}/utils/extensions/exception_ext.dart';

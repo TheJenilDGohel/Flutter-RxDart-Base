@@ -15,6 +15,7 @@ AppState appReducer(AppState state, dynamic action) {
     SetLocaleAction(:final locale) => state.copyWith(
         locale: locale,
       ),
-    LogoutAction() => const AppState(),
+    // Keep the user's language preference across sessions.
+    LogoutAction() => AppState(locale: state.locale),
   };
 }

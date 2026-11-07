@@ -1,0 +1,12 @@
+name: redux_rxdart_lints_example
+description: Fixture project exercising every redux_rxdart_lints rule.
+publish_to: 'none'
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_screenutil: ^5.9.3
+  rxdart: ^0.28.0

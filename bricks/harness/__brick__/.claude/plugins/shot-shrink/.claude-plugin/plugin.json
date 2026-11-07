@@ -1,0 +1,1 @@
+{ "name": "shot-shrink", "version": "0.1.0", "description": "Reads of screenshots over 1000px use an 800px copy in a .small folder, so images cost fewer tokens every later turn", "author": { "name": "Flutter-RxDart-Base" } }

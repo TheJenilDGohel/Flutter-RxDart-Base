@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:adaptive_units/adaptive_units.dart';
 import 'package:{{project_name}}/resources/app_typography.dart';
 import 'package:{{project_name}}/resources/res_colors.dart';
 import 'package:{{project_name}}/utils/widgets/ui/common_button.dart';
@@ -213,7 +213,7 @@ class _AppDialogState extends State<AppDialog> {
           borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
-              color: ResColors.black.withOpacity(0.08),
+              color: ResColors.black.withValues(alpha: 0.08),
               blurRadius: 24.r,
               offset: Offset(0, 8.h),
             ),
@@ -232,7 +232,7 @@ class _AppDialogState extends State<AppDialog> {
                 height: 56.r,
                 decoration: BoxDecoration(
                   color: (widget.statusIconColor ?? ResColors.primary)
-                      .withOpacity(0.1),
+                      .withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

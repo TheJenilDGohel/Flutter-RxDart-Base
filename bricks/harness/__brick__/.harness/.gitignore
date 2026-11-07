@@ -1,0 +1,7 @@
+# Written by scripts/agent/on_edit.dart and watch.dart at run time.
+.loop_guard.json
+diagnostics.json
+# Written by scripts/agent/upgrade.dart (backups of the last 3 upgrades, and
+# the render folder it deletes when it finishes).
+.backup_*/
+.staging_upgrade/

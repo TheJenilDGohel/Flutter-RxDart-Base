@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-/// Interceptor #3 in the chain.
+/// Interceptor #2 in the chain.
 ///
 /// Injects `{"platform": "app"}` into JSON request bodies so the backend
 /// can distinguish mobile app traffic from web/other clients.

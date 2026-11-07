@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:adaptive_units/adaptive_units.dart';
 import 'package:{{project_name}}/resources/app_typography.dart';
 import 'package:{{project_name}}/resources/res_colors.dart';
 import 'package:{{project_name}}/utils/widgets/view/app_textformfield/bloc/app_textformfield_bloc.dart';
@@ -163,7 +163,7 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
                 disabledBorder: OutlineInputBorder(
                   borderRadius: radius,
                   borderSide:
-                      BorderSide(color: ResColors.border.withOpacity(0.5)),
+                      BorderSide(color: ResColors.border.withValues(alpha: 0.5)),
                 ),
               ),
             );

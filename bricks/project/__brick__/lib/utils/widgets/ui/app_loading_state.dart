@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:{{project_name}}/resources/res_colors.dart';
 
 /// Centered loading indicator using the design-token primary color.
