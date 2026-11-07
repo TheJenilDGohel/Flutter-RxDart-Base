@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.0
+
+- `no_fetch_without_token` follows calls from `fetch()` into the BLoC's own methods (up to four levels, cycles stop), so a delegating `fetch() => _load(tab)` that renews a token in the loader passes, including `KeyedCancelTokens.createNewToken(key)` for one token per tab. Fixture cases for delegation, keyed tokens, a dead end and a cycle.
+
 ## 0.5.0
 
 - Added `no_with_opacity` rule: flags `.withOpacity()` in widgets and recommends `Color.withValues(alpha: ...)` or design system tokens.

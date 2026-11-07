@@ -19,7 +19,7 @@ on where the project is checked out.
 | `no_exception_tostring` | #2 BLoC owns errors, UI shows `userFacingMessage` | `toString()` on an error variable (`e`, `err`, `error`, `exception`) in UI code; BLoCs, repos, `networking/`, `redux/` and `services/` are exempt |
 | `no_with_opacity` | #14 No withOpacity in UI | `.withOpacity()` in widgets; recommends `Color.withValues(alpha: ...)` or design-system color tokens for predictable performance |
 | `no_unclosed_subject` | #15 Dispose all RxDart subjects | `BehaviorSubject`, `PublishSubject`, `ReplaySubject` field in BLoC not closed in `dispose()` |
-| `no_fetch_without_token` | #8 Fetch cancellation | BLoC `fetch()` method that does not call `createNewToken()` to cancel overlapping requests |
+| `no_fetch_without_token` | #8 Fetch cancellation | BLoC `fetch()` that never calls `createNewToken()`, directly or through the BLoC's own methods (`fetch() => _load(tab)`), so `KeyedCancelTokens.createNewToken(key)` (one token per tab) counts |
 
 ## Testing
 
