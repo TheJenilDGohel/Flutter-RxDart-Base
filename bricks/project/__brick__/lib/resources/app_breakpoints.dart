@@ -43,14 +43,9 @@ enum WindowSize {
 /// Layout limits shared by the app shell and screens.
 abstract final class AppBreakpoints {
   /// The phone design every `.w` / `.h` / `.sp` value is written against.
+  /// `adaptive_units` scales it below 600dp (compact) and runs 1:1 above.
   static const Size phoneDesign = Size(375, 812);
 
   /// Widest readable column for forms, lists and text on large screens.
   static const double maxContentWidth = 840;
-
-  /// ScreenUtil design size for a [screen]: the phone design on compact
-  /// widths, the screen itself from 600dp up, so ScreenUtil runs 1:1 there
-  /// instead of blowing the phone layout up to tablet width.
-  static Size designSizeFor(Size screen) =>
-      WindowSize.fromWidth(screen.width).isCompact ? phoneDesign : screen;
 }

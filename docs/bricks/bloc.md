@@ -46,6 +46,7 @@ All generated files are formatted by the `post_gen` hook, so the harness quality
 3. **Errors**: `ApiException` → `ErrorResponse` with `retry: fetch`; cancellations are ignored; unexpected errors are wrapped in `MalformedResponseException` and never shown raw to users.
 4. **Constructor injection**: `FeatureRepo({ApiBaseHelper? api})` and `FeatureBloc({FeatureRepo? repo})` for tests.
 5. **UI binding**: the page renders through `AppResponseBuilder` (loading, error with retry, content) with zero `setState`.
+6. **Material import matches the app**: the pre-gen hook reads `pubspec.yaml` and writes `package:material_ui/material_ui.dart` when the app depends on `material_ui` (project 2.1.0+), else `package:flutter/material.dart`.
 
 ---
 

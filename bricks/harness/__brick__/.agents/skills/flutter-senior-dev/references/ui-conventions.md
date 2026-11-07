@@ -7,12 +7,12 @@
 - Type: `AppTypography` (`lib/resources/app_typography.dart`) — Material 3 type scale, already
   wired to ScreenUtil `.sp`. Access via `context.textTheme`, not by constructing `TextStyle`
   directly.
-- Sizing: `flutter_screenutil` — `.w` (width), `.h` (height), `.r` (radius), `.sp` (font size).
+- Sizing: `adaptive_units` (the `flutter_screenutil` API) — `.w` (width), `.h` (height), `.r` (radius), `.sp` (font size).
   They scale the 375×812 design below 600dp and run 1:1 above it, where layouts branch on
   `WindowSize.of(context)` and wrap content in `AppContentWidth`. A raw pixel value is a review
-  flag on phone layouts; plain dp is fine in shared widgets meant to outlive ScreenUtil
-  (unreleased since 2024). Only use the units in **public** widgets: a private `_Foo` widget is not rebuilt on
-  resize, and `no_screenutil_in_private_widget` fails the gate (rule 13).
+  flag on phone layouts. Apps still on `flutter_screenutil` use the units in **public** widgets only:
+  it does not rebuild a private `_Foo` widget on resize, and `no_screenutil_in_private_widget` fails the
+  gate (rule 13). `adaptive_units` rebuilds private widgets too.
 
 ## Shared state widgets (`lib/utils/widgets/ui/`)
 `AppLoadingState`, `AppErrorState`, `AppEmptyState` — use these for the non-`SuccessResponse` branches

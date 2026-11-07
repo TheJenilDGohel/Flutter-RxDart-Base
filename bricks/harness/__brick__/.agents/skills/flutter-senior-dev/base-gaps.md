@@ -33,7 +33,7 @@ Offline requests fail with `NoInternetException`, which is right for reads and w
 
 ## 6. Devices and form factors
 
-`flutter_screenutil` scales the 375×812 phone design on compact widths and runs 1:1 from 600dp (`AppBreakpoints.designSizeFor`), so tablets get unscaled phone layouts until a screen branches on `WindowSize`. Kiosk and tablet-first screens (POS, invigilator) need their own `medium`/`expanded` layouts; dense desktop tables are a poor fit; treat a web admin console as a separate decision. `flutter_screenutil` has had no release since May 2024: prefer plain dp in new shared widgets so dropping it later stays cheap. Background GPS and scanners need real-device testing (battery optimization, permissions) and live in `lib/services/`.
+`adaptive_units` scales the 375×812 phone design on compact widths and runs 1:1 from 600dp, so tablets get unscaled phone layouts until a screen branches on `WindowSize`. Kiosk and tablet-first screens (POS, invigilator) need their own `medium`/`expanded` layouts; dense desktop tables are a poor fit; treat a web admin console as a separate decision. Background GPS and scanners need real-device testing (battery optimization, permissions) and live in `lib/services/`.
 
 ## 7. Streaming and AI
 

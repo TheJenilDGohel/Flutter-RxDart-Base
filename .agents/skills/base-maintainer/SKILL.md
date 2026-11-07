@@ -19,7 +19,7 @@ Root `AGENTS.md` (gates and maintainer rules) and `docs/contributing.md` (the de
 | Anything the harness docs name (a class, a folder, an exception) | Every harness doc that names it. `dart run tool/harness_check.dart` lists them. |
 | A harness skill | See step 2 |
 | `wire_route.dart` or hook file injection | Dry-run against real templates in a scratch app; silent no-ops are the failure mode |
-| A Claude Code mod (`bricks/harness/__brick__/.claude/plugins/<mod>/`) | Its `plugin.json` version, the harness version and CHANGELOG; `claude plugin test` and `claude plugin validate --strict .` in the mod (CI cannot). A new mod also goes in the brick marketplace, `enabledPlugins` in the brick's `.claude/settings.json` and the root `.claude-plugin/marketplace.json`, which points at the brick folder: never copy a mod (`tool/eval.dart` checks all three) |
+| A Claude Code mod (`bricks/harness/__brick__/.claude/plugins/<mod>/`) | Its `plugin.json` version, the harness version and CHANGELOG; `claude plugin test` and `claude plugin validate --strict .` in the mod (CI job `claude-mods` too). A new mod also goes in the brick marketplace, `enabledPlugins` in the brick's `.claude/settings.json` and the root `.claude-plugin/marketplace.json`, which points at the brick folder: never copy a mod (`tool/eval.dart` checks all three) |
 | A repository URL | `docs/contributing.md` §6: fork URLs stay until the upstream merge |
 | SDK floors | The lowest versions dependencies need, never your local toolchain (`docs/contributing.md` §1) |
 

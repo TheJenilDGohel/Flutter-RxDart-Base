@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.0
+
+- The page and content widget import Material the way the app does: the pre-gen hook writes `package:material_ui/material_ui.dart` when `pubspec.yaml` depends on `material_ui` (project 2.1.0+, or an app that migrated) and `package:flutter/material.dart` otherwise, so one brick serves old and new apps.
+
 ## 1.2.2
 
 - The next-steps message prints `dart scripts/agent/wire_route.dart` and `dart scripts/agent/verify.dart` (harness 2.6.0): `dart run` runs the app's native-asset build hooks first and fails in apps with such a dependency and no C compiler.

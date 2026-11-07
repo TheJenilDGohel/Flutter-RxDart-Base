@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:adaptive_units/adaptive_units.dart';
 import 'package:{{project_name}}/l10n/generated/app_localizations.dart';
 import 'package:toastification/toastification.dart';
 import 'package:redux/redux.dart';
@@ -35,40 +35,34 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return StoreProvider<AppState>(
       store: store,
-      // Rebuilds on window resize (rotation, fold/unfold, split screen), so
-      // the design size below follows the window class.
-      child: MediaQuery.fromView(
-        view: View.of(context),
-        child: StoreConnector<AppState, String>(
-          converter: (store) => store.state.locale,
-          builder: (context, locale) {
-            return ScreenUtilInit(
-              // Phone design on compact widths; 1:1 (no scaling) from 600dp,
-              // where screens lay out with WindowSize instead.
-              designSize: AppBreakpoints.designSizeFor(
-                MediaQuery.sizeOf(context),
-              ),
-              minTextAdapt: true,
-              builder: (_, _) => ToastificationWrapper(
-                child: MaterialApp.router(
-                  debugShowCheckedModeBanner: false,
-                  routerConfig: AppRouter.router,
-                  locale: Locale(locale),
-                  localizationsDelegates:
-                      AppLocalizations.localizationsDelegates,
-                  supportedLocales: AppLocalizations.supportedLocales,
-                  theme: ThemeData(
-                    colorScheme: ColorScheme.fromSeed(
-                      seedColor: ResColors.primary,
-                    ),
-                    textTheme: AppTypography.textTheme,
-                    useMaterial3: true,
+      child: StoreConnector<AppState, String>(
+        converter: (store) => store.state.locale,
+        builder: (context, locale) {
+          // Sizes are written against the phone design. adaptive_units scales
+          // them below 600dp and runs 1:1 from 600dp up, where screens lay
+          // out by WindowSize instead; resizes (rotation, fold, split screen)
+          // rebuild the widgets whose scale changed.
+          return ScreenUtilInit(
+            designSize: AppBreakpoints.phoneDesign,
+            minTextAdapt: true,
+            builder: (_, _) => ToastificationWrapper(
+              child: MaterialApp.router(
+                debugShowCheckedModeBanner: false,
+                routerConfig: AppRouter.router,
+                locale: Locale(locale),
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                theme: ThemeData(
+                  colorScheme: ColorScheme.fromSeed(
+                    seedColor: ResColors.primary,
                   ),
+                  textTheme: AppTypography.textTheme,
+                  useMaterial3: true,
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

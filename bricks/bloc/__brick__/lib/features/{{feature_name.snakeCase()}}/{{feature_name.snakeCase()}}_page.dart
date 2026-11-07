@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import '{{{material_import}}}';
 import 'package:{{project_name}}/features/{{feature_name.snakeCase()}}/bloc/{{feature_name.snakeCase()}}_bloc.dart';
 import 'package:{{project_name}}/features/{{feature_name.snakeCase()}}/widgets/{{feature_name.snakeCase()}}_content_widget.dart';
 import 'package:{{project_name}}/utils/widgets/ui/app_response_builder.dart';

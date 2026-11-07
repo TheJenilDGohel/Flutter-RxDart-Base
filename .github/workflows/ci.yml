@@ -34,6 +34,74 @@ jobs:
       - name: Run Smoke Test
         run: dart run tool/smoke.dart
 
+  platform-builds:
+    name: Build the generated app (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: apk
+            os: ubuntu-latest
+          - target: ios
+            os: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Setup Java (Gradle)
+        if: matrix.target == 'apk'
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.47.9'
+
+      - name: Install tool dependencies
+        working-directory: tool
+        run: dart pub get
+
+      # The smoke test's generated app, then a debug build for the platform:
+      # proves the Gradle / Xcode projects and plugins the template brings.
+      - name: Generate, check and build
+        run: dart run tool/smoke.dart --build ${{ matrix.target }}
+
+  claude-mods:
+    name: Claude Code mods (tests + strict validation)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code@2.1.319
+
+      - name: Test and validate each mod
+        run: |
+          for mod in bricks/harness/__brick__/.claude/plugins/*/; do
+            [ -f "$mod/.claude-plugin/plugin.json" ] || continue
+            echo "::group::$mod"
+            (cd "$mod" && claude plugin test && claude plugin validate --strict .)
+            echo "::endgroup::"
+          done
+
+      - name: Validate both marketplaces
+        run: |
+          claude plugin validate --strict .
+          claude plugin validate --strict bricks/harness/__brick__/.claude/plugins
+
   docs-check:
     name: Docs Link Check
     runs-on: ubuntu-latest

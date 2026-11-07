@@ -99,7 +99,10 @@ const scan = (file: string, text: string, extra: ProjectRule[] = []): Hit[] => {
     }
   })
 
-  // R13: ScreenUtil units inside a private widget class.
+  // R13: flutter_screenutil units inside a private widget class. It skips
+  // private widgets on resize; adaptive_units (same API) does not, so files
+  // without the flutter_screenutil import are fine, as in the lint.
+  if (!/package:flutter_screenutil\//.test(text)) return hits
   const parts = text.split(/\n(?=class\s)/)
   let offset = 0
   for (const part of parts) {

@@ -18,8 +18,9 @@ Read `.harness/skills/build-ui.md` if it exists (it wins over this file), run `d
 ## 2. Tokens
 - **Colors**: `ResColors` (`lib/resources/res_colors.dart`); a missing color becomes a token, never inline `Color(0x...)`.
 - **Text**: `context.textTheme.<style>` (`AppTypography`, already scaled) + `copyWith`; no `TextStyle` from scratch.
-- **Sizes**: `.w` widths and horizontal padding, `.h` heights and vertical gaps, `.r` radii, `.sp` fonts; design size 375×812 on phones. In a private widget, make it public or compute in a public parent.
-- **Large screens**: from 600dp ScreenUtil runs 1:1, so a phone layout is not blown up but is not adapted either. Branch on `WindowSize.of(context)` (Material 3 size classes, `lib/resources/app_breakpoints.dart`): one column on `compact`, list + detail or a grid from `medium`. Wrap forms, lists and text in `AppContentWidth`. `flutter_screenutil` has had no release since 2024: new shared widgets may use plain dp.
+- **Imports**: `package:material_ui/material_ui.dart` for Material widgets (apps from project 2.1.0; older apps use `package:flutter/material.dart`, match the file around you) and `package:adaptive_units/adaptive_units.dart` for sizes.
+- **Sizes**: `.w` widths and horizontal padding, `.h` heights and vertical gaps, `.r` radii, `.sp` fonts; design size 375×812 on phones. With `flutter_screenutil` (older apps), keep units in public widgets (rule 13).
+- **Large screens**: from 600dp `adaptive_units` runs 1:1, so a phone layout is not blown up but is not adapted either. Branch on `WindowSize.of(context)` (Material 3 size classes, `lib/resources/app_breakpoints.dart`): one column on `compact`, list + detail or a grid from `medium`. Wrap forms, lists and text in `AppContentWidth`.
 
 ## 3. States
 Loading and error + retry come from `AppResponseBuilder` (`AppLoadingState`, `AppErrorState`). Empty: `AppEmptyState(message: context.l10n.<key>)`, always with a message (the default is English). Inline action error: `Text(error.userFacingMessage(context))`.

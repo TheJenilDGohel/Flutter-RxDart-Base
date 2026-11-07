@@ -125,8 +125,10 @@ The following major milestones track architectural enhancements, enterprise capa
   - Introduce dark color tokens in `ResColors` and configure `darkTheme` + `themeMode` in `MaterialApp`.
 - [x] **Adaptive Form Factors & Multi-Screen Support** *(project 2.0.0)*:
   - `WindowSize` (Material 3 classes) and `AppContentWidth`; ScreenUtil runs 1:1 from 600dp and follows resizes.
-- [ ] **Retire `flutter_screenutil`** (no release since May 2024):
-  - Move shared widgets and `AppTypography` to plain dp, then drop rule 13 and `no_screenutil_in_private_widget` in a major release.
+- [x] **Replace `flutter_screenutil`** (no release since May 2024) *(project 2.1.0)*:
+  - `packages/adaptive_units`: the same API, widgets-only import, 1:1 from 600dp, working `minTextAdapt`, private widgets rebuilt. Rule 13 now only fires on `flutter_screenutil`.
+- [x] **Material as a package** *(project 2.1.0, bloc 1.3.0)*: templates import `material_ui`; `mason make bloc` matches the app's import.
+- [ ] **Publish `adaptive_units` to pub.dev** and switch the template from the git tag to `^0.1.0`.
 - [ ] **Offline-First Mutation Queue**:
   - Integrate local storage abstraction (Drift/Hive) in `lib/services/`.
   - Introduce an offline write queue that serializes mutations during network loss and replays them when connectivity resumes.

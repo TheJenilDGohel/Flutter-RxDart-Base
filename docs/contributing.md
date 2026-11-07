@@ -68,7 +68,7 @@ analyzer-enforced.
   hostile edits and passes `verify.dart`).
 - **Claude Code mods**: `claude plugin test` and `claude plugin validate --strict .` in each
   `bricks/harness/__brick__/.claude/plugins/<mod>/`, and `claude plugin validate --strict .` for
-  the root and brick marketplaces. CI has no `claude` CLI, so run these locally when a mod changes.
+  the root and brick marketplaces (CI job `claude-mods` runs them too; run them locally before pushing a mod change).
   The root `.claude-plugin/marketplace.json` points at the brick's folders: never copy a mod.
 - If you change `wire_route.dart` or a hook's file-injection logic, dry-run it against the real
   templates in a scratch copy before trusting the regex — don't assume it's correct from reading
@@ -111,7 +111,7 @@ don't guess.
 ### Temporary exception: fork URLs until upstream merges
 
 Development currently happens in the fork `jenilseawind-glitch/Flutter-RxDart-Base`, which is
-ahead of upstream (fork: project 2.0.0, bloc 1.2.2, harness 2.6.2, `redux_rxdart_lints` 0.6.0 as a native
+ahead of upstream (fork: project 2.1.0, bloc 1.3.0, harness 2.7.0, `redux_rxdart_lints` 0.6.0 as a native
 analyzer plugin; upstream: project 1.1.0, bloc 1.0.0, harness 1.4.1). Upstream `main` still ships `redux_rxdart_lints` 0.1.0 on analyzer 7 /
 `custom_lint_builder ^0.7`, which conflicts with the template and crashes
 on Flutter 3.47. Pointing generated apps at upstream today would break `flutter pub get` in

@@ -1,1 +1,1 @@
-{ "name": "golden-guard", "version": "0.2.0", "description": "Stop-time gate (analyze + golden-rule scan on changed Dart files) and /audit command for branches or modules", "author": { "name": "Flutter-RxDart-Base" } }
+{ "name": "golden-guard", "version": "0.3.0", "description": "Stop-time gate (analyze + golden-rule scan on changed Dart files) and /audit command for branches or modules", "author": { "name": "Flutter-RxDart-Base" } }

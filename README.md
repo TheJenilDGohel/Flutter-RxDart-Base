@@ -36,9 +36,9 @@ dart scripts/agent/verify.dart
 
 | | Version | How you use it | What it gives you |
 |---|---|---|---|
-| [`project`](docs/bricks/project.md) | `2.0.0` | `mason make project`, once | Redux session store, Dio client with 4 interceptors, typed errors, go_router, design tokens and window size classes, UI kit, l10n (en, hi), showcase screen |
-| [`bloc`](docs/bricks/bloc.md) | `1.2.2` | `mason make bloc`, once per screen | BLoC, repo, model, page, content widget and 7 passing BLoC tests |
-| [`harness`](docs/bricks/harness.md) | `2.6.2` | installed by `project` | `AGENTS.md`, Token Shield, Cursor rules, Claude Code mods, contract ingestion, storage recipes, quality gates, lessons loop |
+| [`project`](docs/bricks/project.md) | `2.1.0` | `mason make project`, once | Redux session store, Dio client with 4 interceptors, typed errors, go_router, design tokens and window size classes, UI kit, l10n (en, hi), showcase screen |
+| [`bloc`](docs/bricks/bloc.md) | `1.3.0` | `mason make bloc`, once per screen | BLoC, repo, model, page, content widget and 7 passing BLoC tests |
+| [`harness`](docs/bricks/harness.md) | `2.7.0` | installed by `project` | `AGENTS.md`, Token Shield, Cursor rules, Claude Code mods, contract ingestion, storage recipes, quality gates, lessons loop |
 | [`redux_rxdart_lints`](docs/packages/redux_rxdart_lints.md) | `0.6.0` | wired in by `project` | Turns eight golden rules into analyzer diagnostics |
 | [`adaptive_units`](docs/packages/adaptive_units.md) | `0.1.0` | dependency of `project` | Phone-design sizes (`.w`, `.h`, `.r`, `.sp`) that scale on phones and stay 1:1 on tablets; drop-in for `flutter_screenutil` |
 

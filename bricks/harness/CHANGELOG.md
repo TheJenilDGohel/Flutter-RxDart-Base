@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.0
+
+- **Sizes come from `adaptive_units`** (project 2.1.0): `build-ui`, `flutter-senior-dev` (`architecture.md`, `base-gaps.md`, `ui-conventions.md`), `fix-bug` and `.claude/rules/ui.md` (+ Cursor) name it; `build-ui` names the `material_ui` import (older apps: `flutter/material.dart`).
+- **Rule 13 is about `flutter_screenutil` only**: it skips private widgets on resize, `adaptive_units` rebuilds them. `AGENTS.md`, the rules and `fix-bug` say so; the lint already resolved units to `flutter_screenutil`, and `golden-guard` 0.3.0's regex R13 now also only checks files that import it.
+
 ## 2.6.2
 
 - The mods' marketplace (`.claude/plugins/.claude-plugin/marketplace.json`) has a `description`, so `claude plugin validate --strict` passes for the marketplace, not only for each mod.

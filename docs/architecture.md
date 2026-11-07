@@ -64,7 +64,7 @@ Before creating any state container, apply this 3-tier decision test:
 │   • Declarative Binding: AppResponseBuilder<T> (ApiResponse stream)    │
 │   • Navigation: AppRouter.router (go_router) + Routes path constants  │
 │   • Design System Tokens: ResColors, AppTypography, AppScaffold, AppCard│
-│   • Responsive Scaling: flutter_screenutil (.w, .h, .r, .sp)           │
+│   • Responsive Scaling: adaptive_units (.w, .h, .r, .sp; 1:1 ≥600dp)   │
 └───────────────────▲────────────────────▲───────────────────▲───────────┘
                     │                    │                   │
           Stream Subscription /     Broadcast Stream    StoreConnector /

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.0
+
+- **Material as a package**: every template file imports `package:material_ui/material_ui.dart` (`material_ui: ^1.10.0`), the package Flutter is moving Material into; go_router 18 already depends on it.
+- **`adaptive_units` replaces `flutter_screenutil`** (no release since 2024, imports `flutter/material.dart`, ignores `minTextAdapt` in its default font resolver, skips private widgets on resize). Same API (`ScreenUtilInit`, `.w`/`.h`/`.r`/`.sp`), from this repo's `packages/adaptive_units` by git tag `adaptive_units-v0.1.0`. The 600dp policy is built in, so `main.dart` passes `AppBreakpoints.phoneDesign` and `AppBreakpoints.designSizeFor` and the `MediaQuery.fromView` wrapper are gone.
+- **`KeyedCancelTokens<K>`** in `lib/networking/cancel_token_owner.dart`: one cancel token per key for BLoCs that load several parts (tabs, reports) independently.
+- **Lints 0.6.0**: `analysis_options.yaml` pins commit `89ab338` (`no_fetch_without_token` follows delegation, so `fetch() => _load(tab)` with keyed tokens passes).
+- Existing apps: to adopt, add `material_ui` and `adaptive_units` as above, swap the two imports, and drop `designSizeFor`.
+
 ## 2.0.0
 
 - **Flutter 3.47.8 / Dart 3.13.7 minimum** (breaking, security). Older SDKs build Android, Windows and Linux apps whose `dart:io` TLS trusts the compromised eMudhra intermediate CAs ([GHSA-frr6-h895-5pxp](https://github.com/dart-lang/sdk/security/advisories/GHSA-frr6-h895-5pxp)), and they skip the `redux_rxdart_lints` git plugin. On a machine with another Flutter, pin the project with FVM: `fvm use 3.47.9`. CI tests 3.47.8 and the latest stable.

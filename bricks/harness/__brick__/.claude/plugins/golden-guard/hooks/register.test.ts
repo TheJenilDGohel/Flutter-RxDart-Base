@@ -2,7 +2,7 @@ import { test, expect } from 'claude-code/testing'
 
 const ok = (stdout: string) => ({ value: { exitCode: 0, stdout, stderr: '' } })
 
-const BAD_WIDGET = `
+const BAD_WIDGET = `import 'package:flutter_screenutil/flutter_screenutil.dart';
 class Page extends StatelessWidget {
   Widget build(c) => Text(error.toString());
 }
@@ -211,4 +211,22 @@ test('project rules from .harness/guard-rules.json: Stop gate and /audit', async
 
   const audit = await $.command.run({ command: 'audit', args: 'lib/features/a' })
   expect(audit.context?.[0] ?? '').toContain('Project checks: ARB keys in en, hi and gu.')
+})
+
+test('R13 skips adaptive_units, which rebuilds private widgets', async ($, on) => {
+  on('process.run', async (_$, e) => {
+    const a = e.argv.join(' ')
+    if (a.includes('ls-files')) return ok('lib/features/a/a_view.dart')
+    return ok('')
+  })
+  on('fs.read', async () => ({
+    value: `import 'package:adaptive_units/adaptive_units.dart';
+class _Card extends StatelessWidget {
+  Widget build(c) => SizedBox(width: 100.w);
+}`,
+  }))
+
+  const out = await $.command.run({ command: 'audit', args: 'lib/features/a' })
+
+  expect(out.text).toContain('0 hits')
 })

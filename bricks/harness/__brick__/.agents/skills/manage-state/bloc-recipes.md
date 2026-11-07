@@ -486,6 +486,8 @@ Never use a `BehaviorSubject` for events: it replays the last one to every new l
 
 Each section gets its own `AppResponseBuilder`. `CancelToken` comes from `package:dio/dio.dart`.
 
+When sections load at different times (a tab loads when first opened, one report re-runs alone), one screen token is wrong: a later load would cancel the others. Keep one token per section with `KeyedCancelTokens<K>` (`lib/networking/cancel_token_owner.dart`, project 2.1.0+): the section's loader calls `_tokens.createNewToken(tab)`, which cancels only that key's older load, and `dispose()` calls `_tokens.cancelAll()`. `fetch() => _load(_tab.value)` satisfies rule 8: `no_fetch_without_token` follows the call into `_load`.
+
 ## F. Dependent calls
 
 One token and one `try` when the screen needs both results:

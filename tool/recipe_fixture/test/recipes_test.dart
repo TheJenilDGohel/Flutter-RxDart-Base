@@ -3,9 +3,9 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:adaptive_units/adaptive_units.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:recipe_app/features/dashboard/bloc/dashboard_bloc.dart';
 import 'package:recipe_app/features/dashboard/repo/dashboard_repo.dart';

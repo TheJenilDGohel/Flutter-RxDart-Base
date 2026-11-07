@@ -10,7 +10,7 @@ These rules apply when viewing, editing, or generating UI widgets and views.
 
 ## Golden Rules for UI
 1. **Zero `setState` in Feature Widgets**: Drive UI purely from streams via `AppResponseBuilder` or `StreamBuilder`.
-2. **ScreenUtil Only in Public Widgets**: `.w`, `.h`, `.r`, and `.sp` inside private (`_Foo`) widgets do not rebuild on resize. Make layout widgets public.
+2. **Sizes**: `.w`, `.h`, `.r`, `.sp` from `adaptive_units` (phone design, 1:1 from 600dp). Apps still on `flutter_screenutil`: units only in public widgets, since it skips private ones on resize (rule 13).
 3. **Design Tokens**:
    - Palette from `ResColors`.
    - Alpha channel transparency via `color.withValues(alpha: 0.5)`, never deprecated `withOpacity`.

@@ -7,9 +7,9 @@ This repository is the Mason Workspace source repository providing templates, br
 ```
 .
 ├── bricks/
-│   ├── project/                  # Scaffolds initial Flutter app architecture (v2.0.0)
-│   ├── bloc/                     # Scaffolds feature modules with BLoC and tests (v1.2.2)
-│   └── harness/                  # Scaffolds AI Agent Harness onto apps (v2.6.2)
+│   ├── project/                  # Scaffolds initial Flutter app architecture (v2.1.0)
+│   ├── bloc/                     # Scaffolds feature modules with BLoC and tests (v1.3.0)
+│   └── harness/                  # Scaffolds AI Agent Harness onto apps (v2.7.0)
 ├── packages/
 │   ├── redux_rxdart_lints/       # Custom lint package enforcing golden rules (v0.6.0)
 │   └── adaptive_units/           # ScreenUtil-compatible sizes: scale below 600dp, 1:1 above (v0.1.0)
@@ -37,7 +37,7 @@ Run these commands before committing any changes:
    ```bash
    dart run tool/docs_check.dart
    ```
-2. **Full E2E Generation Smoke Test**:
+2. **Full E2E Generation Smoke Test** (`--build apk` / `--build ios` also builds the app; CI does both):
    ```bash
    dart run tool/smoke.dart
    ```
@@ -61,7 +61,7 @@ Run these commands before committing any changes:
    dart run tool/adversarial_test.dart
    dart run tool/version_gate.dart origin/main
    ```
-6. **Claude Code mods** (not in CI: needs the `claude` CLI). For each mod under `bricks/harness/__brick__/.claude/plugins/`: `claude plugin test` and `claude plugin validate --strict .` inside it; `claude plugin validate --strict .` at the root and in `bricks/harness/__brick__/.claude/plugins` for the two marketplaces.
+6. **Claude Code mods** (CI job `claude-mods` runs the same). For each mod under `bricks/harness/__brick__/.claude/plugins/`: `claude plugin test` and `claude plugin validate --strict .` inside it; `claude plugin validate --strict .` at the root and in `bricks/harness/__brick__/.claude/plugins` for the two marketplaces.
 
 ## 🔒 Maintainer Rules
 

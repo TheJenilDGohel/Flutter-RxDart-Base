@@ -4,6 +4,19 @@ import 'package:mason/mason.dart';
 
 final _validFeature = RegExp(r'^[a-z][a-z0-9_]*$');
 
+/// The Material library the app uses: `material_ui` (project 2.1.0+, and
+/// apps that migrated) or the framework's `flutter/material.dart` (older
+/// apps), so generated pages compile either way.
+String _materialImport() {
+  final pubspec = File('pubspec.yaml');
+  final usesPackage = pubspec.existsSync() &&
+      RegExp(r'^\s+material_ui:', multiLine: true)
+          .hasMatch(pubspec.readAsStringSync());
+  return usesPackage
+      ? 'package:material_ui/material_ui.dart'
+      : 'package:flutter/material.dart';
+}
+
 Future<void> run(HookContext context) async {
   final rawFeature = (context.vars['feature_name'] as String? ?? '').trim();
   final feature = rawFeature.snakeCase;
@@ -20,7 +33,11 @@ Future<void> run(HookContext context) async {
       'mason\'s --on-conflict policy.',
     );
   }
-  context.vars = {...context.vars, 'feature_name': feature};
+  context.vars = {
+    ...context.vars,
+    'feature_name': feature,
+    'material_import': _materialImport(),
+  };
 
   final currentProjectName =
       (context.vars['project_name'] as String?)?.trim() ?? '';

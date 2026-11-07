@@ -24,7 +24,7 @@ Rules marked 🔒 are enforced by `redux_rxdart_lints` (lint name in backticks) 
 10. **Redux bridge**: the BLoC emits the new model; the UI dispatches to the store after it renders.
 11. **Auth**: `AuthInterceptor` attaches the bearer token only to the `BASE_URL` host. A 401 while a token is held dispatches `LogoutAction` once (`ErrorMappingInterceptor`) — no per-screen 401 handling. There is no refresh token by default; silent refresh is opt-in (recipe H in `.agents/skills/add-endpoint/repo-recipes.md`).
 12. **Defensive JSON parsing**: a wrong wire type falls back, never throws: `switch (json['id']) { final num v => v.toInt(), final String v => num.tryParse(v)?.toInt() ?? 0, _ => 0 }`, `json['name']?.toString() ?? ''`, `switch (json['items']) { final List<Object?> v => v, _ => const <Object?>[] }`, `DateTime.tryParse(json['at']?.toString() ?? '')`. A bare `as` cast (`as num?`, `as List?`, `as Map?`) throws on a wrong type.
-13. 🔒 **ScreenUtil only in public widgets** (`no_screenutil_in_private_widget`).
+13. 🔒 **`flutter_screenutil` units only in public widgets** (`no_screenutil_in_private_widget`): it skips private widgets on resize. The base's `adaptive_units` (same API) rebuilds them.
 14. 🔒 **No `withOpacity`** (`no_with_opacity`): use `withValues(alpha: ...)` or a colour token.
 15. 🔒 **Dispose all RxDart subjects** (`no_unclosed_subject`): close every subject in `dispose()`.
 

@@ -74,7 +74,14 @@ Future<ProcessResult> _run(
   return result;
 }
 
-Future<void> main() async {
+/// `--build apk` / `--build ios` also builds the generated app (CI runs them
+/// on Linux and macOS); a build proves the platform projects, plugins and
+/// Gradle/Xcode setup the template brings, which analyze and test do not.
+Future<void> main(List<String> args) async {
+  final buildIndex = args.indexOf('--build');
+  final build = buildIndex >= 0 && buildIndex + 1 < args.length
+      ? args[buildIndex + 1]
+      : null;
   print('--- Starting cross-platform smoke test ---');
   if (_useFvm()) {
     print('FVM detected — using `fvm dart` / `fvm flutter` for testing.');
@@ -144,6 +151,23 @@ Future<void> main() async {
       optionsContent.replaceFirst(_gitPluginPattern, localPluginYaml),
     );
 
+    // Same for adaptive_units: the template pins a release tag; test this
+    // checkout's package so the template and the package move together.
+    final generatedPubspec = File(p.join(tempDir.path, 'pubspec.yaml'));
+    final pubspecText = generatedPubspec.readAsStringSync();
+    if (!pubspecText.contains(RegExp(r'^  adaptive_units:', multiLine: true))) {
+      throw _SmokeFailure(
+          'Generated pubspec.yaml does not depend on adaptive_units.');
+    }
+    final unitsPath =
+        p.join(rootDir, 'packages', 'adaptive_units').replaceAll(r'\', '/');
+    generatedPubspec.writeAsStringSync(
+      '$pubspecText\ndependency_overrides:\n'
+      '  adaptive_units:\n    path: $unitsPath\n',
+    );
+    await _run('Resolving the local adaptive_units', 'flutter', ['pub', 'get'],
+        workingDirectory: tempDir.path);
+
     await _run(
       'Running mason make bloc',
       'mason',
@@ -188,6 +212,17 @@ Future<void> main() async {
     await _run('Checking the harness lessons store', 'dart',
         ['scripts/agent/learn.dart', 'check'],
         workingDirectory: tempDir.path);
+
+    if (build == 'apk') {
+      await _run('Building a debug APK', 'flutter', ['build', 'apk', '--debug'],
+          workingDirectory: tempDir.path, timeout: const Duration(minutes: 30));
+    } else if (build == 'ios') {
+      await _run('Building for the iOS simulator', 'flutter',
+          ['build', 'ios', '--simulator', '--debug'],
+          workingDirectory: tempDir.path, timeout: const Duration(minutes: 30));
+    } else if (build != null) {
+      throw _SmokeFailure('Unknown --build target "$build" (apk or ios).');
+    }
 
     print('--- Smoke test completed successfully! ---');
   } on _SmokeFailure catch (e) {

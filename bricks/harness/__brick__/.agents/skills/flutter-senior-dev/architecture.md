@@ -84,7 +84,7 @@ test/features/<name>/bloc/<name>_bloc_test.dart
 
 ## 7. Localization and sizing
 
-`l10n.yaml` → `lib/l10n`, template `app_en.arb`, generated `AppLocalizations`. Add every string to both ARB files. Sizes via `flutter_screenutil` (`.w .h .r .sp`, design size 375×812 below 600dp, 1:1 above; `MediaQuery.fromView` in `main.dart` rebuilds it on resize) — public widgets only (rule 13). Layout by `WindowSize` (Material 3 classes) and `AppContentWidth` (max 840dp column). Colors from `ResColors`, opacity with `withValues(alpha:)`.
+`l10n.yaml` → `lib/l10n`, template `app_en.arb`, generated `AppLocalizations`. Add every string to both ARB files. Sizes via `adaptive_units` (`packages/adaptive_units` of the base repo, the `flutter_screenutil` API: `.w .h .r .sp`, design size 375×812 below 600dp, 1:1 above; `ScreenUtilInit` in `main.dart` rebuilds widgets, private ones too, when a factor changes). Material widgets from `material_ui`. Layout by `WindowSize` (Material 3 classes) and `AppContentWidth` (max 840dp column). Colors from `ResColors`, opacity with `withValues(alpha:)`.
 
 ## 8. Bricks, harness and lints
 
@@ -95,4 +95,4 @@ test/features/<name>/bloc/<name>_bloc_test.dart
 
 ## 9. Key dependencies
 
-dio, dio_smart_retry, go_router, redux, flutter_redux, shared_preferences, (flutter_secure_storage), rxdart, flutter_screenutil, toastification, intl, url_launcher, snug_logger, flutter_dotenv; dev: flutter_lints (the `redux_rxdart_lints` plugin is configured in `analysis_options.yaml`, not `pubspec.yaml`).
+dio, dio_smart_retry, go_router, redux, flutter_redux, shared_preferences, (flutter_secure_storage), rxdart, material_ui, adaptive_units (git), toastification, intl, url_launcher, snug_logger, flutter_dotenv; dev: flutter_lints (the `redux_rxdart_lints` plugin is configured in `analysis_options.yaml`, not `pubspec.yaml`).

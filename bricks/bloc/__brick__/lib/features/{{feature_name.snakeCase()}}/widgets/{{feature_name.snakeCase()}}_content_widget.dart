@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import '{{{material_import}}}';
 import 'package:{{project_name}}/features/{{feature_name.snakeCase()}}/model/{{feature_name.snakeCase()}}_model.dart';
 
 /// Renders loaded {{feature_name.titleCase()}} data. Pure and stateless:

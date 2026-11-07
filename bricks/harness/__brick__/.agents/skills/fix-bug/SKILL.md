@@ -29,7 +29,7 @@ Read `.harness/skills/fix-bug.md` if it exists (it wins over this file) and run 
 | "Cannot add new events after calling close" | Emission bypassing the `_emit` guard | BLoC |
 | "setState() called after dispose" / context after `await` | Missing `mounted` check | Page State |
 | Toast twice / on return | `BehaviorSubject` used for events | BLoC: `PublishSubject` (recipe D) |
-| Layout wrong after resize | ScreenUtil in a private widget | Make it public (rule 13) |
+| Layout wrong after resize | `flutter_screenutil` units in a private widget | Make it public (rule 13), or move to `adaptive_units` (same API) |
 | Missing getter on `AppLocalizations` | Key missing from an ARB, or not regenerated | Both ARBs, `flutter gen-l10n` |
 | Stale search results flash | Response after a newer query | Check `token.isCancelled` after `await` (recipe B) |
 

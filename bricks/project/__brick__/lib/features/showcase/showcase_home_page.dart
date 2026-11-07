@@ -10,10 +10,10 @@
 // 6. Prebuilt CommonUtils (keyboard hide, launcher recipes)
 // 7. Context Extensions (context.l10n)
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:{{project_name}}/features/showcase/bloc/showcase_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:adaptive_units/adaptive_units.dart';
 import 'package:{{project_name}}/redux/app_state.dart';
 import 'package:{{project_name}}/redux/actions.dart';
 import 'package:{{project_name}}/redux/app_store.dart';

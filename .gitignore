@@ -35,6 +35,7 @@ temp_smoke_test/
 bricks/temp_test_app/
 temp_upgrade_test/
 temp_learn_test/
+temp_adversarial_test/
 
 # AI Harness Pre-flight Safety Backups
 .harness/.backup_*
