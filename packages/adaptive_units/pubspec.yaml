@@ -1,0 +1,28 @@
+name: adaptive_units
+description: >-
+  Phone-design sizes (.w, .h, .r, .sp) that scale on compact windows and stay
+  1:1 on tablets and desktop. Drop-in for flutter_screenutil, built on
+  flutter/widgets.dart only.
+version: 0.1.0
+# fork-url: the fork until upstream (TheJenilDGohel) merges adaptive_units.
+repository: https://github.com/jenilseawind-glitch/Flutter-RxDart-Base/tree/main/packages/adaptive_units
+issue_tracker: https://github.com/jenilseawind-glitch/Flutter-RxDart-Base/issues
+topics:
+  - responsive
+  - adaptive
+  - screen
+  - layout
+
+environment:
+  # TextScaler and MediaQuery.textScalerOf arrived in Flutter 3.16 (Dart 3.2).
+  sdk: ">=3.2.0 <4.0.0"
+  flutter: ">=3.16.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

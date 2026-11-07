@@ -124,6 +124,8 @@ every new project, so these **functional** URLs intentionally name the fork:
 | `bricks/harness/__brick__/.harness/version.json` | `upstream_repo` used by `upgrade.dart` |
 | `bricks/harness/__brick__/scripts/agent/upgrade.dart` | fallback `upstream` URL (`--check-only`, `mason add` hint) |
 | `packages/redux_rxdart_lints/README.md`, `docs/packages/redux_rxdart_lints.md` | install snippet |
+| `packages/adaptive_units/pubspec.yaml`, `packages/adaptive_units/README.md`, `docs/packages/adaptive_units.md` | `repository` / `issue_tracker` and the project link |
+| `bricks/project/__brick__/pubspec.yaml` | `adaptive_units` git dependency of every generated app |
 | `docs/bricks/project.md`, `docs/bricks/bloc.md`, `docs/bricks/harness.md` | CHANGELOG links |
 | `bricks/harness/README.md`, `docs/bricks/harness.md` | `curl` of the current `upgrade.dart` for projects on ≤ 1.7.0 |
 | `docs/index.md`, `docs/roadmap.md` | LICENSE and `base-gaps.md` links (pages outside `docs/`) |

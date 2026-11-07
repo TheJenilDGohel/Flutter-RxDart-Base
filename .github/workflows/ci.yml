@@ -84,6 +84,42 @@ jobs:
         working-directory: packages/redux_rxdart_lints
         run: dart run tool/check_fixture.dart
 
+  adaptive-units:
+    name: Packages Test (adaptive_units, Flutter ${{ matrix.flutter }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        flutter: ['3.47.9', '3.38.10']
+    defaults:
+      run:
+        working-directory: packages/adaptive_units
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: ${{ matrix.flutter }}
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Format
+        run: dart format --set-exit-if-changed lib test example
+
+      - name: Analyze
+        run: dart analyze --fatal-infos
+
+      - name: Test
+        run: flutter test
+
+      - name: Publish dry run
+        run: dart pub publish --dry-run
+
   workspace-checks:
     name: Workspace format & analyze (tool, hooks)
     runs-on: ubuntu-latest

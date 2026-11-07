@@ -40,6 +40,7 @@ dart scripts/agent/verify.dart
 | [`bloc`](docs/bricks/bloc.md) | `1.2.2` | `mason make bloc`, once per screen | BLoC, repo, model, page, content widget and 7 passing BLoC tests |
 | [`harness`](docs/bricks/harness.md) | `2.6.2` | installed by `project` | `AGENTS.md`, Token Shield, Cursor rules, Claude Code mods, contract ingestion, storage recipes, quality gates, lessons loop |
 | [`redux_rxdart_lints`](docs/packages/redux_rxdart_lints.md) | `0.5.0` | wired in by `project` | Turns eight golden rules into analyzer diagnostics |
+| [`adaptive_units`](docs/packages/adaptive_units.md) | `0.1.0` | dependency of `project` | Phone-design sizes (`.w`, `.h`, `.r`, `.sp`) that scale on phones and stay 1:1 on tablets; drop-in for `flutter_screenutil` |
 
 ---
 

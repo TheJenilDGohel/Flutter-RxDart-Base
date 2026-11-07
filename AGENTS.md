@@ -11,7 +11,8 @@ This repository is the Mason Workspace source repository providing templates, br
 │   ├── bloc/                     # Scaffolds feature modules with BLoC and tests (v1.2.2)
 │   └── harness/                  # Scaffolds AI Agent Harness onto apps (v2.6.2)
 ├── packages/
-│   └── redux_rxdart_lints/       # Custom lint package enforcing golden rules (v0.5.0)
+│   ├── redux_rxdart_lints/       # Custom lint package enforcing golden rules (v0.5.0)
+│   └── adaptive_units/           # ScreenUtil-compatible sizes: scale below 600dp, 1:1 above (v0.1.0)
 ├── tool/
 │   ├── smoke.dart                # E2E: create -> project -> bloc -> strict format -> recipes -> analyze -> test -> lint
 │   ├── harness_recipes.dart      # Pastes the harness BLoC recipes (verbatim) into the smoke app; fixture in recipe_fixture/

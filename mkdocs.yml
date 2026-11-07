@@ -48,6 +48,7 @@ nav:
       - Harness: bricks/harness.md
   - Packages:
       - Redux RxDart Lints: packages/redux_rxdart_lints.md
+      - Adaptive Units: packages/adaptive_units.md
   - AI Harness R&D: ai-harness-rnd.md
   - Roadmap: roadmap.md
   - Contributing: contributing.md
