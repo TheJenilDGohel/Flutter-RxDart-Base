@@ -20,19 +20,19 @@ The brick has no hooks and does not edit `pubspec.yaml`. `project` adds the `red
 | `.agents/skills/` | Eight skills, one per kind of work (table below). Claude Code reads the entry points in `.claude/skills/`. |
 | `.claude/rules/` | Path-scoped rules loaded on-demand: `bloc.md`, `ui.md`, `endpoints.md`, `testing.md`. |
 | `.cursor/rules/` | Cursor path-scoped rules with glob frontmatter: `bloc.mdc`, `ui.mdc`, `endpoints.mdc`, `testing.mdc`. |
-| `.claude/agents/` | Specialist subagent swarm: `@bloc-specialist`, `@ui-artisan`, `@device-qa`, `@flutter-qa`, `@skeptic`, `@docs-scout`. |
-| `scripts/agent/on_edit.dart` | Fast (<1.5s) in-flight format/analyze check with compact error stripping and anti-loop circuit breaker. |
+| `.claude/agents/` | Specialist subagents (used sparingly, cheapest model that works): `@bloc-specialist`, `@ui-artisan`, `@device-qa`, `@flutter-qa`, `@skeptic`, `@docs-scout`. |
+| `scripts/agent/on_edit.dart` | Format/analyze check of changed files, golden-rule lints included (~20 s cold; the warm `mcp__dart` analyze tool takes milliseconds but skips analyzer-plugin lints) with compact error stripping and anti-loop circuit breaker. |
+| `scripts/agent/affected_tests.dart` | Runs only the tests that mirror the changed `lib/` files and prints failures only; the per-change test step (full `verify.dart` stays for shared-code commits and milestones). |
 | `scripts/agent/watch.dart` | Background incremental diagnostics watcher updating `.harness/diagnostics.json` with zero token overhead. |
 | `scripts/agent/ingest_contract.dart` | Ingests OpenAPI/Postman JSON contracts to generate models with defensive parsing (Rule 12), mock fixtures, and endpoint constants. |
-| `scripts/team/` | Distributed swarm coordination: `task_handoff.dart` (messaging & human blockers), `heartbeat.dart`, and `worktree.dart` (`.harness/team-protocol.md`). |
 | `.maestro/` | Declarative E2E mobile testing flows (`flows/smoke_launch.yaml`). |
 | `scripts/agent/verify.dart` | The quality gate: format → analyze (including architecture lints) → tests → lessons → snapshot with framework stack trace pruning. |
 | `scripts/agent/wire_route.dart` | Scaffolds a feature with `mason make bloc` if missing, then adds its route. |
 | `scripts/agent/learn.dart` | The lessons loop (below). |
 | `scripts/agent/upgrade.dart` | Upgrades the harness without touching your work (below). |
 | `.claude/` | Settings (Token Shield, 1h cache TTL, multiplexing), skill entry points, specialist subagents. |
-| `.mcp.json`, `.cursor/mcp.json` | Dart MCP server, Maestro device automation, and Anthropic Knowledge Graph memory server. |
-| `.harness/` | Memory: `active-context.md`, `progress.md`, `lessons.md`, `team-protocol.md`, generated `system-snapshot.md`, `version.json`. Agents add skill overlays (`skills/<skill>.md`) and specs (`specs/<feature>.md`). |
+| `.mcp.json`, `.cursor/mcp.json` | Dart MCP server and Maestro device automation. |
+| `.harness/` | Memory: `active-context.md`, `progress.md`, `lessons.md`, generated `system-snapshot.md`, `version.json`. Agents add skill overlays (`skills/<skill>.md`) and specs (`specs/<feature>.md`). |
 
 ### Skills & Production Recipes
 
@@ -44,7 +44,7 @@ The brick has no hooks and does not edit `pubspec.yaml`. `project` adds the `red
 | `build-ui` | Page/content split, tokens, ScreenUtil, l10n, shared widgets, dialogs, accessibility |
 | `write-tests` | BLoC, model, widget, reducer, regression tests, and Maestro device journeys |
 | `fix-bug` | Symptom → layer table, every gate step and lint rule |
-| `evolve-harness` | Tiered memory, Knowledge Graph observations, path rules, and project skills |
+| `evolve-harness` | One learning loop: lesson, seen twice, rule or lint, delete |
 | `flutter-senior-dev` | Planning, architecture decisions, review |
 
 Codex, Gemini CLI and OpenCode read `.agents/skills/`. Claude Code reads `.claude/skills/`. Cursor reads both. Production repository recipes (CRUD filters, capability mixins, multipart upload, unpaginated fetch, binary streaming, cache-aside) are detailed in `.agents/skills/add-endpoint/repo-recipes.md`.
@@ -59,7 +59,7 @@ Tasks multiplex across lean, role-bounded subagents in `.claude/agents/` configu
 - `@skeptic`: Adversarial plan reviewer attacking reactive designs before coding begins.
 - `@docs-scout`: Token-efficient package and documentation researcher (<200 words).
 
-Coordination works across single-terminal in-process handoffs and concurrent multi-session Git worktrees (`.worktreeinclude`) via `scripts/team/task_handoff.dart`, `scripts/team/heartbeat.dart`, and `scripts/team/worktree.dart` (`.harness/team-protocol.md`).
+One session is the default; the harness ships no multi-session tooling. For owner-approved parallel work, use one session per `git worktree` (`.worktreeinclude`) on disjoint files.
 
 ### Token Conservation & High-Efficiency Operations
 

@@ -1,6 +1,6 @@
 {
   "name": "output-compactor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Compacts verbose test failures (Maestro, Flutter test, Dart analyze) into token-efficient summaries.",
   "author": { "name": "jenil" },
   "license": "MIT"

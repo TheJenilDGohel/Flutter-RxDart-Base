@@ -99,3 +99,29 @@ test('passes unrelated bash commands unchanged', async ($, on) => {
   const stdout = (ran.result as any)?.stdout ?? ''
   expect(stdout).toBe('commit abc1234')
 })
+
+test('dart analyze keeps warnings and infos, errors first', async ($, on) => {
+  const raw = [
+    'Analyzing app...',
+    '',
+    '   info - lib/features/a/a_page.dart:3:5 - Use withValues. - no_with_opacity',
+    '  error - lib/features/a/bloc/a_bloc.dart:9:3 - Undefined name x. - undefined_identifier',
+    'warning - lib/features/a/bloc/a_bloc.dart:4:3 - Close _data in dispose(). - no_unclosed_subject',
+    '',
+    '3 issues found.',
+  ].join('\n')
+  on('tool.call', async () => ({ result: { stdout: raw, stderr: '', exitCode: 1 } }) as any)
+  const out: any = await $.tool.call({ tool: 'Bash', command: 'flutter analyze --fatal-infos' } as any)
+  const text: string = out.result.stdout
+  expect(text).toContain('1 errors, 1 warnings, 1 infos')
+  expect(text).toContain('no_with_opacity')
+  expect(text).toContain('no_unclosed_subject')
+  expect(text.indexOf('undefined_identifier')).toBeLessThan(text.indexOf('no_unclosed_subject'))
+  expect(text).not.toContain('Analyzing app')
+})
+
+test('a clean analyze passes through untouched', async ($, on) => {
+  on('tool.call', async () => ({ result: { stdout: 'Analyzing app...\nNo issues found!', stderr: '', exitCode: 0 } }) as any)
+  const out: any = await $.tool.call({ tool: 'Bash', command: 'dart analyze' } as any)
+  expect(out.result.stdout).toBe('Analyzing app...\nNo issues found!')
+})

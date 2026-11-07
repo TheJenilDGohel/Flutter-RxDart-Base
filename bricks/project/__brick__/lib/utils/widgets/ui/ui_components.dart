@@ -10,5 +10,6 @@ export 'package:{{project_name}}/utils/widgets/ui/common_button.dart';
 
 // ── Overlays & Layouts ──────────────────────────────────────────────────
 export 'package:{{project_name}}/utils/widgets/ui/app_card.dart';
+export 'package:{{project_name}}/utils/widgets/ui/app_content_width.dart';
 export 'package:{{project_name}}/utils/widgets/view/app_dialog/app_dialog.dart';
 export 'package:{{project_name}}/utils/widgets/ui/app_scaffold.dart';

@@ -2,7 +2,7 @@
 
 Generate a Flutter app with one fixed architecture (Redux for the session, one RxDart BLoC per screen, Dio for networking), lint rules that enforce it, and an AI agent harness that teaches coding agents to follow it.
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.38%2B-02569B?logo=flutter)](https://flutter.dev)
+[![Flutter](https://img.shields.io/badge/Flutter-3.47.8%2B-02569B?logo=flutter)](https://flutter.dev)
 [![Mason](https://img.shields.io/badge/Mason-bricks-blue)](https://pub.dev/packages/mason_cli)
 [![Lints](https://img.shields.io/badge/architecture-analyzer_enforced-green)](packages/redux_rxdart_lints.md)
 
@@ -36,9 +36,9 @@ dart run scripts/agent/verify.dart
 
 | | Version | How you use it | What it gives you |
 |---|---|---|---|
-| [`project`](bricks/project.md) | `1.5.0` | `mason make project`, once | Redux session store, Dio client with 5 interceptors, typed errors, router, design tokens, UI kit, l10n (en, hi), showcase screen |
+| [`project`](bricks/project.md) | `2.0.0` | `mason make project`, once | Redux session store, Dio client with 4 interceptors, typed errors, go_router, design tokens and window size classes, UI kit, l10n (en, hi), showcase screen |
 | [`bloc`](bricks/bloc.md) | `1.2.1` | `mason make bloc`, once per screen | BLoC, repo, model, page, content widget and 7 passing BLoC tests |
-| [`harness`](bricks/harness.md) | `2.5.0` | installed by `project` | `AGENTS.md`, Token Shield, Cursor rules, Claude Code mods, contract ingestion, storage recipes, quality gates, lessons loop |
+| [`harness`](bricks/harness.md) | `2.6.0` | installed by `project` | `AGENTS.md`, Token Shield, Cursor rules, Claude Code mods, contract ingestion, storage recipes, quality gates, lessons loop |
 | [`redux_rxdart_lints`](packages/redux_rxdart_lints.md) | `0.5.0` | wired in by `project` | Turns eight golden rules into analyzer diagnostics |
 
 ---
@@ -47,7 +47,7 @@ dart run scripts/agent/verify.dart
 
 - **Redux holds only the session**: auth token, user data, locale. It's persisted and survives restarts. Nothing else goes there.
 - **Each screen has one RxDart BLoC** for everything it shows: fetching, forms, search, paging. The page creates it and disposes it.
-- **Dio does the networking** behind `ApiBaseHelper`, through a fixed chain: connectivity → auth → platform → retry → error mapping. Every failure is a typed `ApiException`, and screens receive a sealed `ApiResponse<T>` (initial, loading, success, or error with retry).
+- **Dio does the networking** behind `ApiBaseHelper`, through a fixed chain: auth → platform → retry → error mapping. Every failure is a typed `ApiException`, and screens receive a sealed `ApiResponse<T>` (initial, loading, success, or error with retry).
 
 ```
 Page ──stream──▶ BLoC ──await──▶ Repo ──▶ ApiBaseHelper ──▶ Dio + interceptors
@@ -66,7 +66,7 @@ lib/features/profile/
 └── profile_page.dart                   # owns the BLoC, renders with AppResponseBuilder
 ```
 
-The architecture lints (in the IDE and in `verify.dart`) reject parsing in repos, `setState` in feature widgets, RxDart in widgets, and ScreenUtil sizes in private widgets. All 13 golden rules are in the generated `AGENTS.md`, and the design is explained in [Architecture](architecture.md).
+The architecture lints (in the IDE and in `verify.dart`) reject parsing in repos, `setState` in feature widgets, RxDart in widgets, and ScreenUtil sizes in private widgets. All 15 golden rules are in the generated `AGENTS.md`, and the design is explained in [Architecture](architecture.md).
 
 ---
 
@@ -87,7 +87,7 @@ Instead of one generalist agent running out of context, tasks multiplex across l
 - `@flutter-qa`: One-shot architectural conformance, layer boundary enforcement, and lint audits.
 - `@skeptic`: Adversarial plan reviewer attacking reactive state and stream edge cases before coding begins.
 - `@docs-scout`: Token-efficient library and documentation researcher (<200 words) shielding the main context.
-- **Coordination**: Supports single-terminal in-process handoffs and concurrent multi-session Git worktrees (`.worktreeinclude`) via `scripts/team/task_handoff.dart` and `scripts/team/heartbeat.dart` (`.harness/team-protocol.md`).
+- **One session by default**: parallel sessions multiply token use, so the harness ships no multi-session tooling. When the owner explicitly wants parallel work, run one session per `git worktree` (`.worktreeinclude` lists the untracked files to copy) on disjoint files, with no messages between sessions.
 
 ### 3. 📱 Declarative Device Automation (Maestro)
 Replaces brittle accessibility tree parsing and screenshot OCR with deterministic **Maestro YAML flows** (`.maestro/flows/smoke_launch.yaml`). The agent tests real mobile apps on emulators and devices via `maestro test` with zero prompt token bloat.
@@ -104,10 +104,10 @@ Codifies production-grade patterns in `.agents/skills/add-endpoint/repo-recipes.
 ### 5. 🧠 5-Tier Memory & Learning Model
 Eliminates ceremonial task close-out blockers in favor of a layered memory architecture:
 1. **Tier 1 (Ambient)**: Claude Code Auto-Memory (`MEMORY.md` + Auto-Dream) for ambient personal learning across sessions.
-2. **Tier 2 (Structured Knowledge Graph)**: Anthropic `@modelcontextprotocol/server-memory` registered in `.mcp.json` for persistent technical facts and API quirks on demand.
-3. **Tier 3 (Path-Scoped Rules)**: Invariant standards codified in `.claude/rules/*.md`.
+2. **Tier 2 (Path-Scoped Rules)**: Layer and API facts in `.claude/rules/*.md`, loaded only when matching files are touched.
+3. **Tier 3 (Lint or Test)**: Anything checkable becomes a lint or a test, not prose.
 4. **Tier 4 (Permanent Team Rules)**: Repository-wide non-negotiables in `AGENTS.md` §7.
-5. **Tier 5 (Offline CLI)**: `scripts/agent/learn.dart` for offline verification and proposing upstream fixes.
+5. **Tier 5 (Offline CLI)**: `scripts/agent/learn.dart` runs one loop: lesson, seen twice, rule line or lint, delete the lesson.
 
 Try: *"Add a profile screen for `GET /me`; the Postman collection is in `docs/`."* More in [the harness docs](bricks/harness.md).
 

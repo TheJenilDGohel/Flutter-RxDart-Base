@@ -4,15 +4,11 @@
 
 ## Claude Code specifics
 - Android package `{{android_package_name}}`, iOS bundle id `{{ios_bundle_id}}`.
-- Skills in `.claude/skills/` (listed in AGENTS.md §4) carry the procedures: `add-feature`, `add-endpoint`, `manage-state`, `build-ui`, `write-tests`, `fix-bug`, `evolve-harness`, and `flutter-senior-dev` for planning and review. Invoke the matching one before starting work.
-- Path-scoped architecture rules in `.claude/rules/` (`bloc.md`, `ui.md`, `endpoints.md`, `testing.md`) dynamically enforce golden rules when files are edited.
-- Specialist swarm in `.claude/agents/`: `@bloc-specialist`, `@ui-artisan`, `@device-qa` (Maestro device testing), `@flutter-qa` (architecture review), `@skeptic` (hostile design reviewer), and `@docs-scout` (fast documentation digest).
-- Coordination: single-terminal in-process or multi-session Git worktrees via `scripts/team/task_handoff.dart`, `scripts/team/heartbeat.dart`, and `scripts/team/worktree.dart` (`.harness/team-protocol.md`).
-- Fast verification & diagnostics: `dart run scripts/agent/on_edit.dart` after modifying files, or check `.harness/diagnostics.json` if `dart run scripts/agent/watch.dart` is running.
-- Context & token hygiene: Run `/clear` when switching tasks to keep sessions under 50k context. Run `/compact` mid-task after completing a layer. Read `.harness/system-snapshot.md` before searching files. Never read generated serialization (`*.g.dart`, `*.freezed.dart`). Delegate library/API research to `@docs-scout`.
-- MCP servers: `dart` (`mcp__dart__*`), `maestro` (`mcp__maestro__*`), and `memory` (`mcp__memory__*`) are pre-approved in `.mcp.json`.
-- Plugins in `.claude/plugins/`: `golden-guard` (stop gate + `/audit`), `session-flow` (status bar + `/pickup` & `/handoff`), and `output-compactor` (compact test failure summaries).
-- In FVM projects (`.fvm/` or `.fvmrc`), prefix CLI commands with `fvm` (e.g. `fvm dart run scripts/agent/verify.dart`, `fvm flutter test`).
+- Skills (AGENTS.md §4) carry the procedures; path-scoped rules in `.claude/rules/` load when matching files are touched. Neither needs repeating here.
+- **One session, Sonnet** (`.claude/settings.json` sets `model`; cross-session inbound is held). Switch to Opus with `/model` only for planning or a hard bug. Subagents only when their output would flood the context, on the cheapest model that works.
+- **Tests per change**: `dart run scripts/agent/affected_tests.dart` (changed features only, failures only). Full `verify.dart` before commits that touch shared code and at milestones. Device checks: Maestro flows at milestones, pass/fail only.
+- **Context**: `/clear` at task end (`/clear` is free, `/compact` is a large request). Keep CLAUDE.md, AGENTS.md and `.harness/active-context.md` short: they load on every request. Never read `*.g.dart`, `*.freezed.dart`, `build/`, `.dart_tool/`.
+- In FVM projects (`.fvm/` or `.fvmrc`), prefix CLI commands with `fvm`.
 
 <!-- harness:project-rules — Everything below this line is yours. `upgrade.dart` keeps it verbatim. -->
 

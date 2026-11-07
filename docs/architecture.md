@@ -13,8 +13,8 @@ Rather than presenting developers or AI coding agents with an open buffet of sta
 - **Redux** exclusively for hydrated global session persistence.
 - **One RxDart BLoC** per screen for ephemeral UI state and validation.
 - **Domain Services** with broadcast streams for cross-screen shared reactive data.
-- **Dio** with a fixed, deterministic 5-step interceptor pipeline.
-- **`onGenerateRoute`** with strongly-typed `RouteArgs` for declarative navigation.
+- **Dio** with a fixed, deterministic 4-step interceptor pipeline (default `dart:io` adapter; the native stack is an opt-in recipe).
+- **`go_router`** (Router API): one path table for in-app navigation, deep links, App Links and web URLs.
 - **Custom analyzer lints** ([`redux_rxdart_lints`](packages/redux_rxdart_lints.md)) that turn architectural deviations into compiler warnings and errors.
 
 ### Why Omakase?
@@ -62,7 +62,7 @@ Before creating any state container, apply this 3-tier decision test:
 │                   PRESENTATION LAYER (UI / Widgets)                    │
 │   • Views (StatefulWidget / StatelessWidget in lib/features/)          │
 │   • Declarative Binding: AppResponseBuilder<T> (ApiResponse stream)    │
-│   • Navigation: AppRouter.onGenerateRoute + typed RouteArgs            │
+│   • Navigation: AppRouter.router (go_router) + Routes path constants  │
 │   • Design System Tokens: ResColors, AppTypography, AppScaffold, AppCard│
 │   • Responsive Scaling: flutter_screenutil (.w, .h, .r, .sp)           │
 └───────────────────▲────────────────────▲───────────────────▲───────────┘
@@ -91,12 +91,11 @@ Before creating any state container, apply this 3-tier decision test:
 │                      NETWORKING LAYER (Dio Engine)                     │
 │   • ApiBaseHelper (GET, POST, PUT, DELETE, postFormData, putFormData)  │
 │   • CancelTokenOwner (lifecycle-safe request cancellation)             │
-│   • DioClient with 5-step Interceptor Pipeline:                        │
-│     1. ConnectivityInterceptor (fails fast on offline)                 │
-│     2. AuthInterceptor (attaches bearer token to BASE_URL host)        │
-│     3. PlatformInjectorInterceptor (injects User-Agent / app version)  │
-│     4. RetryInterceptor (exponential backoff for idempotent 5xx/408)   │
-│     5. ErrorMappingInterceptor (maps DioException -> ApiException)     │
+│   • DioClient (dart:io adapter), 4-step interceptor pipeline:          │
+│     1. AuthInterceptor (attaches bearer token to BASE_URL host)        │
+│     2. PlatformInjectorInterceptor (injects {"platform": "app"})       │
+│     3. RetryInterceptor (backoff for idempotent methods only)          │
+│     4. ErrorMappingInterceptor (maps DioException -> ApiException)     │
 │   • Sealed ApiException hierarchy (13 subtypes) + safe user messaging │
 └────────────────────────────────────────────────────────────────────────┘
 ```
@@ -150,12 +149,13 @@ Feature screens instantiate per-screen BLoCs using RxDart primitives (`BehaviorS
 - **Error State & Retries:** During `ApiResponse.error()`, automatically renders a friendly error banner with a "Retry" button linked to the BLoC's `fetch` method.
 - **Safe Messaging:** Calls `error.userFacingMessage(context)` so internal technical strings or stack traces are never exposed to users.
 
-### 3.5 Declarative Routing: `AppRouter` & `RouteArgs` (`lib/utils/router/`)
+### 3.5 Declarative Routing: `AppRouter` & `Routes` (`lib/utils/router/`)
 
-Navigation is centralized using Flutter's native declarative `onGenerateRoute` mechanism:
-- **`AppRouter` (`lib/utils/router/app_router.dart`):** Exposes `static final GlobalKey<NavigatorState> navigatorKey` and `static Route<dynamic> onGenerateRoute(RouteSettings settings)`.
-- **Route Constants (`lib/utils/router/routes.dart`):** Named route string constants (e.g. `Routes.showcase`, `Routes.profile`).
-- **Typed Parameter Passing:** Route arguments use strongly typed `RouteArgs` classes passed via `Navigator.pushNamed(context, Routes.profile, arguments: ProfileArgs(id: '123'))`. The router unpacks `settings.arguments as ProfileArgs` and injects values directly into the target page's constructor.
+Navigation goes through one `GoRouter` (`go_router`, maintained by the Flutter team on the Router API), so in-app navigation, Android App Links, iOS Universal Links, web URLs and predictive back all resolve the same paths:
+- **`AppRouter` (`lib/utils/router/app_router.dart`):** `static final GoRouter router` (passed to `MaterialApp.router`), one `GoRoute` per path, an `errorBuilder` that opens the start screen for unknown links, and `navigatorKey` for navigation that starts outside the widget tree.
+- **Route Constants (`lib/utils/router/routes.dart`):** Path constants (e.g. `Routes.showcase`, `Routes.profile`).
+- **Parameters:** Ids travel in the path or query (`/orders/:id`, read with `state.pathParameters`) so every screen also opens from a link; `extra` is reserved for objects no link ever carries.
+- **Feature wiring:** `wire_route.dart` adds the constant and a `GoRoute` above the `// wire_route:routes` marker. Apps generated before project 2.0.0 keep `onGenerateRoute`, and the script still wires those.
 
 ### 3.6 Networking Engine & The 13 `ApiException` Subtypes
 
@@ -163,7 +163,7 @@ All network traffic passes through `ApiBaseHelper` and `DioClient`. Network exce
 
 | Exception Subtype | HTTP Status / Source | Behavior & UI Handling |
 | :--- | :--- | :--- |
-| `NoInternetException` | Connectivity check | Offline banner with retry |
+| `NoInternetException` | Request could not connect | Offline banner with retry |
 | `BadRequestException` | HTTP 400 | Generic invalid request error |
 | `UnauthorizedException` | HTTP 401 | `AuthInterceptor` triggers silent refresh or automatic logout |
 | `ForbiddenException` | HTTP 403 | Access denied message |
@@ -233,8 +233,8 @@ Under the Omakase design philosophy, alternative patterns were evaluated and rej
 | **Global Session** | **Riverpod** | Highly flexible with autodispose and family modifiers, but lacks compile-time architectural guardrails. In AI-assisted workflows, agents easily create circular provider dependencies or leaky global singletons. |
 | **Screen State** | **`flutter_bloc` (Cubit / Bloc)** | Relies on extensive subclassing (`BlocProvider`, `BlocBuilder`, `BlocConsumer`, event classes). RxDart BLoCs use native Dart `Stream` and `BehaviorSubject` with zero framework lock-in and minimal boilerplate. |
 | **Screen State** | **Signals / ValueNotifier** | Excellent for synchronous reactivity, but requires bespoke handling for asynchronous cancellation, debounced search, composite stream cancellation, and stream retry pipelines where RxDart operators (`debounceTime`, `switchMap`) excel. |
-| **Networking** | **`package:http`** | Lacks built-in request cancellation (`CancelToken`), interceptor chaining (connectivity, retry backoff, auth injection), and form-data multipart upload coordination provided out-of-the-box by Dio. |
-| **Routing** | **`go_router`** | Adds route-parsing complexity and breaking-change churn across Flutter SDK versions. Flutter's native `onGenerateRoute` with typed `RouteArgs` is lightweight, zero-dependency, and stable. |
+| **Networking** | **`package:http`** | Lacks built-in request cancellation (`CancelToken`), interceptor chaining (auth injection, retry backoff, error mapping), and form-data multipart upload coordination provided out-of-the-box by Dio. |
+| **Routing** | **`auto_route`** | Code generation (`build_runner`) on every route change slows the agent loop and cannot be wired by `wire_route.dart`. `go_router` gives the same deep-link support with plain Dart. |
 
 ---
 

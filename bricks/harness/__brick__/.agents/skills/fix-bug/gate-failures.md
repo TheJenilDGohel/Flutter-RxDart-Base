@@ -10,7 +10,7 @@ Infos fail the gate too. The project enables strict casts, inference and raw typ
 
 | Message (short) | Fix |
 |---|---|
-| `dynamic` can't be assigned / argument type `dynamic` | Cast explicitly and defensively: `json['name']?.toString() ?? ''`, `(json['n'] as num?)?.toInt() ?? 0` |
+| `dynamic` can't be assigned / argument type `dynamic` | Cast explicitly and defensively: `json['name']?.toString() ?? ''`, `switch (json['n']) { final num v => v.toInt(), final String v => num.tryParse(v)?.toInt() ?? 0, _ => 0 }` |
 | Missing type arguments / raw type | `List<OrderModel>`, `Future<void>`, `PublishSubject<String>()` |
 | `unawaited_futures` | `await` it, or wrap it in `unawaited(...)` (`dart:async`) when fire-and-forget is intended |
 | `close_sinks` / `cancel_subscriptions` | Close the subject or cancel the subscription in `dispose()` |

@@ -5,32 +5,29 @@ description: Writes and fixes tests for this Flutter Redux + RxDart + Dio app - 
 
 # Write tests
 
-A test here proves a contract the architecture promises: states arrive in order, errors are typed and retryable, nothing emits after dispose, and wire data can't crash a screen. Test behavior through public streams and widgets, never private fields.
+A test proves a contract the architecture promises: states arrive in order, errors are typed and retryable, nothing emits after dispose, wire data can't crash a screen. Test through public streams and widgets, never private fields.
 
 ## 0. Load what this project learned
-1. Read `.harness/skills/write-tests.md` if it exists. It wins over this file.
-2. Check the Knowledge Graph (`search_nodes` / `read_graph`) or run `dart run scripts/agent/learn.dart list write-tests`.
+Read `.harness/skills/write-tests.md` if it exists (it wins over this file) and run `dart run scripts/agent/learn.dart list write-tests`.
 
-## 1. What to test, by layer
-| Layer | Test | Always? |
+## 1. What to test
+| Layer | Test | When |
 |---|---|---|
-| BLoC | Stream states for success, `ApiException` + retry, unexpected error, cancellation, refresh, dispose, plus each recipe's edge cases | Yes |
-| Model | `fromJson` with the real contract response, missing fields, wrong types | When it parses more than id/name |
-| Content widget | Renders the data; conditional UI (empty, badges, disabled buttons) | When it branches |
-| Reducer / persistence | New action, `LogoutAction`, round trip | For any Redux change |
-| Repo | Usually skipped: it's a pass-through, and the lint guards it | Only for non-trivial request building |
+| BLoC | success, `ApiException` + retry, unexpected error, cancellation, refresh, dispose, recipe edge cases | Always |
+| Model | real contract response, missing fields, wrong types | Parses more than id/name |
+| Content widget | renders data; empty, badges, disabled buttons | It branches |
+| Reducer / persistence | new action, `LogoutAction`, round trip | Any Redux change |
+| Repo | skipped (pass-through, linted) | Non-trivial request building only |
 
-Put tests at the mirrored path: `test/features/<name>/bloc/<name>_bloc_test.dart`, plus `model/` and `widgets/` siblings.
+Mirrored paths: `test/features/<name>/bloc/<name>_bloc_test.dart` plus `model/` and `widgets/` siblings.
 
-## 2. BLoC tests: the generated pattern
-`mason make bloc` writes 7 passing tests. Extend them instead of starting over:
+## 2. BLoC tests
+`mason make bloc` writes 7 passing tests; extend them. The fake repo queues responses:
 
 ```dart
-/// Repo double: each call runs the next queued response.
 class FakeOrdersRepo implements OrdersRepo {
   final responses = <Future<Map<String, dynamic>> Function()>[];
   int calls = 0;
-
   @override
   Future<Map<String, dynamic>> fetchOrders({required int page, CancelToken? cancelToken}) {
     calls++;
@@ -38,23 +35,15 @@ class FakeOrdersRepo implements OrdersRepo {
   }
 }
 ```
-
-- Queue success (`() async => {...}`), failure (`() async => throw const NotFoundException()`) or a `Completer` future to control timing.
-- Collect states with `bloc.page$.listen(states.add)`, then `await bloc.fetch(); await pumpEventQueue();` and match with `isA<SuccessResponse<T>>().having(...)`.
-- `tearDown(() => bloc.dispose())`. To test dispose itself, dispose mid-request (a `Completer`) and assert the call completes without throwing.
-- Never hit the network: always inject the fake repo. `ApiBaseHelper.instance` in a test is a bug.
-
-Edge cases worth a test, from the recipes in `.agents/skills/manage-state/bloc-recipes.md`:
-- **Submit**: a second `submit` while loading makes no second repo call (`repo.calls == 1`).
-- **Search**: add `'a'`, `'ab'`, `'abc'` quickly, then `await Future<void>.delayed(const Duration(milliseconds: 350))`. Expect one repo call, for `'abc'`.
-- **Pagination**: a failed `loadMore` keeps the items and sets `loadMoreError`; `fetch(refresh: true)` during `loadMore` wins.
-- **Several loads**: one section failing leaves the other `SuccessResponse`.
+- Queue success, a thrown `NotFoundException`, or a `Completer` future for timing. Collect with `bloc.page$.listen(states.add)`, `await bloc.fetch(); await pumpEventQueue();`, match with `isA<SuccessResponse<T>>().having(...)`.
+- `tearDown(() => bloc.dispose())`; to test dispose, dispose mid-request and assert no throw. `ApiBaseHelper.instance` in a test is a bug.
+- Edge cases (recipes in `.agents/skills/manage-state/bloc-recipes.md`): second `submit` while loading → `repo.calls == 1`; search `'a'`, `'ab'`, `'abc'` then wait 350 ms → one call for `'abc'`; failed `loadMore` keeps items and sets `loadMoreError`, `fetch(refresh: true)` during it wins; one failing section leaves the other `SuccessResponse`.
 
 ## 3. Model tests
-Paste the contract's real response as a `const` map. Assert every field, then a map with fields missing, `null`, and the wrong type (`'12'` for `12`): parsing returns defaults and never throws (rule 12).
+The real response as a `const` map, every field asserted; then missing and `null` fields return defaults, a numeric string (`'12'` for `12`) parses, and a wrong type (`{}` for a list) falls back, all without throwing (rule 12).
 
-## 4. Widget tests (content widgets)
-Content widgets use ScreenUtil and l10n, so pump them inside both:
+## 4. Widget tests
+Pump content widgets inside ScreenUtil and l10n:
 
 ```dart
 Widget harness(Widget child) => ScreenUtilInit(
@@ -65,34 +54,14 @@ Widget harness(Widget child) => ScreenUtilInit(
     home: Scaffold(body: child),
   ),
 );
-
-testWidgets('shows the order title', (tester) async {
-  await tester.pumpWidget(harness(OrdersListWidget(page: page, controller: ScrollController(), onRetryMore: () {})));
-  await tester.pumpAndSettle();
-  expect(find.text('First order'), findsOneWidget);
-});
 ```
-
-Pages create real BLoCs (and therefore real repos), so test pages only through their content widget plus the BLoC tests. If a test touches `ApiConstants` (a repo test, say), load an env first: `dotenv.loadFromString(envString: 'BASE_URL=https://api.test')`.
+Pages create real BLoCs, so test them through the content widget plus BLoC tests. A test touching `ApiConstants` loads an env first: `dotenv.loadFromString(envString: 'BASE_URL=https://api.test')`.
 
 ## 5. Redux tests
-- Reducer: `appReducer(const AppState(), const SetLocaleAction('hi'))`, then assert the field and the untouched ones.
-- Persistence: `SharedPreferences.setMockInitialValues({})`, a `Store` with `persistenceMiddleware`, dispatch, `await persistenceIdle`, then read the prefs.
-- The app smoke test (`test/widget_test.dart`) builds `MyApp` with an in-memory store. Keep it passing when you change `main.dart`.
+Reducer: `appReducer(const AppState(), const SetLocaleAction('hi'))`, assert the field and the untouched ones. Persistence: `SharedPreferences.setMockInitialValues({})`, a `Store` with `persistenceMiddleware`, dispatch, `await persistenceIdle`, read the prefs. Keep `test/widget_test.dart` (builds `MyApp` with an in-memory store) green.
 
-## 6. End-to-End Device Testing (Maestro)
-For full integration and device user journeys on connected emulators or devices:
-- Declarative YAML flows live in `.maestro/flows/` (e.g. `smoke_launch.yaml`).
-- Run via CLI: `maestro test .maestro/flows/smoke_launch.yaml`.
-- Prefer declarative Maestro assertions (`assertVisible`, `tapOn`) over token-heavy screenshot scrapes.
-- Subagent `@device-qa` (`.claude/agents/device-qa.md`) runs these journeys.
+## 6. Criteria, bugs, device flows
+Each acceptance criterion in `.harness/specs/<feature>.md` gets a test named after it (`'AC2: empty list shows the empty state'`); each bug fix starts with a failing test (`.agents/skills/fix-bug/SKILL.md`). Device journeys are Maestro flows in `.maestro/flows/` (`AGENTS.md` §4).
 
-## 7. From criteria and bugs to tests
-- Each acceptance criterion in `.harness/specs/<feature>.md` maps to at least one test named after it (`'AC2: empty list shows the empty state'`).
-- Each bug fix starts with a test that fails for the reported reason (`.agents/skills/fix-bug/SKILL.md`).
-
-## 8. Run and close out
-- In-flight check: `dart run scripts/agent/on_edit.dart`.
-- One file while iterating: `flutter test test/features/<name>/`.
-- Before reporting done: `dart run scripts/agent/verify.dart`.
-- A flaky test is a bug in the test or the BLoC: usually a missing `pumpEventQueue()`, a real timer, or a shared singleton. Fix it; never skip it. Record the cause into the Knowledge Graph (`add_observations`), in `.claude/rules/testing.md`, or with `learn.dart add write-tests ...`.
+## 7. Run
+`affected_tests.dart` per change, `flutter test test/features/<name>/` while iterating, `verify.dart` before done. A flaky test is a bug (missing `pumpEventQueue()`, a real timer, a shared singleton): fix it, never skip it, and record the cause in `.claude/rules/testing.md` or `learn.dart add write-tests ...`.

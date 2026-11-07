@@ -141,40 +141,28 @@ Future<void> main() async {
     check('check reports promotion candidates',
         r.exitCode == 0 && out(r).contains('1 ready to promote'));
 
-    // ── promote / reopen / upstream ─────────────────────────────────────
+    // ── promote deletes ─────────────────────────────────────────────────
     r = await learn(['promote', 'L1', '.harness/skills/add-endpoint.md']);
     check('promote refuses a target that does not exist', r.exitCode != 0);
+    check('a refused promote keeps the lesson', lessons().contains('[L1]'));
     write('.harness/skills/add-endpoint.md', '# add-endpoint additions\n');
     r = await learn(
         ['promote', 'L1', '.harness/skills/add-endpoint.md', 'upstream']);
-    check('promote moves the lesson', r.exitCode == 0, out(r));
-    final promotedSection =
-        lessons().substring(lessons().indexOf('## Promoted'));
+    check('promote succeeds and says the lesson is deleted',
+        r.exitCode == 0 && out(r).contains('deleted'), out(r));
     check(
-        'promoted line records its targets',
-        promotedSection.contains(
-            'Promoted to: .harness/skills/add-endpoint.md, upstream'));
+        'upstream promotion prints the proposal',
+        out(r).contains("parse json['items']") &&
+            out(r).contains('base repository'));
+    check('the promoted lesson is gone and no archive is kept',
+        !lessons().contains('[L1]') && !lessons().contains('Promoted'));
     r = await learn(['list', 'add-endpoint']);
     check('list points at the overlay',
         out(r).contains('Project overlay: .harness/skills/add-endpoint.md'));
-    r = await learn(['upstream']);
-    check(
-        'upstream prints proposals with project and version',
-        out(r).contains('learn_app') &&
-            out(r).contains('9.9.9') &&
-            out(r).contains("parse json['items']"));
-
     r = await learn(['hit', '1'], today: '2026-11-01');
-    check('a promoted lesson that recurs reopens',
-        out(r).contains('happened again'));
-    final activeSection = lessons().substring(
-        lessons().indexOf('## Active'), lessons().indexOf('## Promoted'));
-    check(
-        'reopened lesson is active with its old targets as evidence',
-        activeSection.contains('[L1] add-endpoint (3x, 2026-11-01)') &&
-            activeSection.contains('reopened:.harness/skills/add-endpoint.md'));
-    r = await learn(['review'], today: '2026-11-01');
-    check('review lists reopened lessons', out(r).contains('Reopened'));
+    check('hit on a deleted lesson fails', r.exitCode != 0);
+    r = await learn(['upstream']);
+    check('the upstream command is gone', r.exitCode != 0);
 
     // ── retire / stale / orphans ────────────────────────────────────────
     r = await learn(['retire', 'L2']);
@@ -183,6 +171,9 @@ Future<void> main() async {
     r = await learn(['review'], today: '2027-06-01');
     check('review flags lessons seen once long ago',
         out(r).contains('Seen once') && out(r).contains('L3'));
+    r = await learn(['prune'], today: '2026-10-10');
+    check('prune keeps recent lessons',
+        out(r).contains('Nothing to prune') && lessons().contains('[L3]'));
     Directory(path('.agents/skills/add-feature')).deleteSync(recursive: true);
     r = await learn(['check']);
     check('check warns about lessons whose skill is gone',
@@ -203,7 +194,7 @@ Future<void> main() async {
             lessons().contains('## Notes\nAlso keep me.'),
         lessons());
     r = await learn(['add', 'general', 'Payments need an idempotency key.']);
-    check('ids keep increasing', out(r).contains('L5'), out(r));
+    check('ids keep increasing', out(r).contains('Recorded L'), out(r));
 
     write(
         '.harness/lessons.md',
@@ -244,7 +235,33 @@ Future<void> main() async {
     write('.harness/lessons.md', template);
     r = await learn(['check']);
     check('the brick template is a valid empty store',
-        r.exitCode == 0 && out(r).contains('0 active, 0 promoted'));
+        r.exitCode == 0 && out(r).contains('0 active'));
+
+    // ── prune and the cap ───────────────────────────────────────────────
+    write('.harness/lessons.md', template);
+    await learn(['add', 'general', 'Old one-off lesson about the seed script.'],
+        today: '2026-01-01');
+    await learn(['add', 'general', 'Recent lesson about payment keys.'],
+        today: '2026-10-01');
+    r = await learn(['prune'], today: '2026-10-03');
+    check(
+        'prune deletes only the stale one-off',
+        out(r).contains('Pruned L1') &&
+            !lessons().contains('[L1]') &&
+            lessons().contains('[L2]'),
+        out(r));
+    write('.harness/lessons.md', template);
+    for (var i = 0; i < 30; i++) {
+      await learn([
+        'add',
+        'general',
+        'Distinct lesson number$i about topic${i}x.',
+        '--force'
+      ]);
+    }
+    r = await learn(['add', 'general', 'One lesson too many for the cap.']);
+    check('add is refused at the active cap',
+        r.exitCode != 0 && out(r).contains('cap 30'), out(r));
   } finally {
     if (app.existsSync()) app.deleteSync(recursive: true);
   }

@@ -50,13 +50,27 @@ void main(List<String> args) {
   final scaffoldIdx = args.indexOf('--scaffold');
   if (scaffoldIdx != -1 && scaffoldIdx + 1 < args.length) {
     final query = args[scaffoldIdx + 1].toLowerCase();
-    final target = endpoints.firstWhere(
-      (e) =>
-          e.path.toLowerCase().contains(query) ||
-          e.name.toLowerCase().contains(query),
-      orElse: () => endpoints.first,
-    );
-    _scaffoldEndpoint(target);
+    bool exact(_EndpointInfo e) =>
+        e.path.toLowerCase() == query || e.name.toLowerCase() == query;
+    bool partial(_EndpointInfo e) =>
+        e.path.toLowerCase().contains(query) ||
+        e.name.toLowerCase().contains(query);
+    final exactHits = endpoints.where(exact).toList();
+    final hits = exactHits.isNotEmpty
+        ? exactHits
+        : endpoints.where(partial).toList();
+    if (hits.length != 1) {
+      stderr.writeln(
+        hits.isEmpty
+            ? 'No endpoint matches "$query". Endpoints:'
+            : '"$query" matches ${hits.length} endpoints; use the full path:',
+      );
+      for (final e in hits.isEmpty ? endpoints : hits) {
+        stderr.writeln('  [${e.method}] ${e.path}  ${e.name}');
+      }
+      exit(1);
+    }
+    _scaffoldEndpoint(hits.single);
     return;
   }
 
@@ -66,12 +80,18 @@ void main(List<String> args) {
   }
 
   // Default behavior or --list:
-  print('\n=== Endpoints discovered in ${file.path} (${endpoints.length}) ===\n');
+  print(
+    '\n=== Endpoints discovered in ${file.path} (${endpoints.length}) ===\n',
+  );
   for (final ep in endpoints) {
     final hasSample = ep.sampleResponse != null ? ' [Has Sample]' : '';
-    print('  [${ep.method.padRight(6)}] ${ep.path.padRight(40)} ${ep.name}$hasSample');
+    print(
+      '  [${ep.method.padRight(6)}] ${ep.path.padRight(40)} ${ep.name}$hasSample',
+    );
   }
-  print('\nRun with --scaffold <endpoint> to generate a defensive Model & test fixture.');
+  print(
+    '\nRun with --scaffold <endpoint> to generate a defensive Model & test fixture.',
+  );
 }
 
 void _printUsage() {
@@ -177,13 +197,15 @@ void _walkPostmanItems(List<dynamic> items, List<_EndpointInfo> out) {
       }
     }
 
-    out.add(_EndpointInfo(
-      name: name,
-      method: method,
-      path: path,
-      sampleResponse: sampleResponse,
-      queryParams: queryParams,
-    ));
+    out.add(
+      _EndpointInfo(
+        name: name,
+        method: method,
+        path: path,
+        sampleResponse: sampleResponse,
+        queryParams: queryParams,
+      ),
+    );
   }
 }
 
@@ -198,14 +220,16 @@ List<_EndpointInfo> _walkOpenApiPaths(Map<String, dynamic> paths) {
       if (!const {'GET', 'POST', 'PUT', 'DELETE', 'PATCH'}.contains(method)) {
         return;
       }
-      final name = opObj['summary']?.toString() ??
+      final name =
+          opObj['summary']?.toString() ??
           opObj['operationId']?.toString() ??
           pathStr;
 
       dynamic sampleResponse;
       final responses = opObj['responses'];
       if (responses is Map) {
-        final okResp = responses['200'] ?? responses['201'] ?? responses['default'];
+        final okResp =
+            responses['200'] ?? responses['201'] ?? responses['default'];
         if (okResp is Map) {
           final content = okResp['content'];
           if (content is Map) {
@@ -226,72 +250,142 @@ List<_EndpointInfo> _walkOpenApiPaths(Map<String, dynamic> paths) {
         }
       }
 
-      out.add(_EndpointInfo(
-        name: name,
-        method: method,
-        path: pathStr,
-        sampleResponse: sampleResponse,
-      ));
+      out.add(
+        _EndpointInfo(
+          name: name,
+          method: method,
+          path: pathStr,
+          sampleResponse: sampleResponse,
+        ),
+      );
     });
   });
   return out;
 }
 
 void _scaffoldEndpoint(_EndpointInfo ep) {
-  final cleanName = ep.name
+  final words = ep.name
       .replaceAll(RegExp(r'[^a-zA-Z0-9]'), ' ')
       .trim()
       .split(' ')
       .where((s) => s.isNotEmpty)
+      .toList();
+  // "Get order" -> Order: the verb names the call, not the data.
+  if (words.length > 1 && _verbs.contains(words.first.toLowerCase())) {
+    words.removeAt(0);
+  }
+  final cleanName = words
       .map((s) => s[0].toUpperCase() + s.substring(1).toLowerCase())
       .join();
   final modelName = cleanName.isEmpty ? 'ApiModel' : '${cleanName}Model';
   final slug = cleanName.isEmpty
       ? 'api_model'
       : RegExp(r'[A-Z][a-z0-9]*')
-          .allMatches(cleanName)
-          .map((m) => m.group(0)!.toLowerCase())
-          .join('_');
+            .allMatches(cleanName)
+            .map((m) => m.group(0)!.toLowerCase())
+            .join('_');
 
   print('\n=== Scaffolding for [${ep.method}] ${ep.path} ===\n');
 
-  // 1. ApiConstants snippet
-  final constName = '${slug.split('_').map((s) => s.isEmpty ? '' : s[0].toUpperCase() + s.substring(1)).join()}Endpoint';
-  final constCamel = constName[0].toLowerCase() + constName.substring(1);
+  // 1. ApiConstants entry, in the base's style: a getter on baseUrl, or a
+  //    function when the path has parameters ({id} in OpenAPI, :id in Postman).
+  final constName = _camel('${slug}_endpoint');
+  final params = <String>[];
+  final path = ep.path
+      .replaceAll(RegExp(r'^\{\{[^}]*\}\}'), '')
+      .replaceAllMapped(RegExp(r'\{(\w+)\}|:(\w+)'), (m) {
+        final p = _camel(m.group(1) ?? m.group(2)!);
+        params.add(p);
+        return '\$$p';
+      });
   print('// 1. Add to lib/networking/api_constants.dart:');
-  print("static const String $constCamel = '${ep.path}';\n");
+  print(
+    params.isEmpty
+        ? "static String get $constName => '\$baseUrl$path';\n"
+        : 'static String $constName(${params.map((p) => 'String $p').join(', ')}) =>'
+              "\n    '\$baseUrl$path';\n",
+  );
 
-  // 2. Test Fixture
-  if (ep.sampleResponse != null) {
-    final fixtureDir = Directory('test/fixtures');
-    if (!fixtureDir.existsSync()) {
-      fixtureDir.createSync(recursive: true);
-    }
-    final fixtureFile = File('test/fixtures/${slug}_response.json');
-    fixtureFile.writeAsStringSync(
-      const JsonEncoder.withIndent('  ').convert(ep.sampleResponse),
-    );
-    print('// 2. Saved test fixture to ${fixtureFile.path}\n');
-  }
-
-  // 3. Model code with Golden Rule #12 defensive parsing
-  print('// 3. Generated Model (Golden Rule #12 Defensive Parsing):');
-  Map<String, dynamic> sample = <String, dynamic>{'id': 1, 'name': 'Sample'};
   final rawSample = ep.sampleResponse;
-  if (rawSample is Map<String, dynamic>) {
-    sample = rawSample;
-  } else if (rawSample is Map) {
-    sample = rawSample.cast<String, dynamic>();
-  } else if (rawSample is List && rawSample.isNotEmpty) {
-    final first = rawSample[0];
-    if (first is Map<String, dynamic>) {
-      sample = first;
-    } else if (first is Map) {
-      sample = first.cast<String, dynamic>();
-    }
+  if (rawSample == null) {
+    print(
+      '// 2. No example response for this endpoint in the contract, so no '
+      'model\n//    was generated: ask for one real response (AGENTS.md §3). '
+      'Never infer\n//    fields from the endpoint name.',
+    );
+    exitCode = 2;
+    return;
   }
 
+  // 2. Test fixture: the real example, for the BLoC and model tests.
+  final fixtureDir = Directory('test/fixtures');
+  if (!fixtureDir.existsSync()) fixtureDir.createSync(recursive: true);
+  final fixtureFile = File('test/fixtures/${slug}_response.json');
+  fixtureFile.writeAsStringSync(
+    const JsonEncoder.withIndent('  ').convert(rawSample),
+  );
+  print('// 2. Saved test fixture to ${fixtureFile.path}\n');
+
+  // 3. Model(s) with Golden Rule #12 defensive parsing.
+  Map<String, dynamic>? sample;
+  var isList = false;
+  if (rawSample is Map) {
+    sample = rawSample.cast<String, dynamic>();
+  } else if (rawSample is List) {
+    isList = true;
+    final first = rawSample.isEmpty ? null : rawSample.first;
+    if (first is Map) sample = first.cast<String, dynamic>();
+  }
+  if (sample == null) {
+    print(
+      '// 3. The example is ${isList ? 'an empty list or a list of values' : 'not a JSON object'}; '
+      'no model generated. Ask for an example with items.',
+    );
+    exitCode = 2;
+    return;
+  }
+  print(
+    '// 3. Generated model (Golden Rule #12 defensive parsing; run '
+    '`dart format` after pasting):',
+  );
+  if (isList) {
+    print(
+      '//    The response is a JSON array: ApiBaseHelper returns it as '
+      "{'items': [...]}.\n//    Parse with (json['items'] as List? ?? const [])"
+      '.whereType<Map<String, dynamic>>().map($modelName.fromJson).toList()',
+    );
+  }
   print(_generateModelCode(modelName, sample));
+}
+
+const _verbs = {
+  'get',
+  'fetch',
+  'list',
+  'create',
+  'add',
+  'update',
+  'edit',
+  'delete',
+  'remove',
+  'post',
+  'put',
+  'patch',
+  'retrieve',
+  'search',
+  'find',
+};
+
+String _camel(String snake) {
+  final parts = snake
+      .split(RegExp(r'[^a-zA-Z0-9]+'))
+      .where((p) => p.isNotEmpty);
+  if (parts.isEmpty) return 'value';
+  return parts.first.toLowerCase() +
+      parts
+          .skip(1)
+          .map((p) => p[0].toUpperCase() + p.substring(1).toLowerCase())
+          .join();
 }
 
 void _exportFixtures(List<_EndpointInfo> endpoints) {
@@ -315,57 +409,143 @@ void _exportFixtures(List<_EndpointInfo> endpoints) {
   print('Exported $count fixture(s) to test/fixtures/.');
 }
 
+/// The model for [sample], followed by one class per nested object, typed
+/// from the example: nested objects become their own models, lists are typed
+/// by their first item, and a field that is null in the example stays
+/// `Object?` instead of a guessed type.
 String _generateModelCode(String modelName, Map<String, dynamic> sample) {
+  final classes = <String>[];
+  _modelClass(modelName, sample, classes);
+  return classes.join('\n');
+}
+
+void _modelClass(String name, Map<String, dynamic> sample, List<String> out) {
   final fields = <String>[];
-  final parserLines = <String>[];
-  final mapLines = <String>[];
+  final parse = <String>[];
+  final toJson = <String>[];
+  final nested = <MapEntry<String, Map<String, dynamic>>>[];
+  final stem = name.replaceAll(RegExp(r'Model$'), '');
 
   sample.forEach((key, val) {
-    final fieldName = _toCamelCase(key);
-    final fieldType = _inferType(val);
-
-    fields.add('  final $fieldType $fieldName;');
-
-    if (fieldType == 'int') {
-      parserLines.add("      $fieldName: (json['$key'] as num?)?.toInt() ?? 0,");
-    } else if (fieldType == 'double') {
-      parserLines.add("      $fieldName: (json['$key'] as num?)?.toDouble() ?? 0.0,");
-    } else if (fieldType == 'bool') {
-      parserLines.add("      $fieldName: json['$key'] == true || json['$key'] == 'true',");
-    } else if (fieldType == 'DateTime?') {
-      parserLines.add("      $fieldName: DateTime.tryParse(json['$key']?.toString() ?? ''),");
-    } else if (fieldType == 'List<dynamic>') {
-      parserLines.add("      $fieldName: (json['$key'] as List? ?? []).toList(),");
+    final f = _toCamelCase(key);
+    final j = "json['$key']";
+    var toJsonExpr = f;
+    final String type;
+    final String parser;
+    if (val is Map) {
+      final child = '$stem${_pascal(key)}Model';
+      nested.add(MapEntry(child, val.cast<String, dynamic>()));
+      type = child;
+      // A bare `as Map?` throws on a wrong type; the switch falls back.
+      parser =
+          '$child.fromJson(switch ($j) { final Map<Object?, Object?> v => v.cast<String, dynamic>(), '
+          '_ => const <String, dynamic>{} })';
+      toJsonExpr = '$f.toJson()';
+    } else if (val is List) {
+      final first = val.isEmpty ? null : val.first;
+      final list =
+          '(switch ($j) { final List<Object?> v => v, _ => const <Object?>[] })';
+      if (first is Map) {
+        final child = '$stem${_pascal(_singular(key))}Model';
+        nested.add(MapEntry(child, first.cast<String, dynamic>()));
+        type = 'List<$child>';
+        parser =
+            '$list.whereType<Map<String, dynamic>>().map($child.fromJson).toList()';
+        toJsonExpr = '$f.map((e) => e.toJson()).toList()';
+      } else if (first is String) {
+        type = 'List<String>';
+        parser = '$list.whereType<Object>().map((e) => e.toString()).toList()';
+      } else if (first is int) {
+        type = 'List<int>';
+        parser = '$list.whereType<num>().map((e) => e.toInt()).toList()';
+      } else if (first is double) {
+        type = 'List<double>';
+        parser = '$list.whereType<num>().map((e) => e.toDouble()).toList()';
+      } else if (first is bool) {
+        type = 'List<bool>';
+        parser = '$list.whereType<bool>().toList()';
+      } else {
+        // Empty in the example: type it once a real response shows items.
+        type = 'List<Object?>';
+        parser = '$list.toList()';
+      }
+    } else if (val == null) {
+      // Null in the example: the type is unknown, so don't guess one.
+      type = 'Object?';
+      parser = j;
     } else {
-      parserLines.add("      $fieldName: json['$key']?.toString() ?? '',");
+      switch (_inferType(val)) {
+        case 'int':
+          type = 'int';
+          parser =
+              'switch ($j) { final num v => v.toInt(), '
+              'final String v => num.tryParse(v)?.toInt() ?? 0, _ => 0 }';
+        case 'double':
+          type = 'double';
+          parser =
+              'switch ($j) { final num v => v.toDouble(), '
+              'final String v => double.tryParse(v) ?? 0.0, _ => 0.0 }';
+        case 'bool':
+          type = 'bool';
+          parser = "$j == true || $j == 'true'";
+        case 'DateTime?':
+          type = 'DateTime?';
+          parser = "DateTime.tryParse($j?.toString() ?? '')";
+          toJsonExpr = '$f?.toIso8601String()';
+        default:
+          type = 'String';
+          parser = "$j?.toString() ?? ''";
+      }
     }
-
-    if (fieldType == 'DateTime?') {
-      mapLines.add("      '$key': $fieldName?.toIso8601String(),");
-    } else {
-      mapLines.add("      '$key': $fieldName,");
-    }
+    fields.add('  final $type $f;');
+    parse.add('      $f: $parser,');
+    toJson.add("        '$key': $toJsonExpr,");
   });
 
-  return '''
-class $modelName {
-  const $modelName({
-${fields.map((f) => '  required this.${f.trim().split(' ').last.replaceAll(';', '')},').join('\n')}
+  final ctorArgs = fields
+      .map(
+        (f) =>
+            '    required this.${f.trim().split(' ').last.replaceAll(';', '')},',
+      )
+      .join('\n');
+  out.add('''
+class $name {
+  const $name({
+$ctorArgs
   });
 
 ${fields.join('\n')}
 
-  factory $modelName.fromJson(Map<String, dynamic> json) {
-    return $modelName(
-${parserLines.join('\n')}
+  factory $name.fromJson(Map<String, dynamic> json) {
+    return $name(
+${parse.join('\n')}
     );
   }
 
   Map<String, dynamic> toJson() => {
-${mapLines.join('\n')}
-  };
+${toJson.join('\n')}
+      };
 }
-''';
+''');
+  for (final child in nested) {
+    _modelClass(child.key, child.value, out);
+  }
+}
+
+String _pascal(String key) {
+  final c = _toCamelCase(key);
+  return c.isEmpty ? 'Item' : c[0].toUpperCase() + c.substring(1);
+}
+
+/// `lines` -> `line`, `categories` -> `category`; good enough for class names.
+String _singular(String key) {
+  if (key.endsWith('ies') && key.length > 4) {
+    return '${key.substring(0, key.length - 3)}y';
+  }
+  if (key.endsWith('s') && !key.endsWith('ss') && key.length > 3) {
+    return key.substring(0, key.length - 1);
+  }
+  return '${key}_item';
 }
 
 String _toCamelCase(String key) {
@@ -387,7 +567,9 @@ String _inferType(dynamic val) {
   if (val is bool) return 'bool';
   if (val is List) return 'List<dynamic>';
   if (val is String) {
-    if (DateTime.tryParse(val) != null && val.contains('-') && val.length >= 10) {
+    if (DateTime.tryParse(val) != null &&
+        val.contains('-') &&
+        val.length >= 10) {
       return 'DateTime?';
     }
     return 'String';
@@ -396,8 +578,37 @@ String _inferType(dynamic val) {
 }
 
 const _reservedWords = {
-  'assert', 'break', 'case', 'catch', 'class', 'const', 'continue',
-  'default', 'do', 'else', 'enum', 'extends', 'false', 'final', 'finally',
-  'for', 'if', 'in', 'is', 'new', 'null', 'rethrow', 'return', 'super',
-  'switch', 'this', 'throw', 'true', 'try', 'var', 'void', 'while', 'with',
+  'assert',
+  'break',
+  'case',
+  'catch',
+  'class',
+  'const',
+  'continue',
+  'default',
+  'do',
+  'else',
+  'enum',
+  'extends',
+  'false',
+  'final',
+  'finally',
+  'for',
+  'if',
+  'in',
+  'is',
+  'new',
+  'null',
+  'rethrow',
+  'return',
+  'super',
+  'switch',
+  'this',
+  'throw',
+  'true',
+  'try',
+  'var',
+  'void',
+  'while',
+  'with',
 };

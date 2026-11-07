@@ -12,7 +12,7 @@
     {
       "name": "session-flow",
       "source": "./plugins/session-flow",
-      "description": "/handoff, /pickup and git status line"
+      "description": "Git status line"
     },
     {
       "name": "output-compactor",

@@ -3,7 +3,7 @@ paths:
   - "lib/**/repo/**/*.dart"
   - "lib/**/*_repo.dart"
   - "lib/**/services/**/*.dart"
-  - "lib/**/models/**/*.dart"
+  - "lib/**/model*/**/*.dart"
   - "lib/networking/**/*.dart"
 ---
 
@@ -17,15 +17,15 @@ These rules apply when viewing, editing, or generating networking, services, rep
    - Never call `fromJson` or `fromMap` inside repository classes or files.
 2. **Defensive Model Parsing**:
    - Guard against nulls and type mismatches:
-     - `(json['id'] as num?)?.toInt() ?? 0`
+     - `switch (json['id']) { final num v => v.toInt(), final String v => num.tryParse(v)?.toInt() ?? 0, _ => 0 }` (a bare `as num?` throws on `"42"`)
      - `json['name']?.toString() ?? ''`
-     - `(json['items'] as List? ?? []).map((e) => Model.fromJson(e as Map<String, dynamic>)).toList()`
+     - `(switch (json['items']) { final List<Object?> v => v, _ => const <Object?>[] }).whereType<Map<String, dynamic>>().map(Model.fromJson).toList()`
      - `DateTime.tryParse(json['created_at']?.toString() ?? '')`
 3. **Endpoint Registration**:
    - Register route constants in `lib/networking/api_constants.dart`.
    - Never hardcode endpoint URLs inside feature code.
 4. **Auth & Interceptors**:
    - `AuthInterceptor` attaches the bearer token only to the base host.
-   - Do not write manual 401 token handlers; 401 triggers store logout automatically.
+   - No manual 401 handlers: a 401 while signed in dispatches `LogoutAction` (`ErrorMappingInterceptor`). Silent refresh is opt-in: recipe H of `repo-recipes.md`.
 5. **Repository Recipes**:
    - For complete recipes (CRUD, parameter sanitization, capability mixins, multipart uploads, bulk fetches, binary downloads, cache-aside), see `.agents/skills/add-endpoint/repo-recipes.md`.

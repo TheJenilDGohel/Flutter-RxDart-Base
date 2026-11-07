@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
-import 'package:dio_http2_adapter/dio_http2_adapter.dart';
-import 'package:{{project_name}}/networking/interceptors/connectivity_interceptor.dart';
 import 'package:{{project_name}}/networking/interceptors/auth_interceptor.dart';
 import 'package:{{project_name}}/networking/interceptors/platform_injector_interceptor.dart';
 import 'package:{{project_name}}/networking/interceptors/error_mapping_interceptor.dart';
@@ -13,11 +11,14 @@ import 'package:{{project_name}}/networking/api_exceptions.dart';
 /// Configures [Dio] with the interceptor chain.
 ///
 /// Interceptor order matters — do not reorder:
-/// 1. [ConnectivityInterceptor] — blocks requests when offline
-/// 2. [AuthInterceptor] — injects Bearer token from AppStore
-/// 3. [PlatformInjectorInterceptor] — injects {"platform": "app"}
-/// 4. [RetryInterceptor] — retries idempotent requests on transient failures
-/// 5. [ErrorMappingInterceptor] — maps DioException → ApiException
+/// 1. [AuthInterceptor] — injects Bearer token from AppStore
+/// 2. [PlatformInjectorInterceptor] — injects {"platform": "app"}
+/// 3. [RetryInterceptor] — retries idempotent requests on transient failures
+/// 4. [ErrorMappingInterceptor] — maps DioException → ApiException
+///
+/// Offline is detected when a request fails to connect (mapped to
+/// [NoInternetException]), not by a pre-check: an interface check costs a
+/// platform call per request and is wrong behind captive portals and VPNs.
 class DioClient {
   DioClient._();
 
@@ -41,23 +42,21 @@ class DioClient {
       ),
     );
 
-    // HTTP/2 adapter for improved performance
-    dio.httpClientAdapter = Http2Adapter(
-      ConnectionManager(idleTimeout: const Duration(seconds: 15)),
-    );
+    // Dio's default dart:io adapter: streams uploads (real onSendProgress),
+    // supports certificate pinning (IOHttpClientAdapter.validateCertificate)
+    // and needs no native plugin. For HTTP/3, the system VPN/proxy or
+    // user-installed certificates, see recipe I in
+    // .agents/skills/add-endpoint/repo-recipes.md (native adapter, opt-in).
 
     // ── Interceptor chain — ORDER MATTERS ──────────────────────────────
     dio.interceptors.addAll([
-      // 1. Check connectivity before firing the request
-      ConnectivityInterceptor(),
-
-      // 2. Inject Authorization header from Redux store
+      // 1. Inject Authorization header from Redux store
       AuthInterceptor(),
 
-      // 3. Inject {"platform": "app"} into JSON bodies
+      // 2. Inject {"platform": "app"} into JSON bodies
       PlatformInjectorInterceptor(),
 
-      // 4. Retry transient failures with exponential backoff. POST/PATCH
+      // 3. Retry transient failures with exponential backoff. POST/PATCH
       //    are never retried: replaying them can duplicate side effects.
       RetryInterceptor(
         dio: dio,
@@ -69,7 +68,7 @@ class DioClient {
         retryEvaluator: _shouldRetry,
       ),
 
-      // 5. Map raw DioException into the sealed ApiException hierarchy
+      // 4. Map raw DioException into the sealed ApiException hierarchy
       ErrorMappingInterceptor(),
     ]);
 

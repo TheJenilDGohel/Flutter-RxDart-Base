@@ -16,7 +16,7 @@ jobs:
       matrix:
         # Latest stable we test on, and the minimum we claim to support.
         # The minimum leg catches SDK floors set higher than dependencies need.
-        flutter: ['3.47.6', '3.38.10']
+        flutter: ['3.47.9', '3.47.8']
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -64,7 +64,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.47.6'
+          flutter-version: '3.47.9'
 
       - name: Install dependencies
         working-directory: packages/redux_rxdart_lints
@@ -96,7 +96,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.47.6'
+          flutter-version: '3.47.9'
 
       - name: Resolve dependencies
         run: |
@@ -115,6 +115,8 @@ jobs:
 
       - name: Harness learning loop end-to-end
         run: dart run tool/test_harness_learn.dart
+      - name: Harness size budget
+        run: dart run tool/test_harness_budget.dart
 
       - name: Harness upgrade end-to-end
         run: |

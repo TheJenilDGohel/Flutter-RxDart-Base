@@ -1,6 +1,8 @@
 # Active Context
 
 <!-- RULES — agents MUST follow these to keep this file small:
+  - Whole file under 3k chars: CLAUDE.md imports it, so it is sent with every request.
+    Long-lived decisions go to .claude/rules/ (by layer) or AGENTS.md §7, not here.
   - Current Focus: 2-3 lines max (just finished + next).
   - Recent Tasks: max 5 entries, each 1-2 lines with proof (commit:hash or file:path).
     Overflow → append ONE line to progress.md. Drop "commit:pending" once committed.

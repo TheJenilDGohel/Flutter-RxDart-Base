@@ -20,7 +20,7 @@ lib/
 ├── features/<name>/           # one folder per screen/flow; showcase/ is the demo
 ├── l10n/                      # app_en.arb, app_hi.arb → generated AppLocalizations
 ├── networking/
-│   ├── interceptors/          # connectivity, auth, platform_injector, error_mapping
+│   ├── interceptors/          # auth, platform_injector, error_mapping
 │   ├── api_base_helper.dart   # get/post/put/delete/postFormData/putFormData
 │   ├── api_constants.dart     # BASE_URL (from .env) and endpoint registry
 │   ├── api_exceptions.dart    # sealed ApiException
@@ -28,7 +28,7 @@ lib/
 │   ├── cancel_token_owner.dart
 │   └── dio_client.dart
 ├── redux/                     # actions, app_state, app_store, reducers/, middleware/
-├── resources/                 # res_colors.dart, app_typography.dart
+├── resources/                 # res_colors.dart, app_typography.dart, app_breakpoints.dart
 ├── services/                  # device/platform capabilities (stubs to extend)
 ├── utils/                     # extensions/, router/, widgets/ui/, widgets/view/, show_message, common_utils
 └── main.dart
@@ -48,8 +48,8 @@ test/features/<name>/bloc/<name>_bloc_test.dart
 
 ## 2. Networking
 
-- `DioClient.instance`: `ApiConstants.baseUrl`, 30 s timeouts, JSON, `Http2Adapter` (falls back to HTTP/1.1 for servers without h2).
-- Interceptors, in order: 1 `ConnectivityInterceptor` (offline → `NoInternetException`), 2 `AuthInterceptor` (bearer token only for the `BASE_URL` host), 3 `PlatformInjectorInterceptor` (`{"platform": "app"}` in JSON bodies), 4 `RetryInterceptor` (GET/HEAD/OPTIONS/PUT/DELETE only, 2 retries at 1 s and 3 s; POST/PATCH never retried), 5 `ErrorMappingInterceptor`.
+- `DioClient.instance`: `ApiConstants.baseUrl`, 30 s timeouts, JSON, Dio's default `dart:io` adapter (`IOHttpClientAdapter`; the native stack is opt-in, recipe I of `add-endpoint/repo-recipes.md`).
+- Interceptors, in order: 1 `AuthInterceptor` (bearer token only for the `BASE_URL` host), 2 `PlatformInjectorInterceptor` (`{"platform": "app"}` in JSON bodies), 3 `RetryInterceptor` (GET/HEAD/OPTIONS/PUT/DELETE only, 2 retries at 1 s and 3 s; POST/PATCH never retried), 4 `ErrorMappingInterceptor`. No connectivity pre-check: a request that cannot connect becomes `NoInternetException`.
 - `ErrorMappingInterceptor`: HTTP 200 with `{"status": false, "message"}` → `BusinessLogicException`; 400 `BadRequestException`, 401 `UnauthorizedException` (also dispatches `LogoutAction` when a token is held), 403 `ForbiddenException`, 404 `NotFoundException`, 408/timeouts `RequestTimeoutException`, 409 `ConflictException`, 422 `ValidationException` (server message), 429 `TooManyRequestsException`, 5xx `InternalServerErrorException`, cancel `RequestCancelledException`, no connection `NoInternetException`. Server `message`/`error` fields are kept in `ApiException.message`; `statusCode` is set for HTTP errors.
 - `ApiBaseHelper({Dio? dio})` with a lazy `instance`. Returns `Map<String, dynamic>`; a top-level JSON array becomes `{'items': [...]}`; a non-JSON body throws `MalformedResponseException`. Only `ApiException`s escape.
 - UI copy: `error.userFacingMessage(context)` (`utils/extensions/exception_ext.dart`). Shown verbatim only for `BusinessLogicException` and non-empty `ValidationException`; the rest are localized.
@@ -80,11 +80,11 @@ test/features/<name>/bloc/<name>_bloc_test.dart
 
 ## 6. Routing
 
-Navigator with `onGenerateRoute` (`utils/router/app_router.dart`), constants in `utils/router/routes.dart` (`abstract final class Routes`), global `navigatorKey`. `wire_route.dart` adds the constant and the router case, supports delegated sub-routers, and refuses to run when `go_router` or `auto_route` is a dependency.
+`go_router`: `AppRouter.router` (`utils/router/app_router.dart`, used by `MaterialApp.router`) with one `GoRoute` per path, an `errorBuilder` that opens the start screen, and `AppRouter.navigatorKey` for navigation from outside the tree; constants in `utils/router/routes.dart` (`abstract final class Routes`). `wire_route.dart` adds the constant and a `GoRoute` above the `// wire_route:routes` marker (a `case` in apps generated before project 2.0.0, still on `onGenerateRoute`), supports delegated sub-routers, and refuses `auto_route`.
 
 ## 7. Localization and sizing
 
-`l10n.yaml` → `lib/l10n`, template `app_en.arb`, generated `AppLocalizations`. Add every string to both ARB files. Sizes via `flutter_screenutil` (`.w .h .r .sp`, design size 375×812) — public widgets only (rule 13). Colors from `ResColors`, opacity with `withValues(alpha:)`.
+`l10n.yaml` → `lib/l10n`, template `app_en.arb`, generated `AppLocalizations`. Add every string to both ARB files. Sizes via `flutter_screenutil` (`.w .h .r .sp`, design size 375×812 below 600dp, 1:1 above; `MediaQuery.fromView` in `main.dart` rebuilds it on resize) — public widgets only (rule 13). Layout by `WindowSize` (Material 3 classes) and `AppContentWidth` (max 840dp column). Colors from `ResColors`, opacity with `withValues(alpha:)`.
 
 ## 8. Bricks, harness and lints
 
@@ -95,4 +95,4 @@ Navigator with `onGenerateRoute` (`utils/router/app_router.dart`), constants in 
 
 ## 9. Key dependencies
 
-dio, dio_smart_retry, dio_http2_adapter, connectivity_plus, redux, flutter_redux, shared_preferences, (flutter_secure_storage), rxdart, flutter_screenutil, toastification, intl, url_launcher, snug_logger, flutter_dotenv; dev: flutter_lints (the `redux_rxdart_lints` plugin is configured in `analysis_options.yaml`, not `pubspec.yaml`).
+dio, dio_smart_retry, go_router, redux, flutter_redux, shared_preferences, (flutter_secure_storage), rxdart, flutter_screenutil, toastification, intl, url_launcher, snug_logger, flutter_dotenv; dev: flutter_lints (the `redux_rxdart_lints` plugin is configured in `analysis_options.yaml`, not `pubspec.yaml`).

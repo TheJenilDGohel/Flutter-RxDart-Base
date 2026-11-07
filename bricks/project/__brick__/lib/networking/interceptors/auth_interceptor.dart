@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:{{project_name}}/networking/api_constants.dart';
 import 'package:{{project_name}}/redux/app_store.dart';
 
-/// Interceptor #2 in the chain.
+/// Interceptor #1 in the chain.
 ///
 /// Reads [AppStore.authToken] and injects an
 /// `Authorization: Bearer <token>` header — but only for requests to the

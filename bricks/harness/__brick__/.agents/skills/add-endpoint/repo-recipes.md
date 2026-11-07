@@ -316,3 +316,35 @@ class SessionRefreshHandler {
   }
 }
 ```
+
+---
+
+## Recipe I: Native HTTP Stack (opt-in)
+
+The base uses Dio's default `dart:io` adapter. Switch to the platform's own stack (Cronet on Android, URLSession on iOS/macOS, `native_dio_adapter`) only when the app needs HTTP/3, the system VPN or proxy, or user-installed certificates (enterprise MDM). It is a shared-networking change: say so in the summary and run the full gate.
+
+Costs, check each against the app before switching:
+- Upload bodies are read fully into memory before sending, so `onSendProgress` reaches 100% before any byte is on the wire (`postFormData` progress bars lie; large files cost RAM).
+- Certificate pinning (`validateCertificate`), Dio proxy settings and `persistentConnection` are ignored (dio issue #2607).
+- iOS 15 / macOS 12 minimum; Android needs Google Play services for Cronet (embedded Cronet: `--dart-define=cronetHttpNoPlay=true`, larger APK).
+- `cronet_http` still applies the Kotlin Gradle Plugin, which future Flutter versions will refuse to build. Check its changelog first.
+- No web support.
+
+`pubspec.yaml`: `native_dio_adapter` and `http` (for `ClientException`). In `DioClient._createDio()`:
+
+```dart
+import 'package:dio/io.dart';
+import 'package:native_dio_adapter/native_dio_adapter.dart';
+
+// Devices whose Cronet provider is disabled (AOSP emulators) fall back to dart:io.
+dio.httpClientAdapter = NativeAdapter(
+  createFallbackAdapter: (_, _) => IOHttpClientAdapter(),
+);
+```
+
+The native stack reports a failed connection as `package:http`'s `ClientException` (Dio type `unknown`), not `connectionError`. Add this case to `ErrorMappingInterceptor._mapByType` (`import 'package:http/http.dart' show ClientException;`), or offline errors show "Something went wrong":
+
+```dart
+DioExceptionType.unknown when err.error is ClientException =>
+  NoInternetException(err.message ?? 'No internet connection'),
+```

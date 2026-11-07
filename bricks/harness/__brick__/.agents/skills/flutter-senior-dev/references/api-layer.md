@@ -1,14 +1,15 @@
 # API layer reference
 
 ## Interceptor chain (fixed order, `lib/networking/dio_client.dart`)
-1. `ConnectivityInterceptor` — fails fast with `NoInternetException` when offline, before a
-   request ever hits the wire.
-2. `AuthInterceptor` — injects `Authorization: Bearer <AppStore.authToken>` for requests to the
+Transport: Dio's default `dart:io` adapter (native stack opt-in: recipe I of
+`.agents/skills/add-endpoint/repo-recipes.md`). There is no connectivity pre-check: a request that cannot connect is mapped to `NoInternetException`.
+
+1. `AuthInterceptor` — injects `Authorization: Bearer <AppStore.authToken>` for requests to the
    `BASE_URL` host only.
-3. `PlatformInjectorInterceptor` — adds `{"platform": "app"}` to JSON bodies.
-4. `RetryInterceptor` (`dio_smart_retry`) — retries transient failures of idempotent methods
+2. `PlatformInjectorInterceptor` — adds `{"platform": "app"}` to JSON bodies.
+3. `RetryInterceptor` (`dio_smart_retry`) — retries transient failures of idempotent methods
    only (GET/HEAD/OPTIONS/PUT/DELETE), twice, at 1 s and 3 s.
-5. `ErrorMappingInterceptor` — the last line of defense: maps any remaining `DioException` into
+4. `ErrorMappingInterceptor` — the last line of defense: maps any remaining `DioException` into
    one of the sealed `ApiException` subtypes below, so nothing above the networking layer ever
    sees a raw `DioException`.
 

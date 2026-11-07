@@ -3,7 +3,7 @@ import 'package:{{project_name}}/networking/api_exceptions.dart';
 import 'package:{{project_name}}/redux/actions.dart';
 import 'package:{{project_name}}/redux/app_store.dart';
 
-/// Interceptor #5 in the chain (after RetryInterceptor).
+/// Interceptor #4 in the chain (after RetryInterceptor).
 ///
 /// Converts raw [DioException] into the sealed [ApiException] hierarchy.
 /// Also checks successful responses for business logic errors
@@ -37,7 +37,7 @@ class ErrorMappingInterceptor extends Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) {
-    // Already mapped (e.g. by ConnectivityInterceptor, or a retried request
+    // Already mapped (a retried request
     // that passed through this interceptor once).
     if (err.error is ApiException) return handler.next(err);
 

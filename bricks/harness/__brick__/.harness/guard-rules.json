@@ -1,0 +1,5 @@
+{
+  "_doc": "Project regex rules for the golden-guard mod (Stop gate and /audit), reported as `P <message>`. Each rule: `pattern` (regex tested on each line of a lib/ file), `message`, optional `paths` (regex the file path must match) and `exclude` (regex it must not match). `audit` is extra text for the /audit review. upgrade.dart never overwrites this file. Rules the analyzer can check belong in a lint instead.",
+  "rules": [],
+  "audit": ""
+}

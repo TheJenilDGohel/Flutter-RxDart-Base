@@ -85,7 +85,7 @@ class SignInPageState extends State<SignInPage> {
         context,
         listen: false,
       ).dispatch(SetAuthTokenAction(session.token));
-      Navigator.pushReplacementNamed(context, Routes.showcase);
+      context.go(Routes.showcase); // replaces the stack: no back to sign-in
     });
   }
 
@@ -192,7 +192,7 @@ final class ProductSearchBloc with CancelTokenOwner {
     try {
       final json = await _repo.search(query: query, cancelToken: token);
       if (token.isCancelled) return; // answered after a newer query started
-      final items = (json['items'] as List? ?? [])
+      final items = (switch (json['items']) { final List<Object?> v => v, _ => const <Object?>[] })
           .whereType<Map<String, dynamic>>()
           .map(ProductModel.fromJson)
           .toList();
@@ -251,7 +251,7 @@ class PagedOrders {
 
   /// Appends one page. The paging fields follow your contract.
   PagedOrders append(Map<String, dynamic> json) {
-    final more = (json['items'] as List? ?? [])
+    final more = (switch (json['items']) { final List<Object?> v => v, _ => const <Object?>[] })
         .whereType<Map<String, dynamic>>()
         .map(OrderModel.fromJson)
         .toList();

@@ -1,8 +1,6 @@
 ---
 paths:
   - "lib/**/bloc/*_bloc.dart"
-  - "lib/**/bloc/*_event.dart"
-  - "lib/**/bloc/*_state.dart"
 ---
 
 # BLoC Architecture & Reactive State Rules

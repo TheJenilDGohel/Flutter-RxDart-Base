@@ -1,6 +1,6 @@
 ---
 description: UI, presentation layer, ScreenUtil, and zero-setState rules
-globs: lib/**/views/**/*.dart, lib/**/widgets/**/*.dart
+globs: lib/**/*_page.dart, lib/**/widgets/**/*.dart
 alwaysApply: false
 ---
 

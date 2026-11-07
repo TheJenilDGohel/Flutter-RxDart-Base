@@ -1,6 +1,6 @@
 ---
 paths:
-  - "lib/**/views/**/*.dart"
+  - "lib/**/*_page.dart"
   - "lib/**/widgets/**/*.dart"
 ---
 

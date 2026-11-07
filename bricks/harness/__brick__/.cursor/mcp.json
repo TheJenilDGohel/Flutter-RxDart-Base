@@ -3,6 +3,10 @@
     "dart": {
       "command": "dart",
       "args": ["mcp-server"]
+    },
+    "maestro": {
+      "command": "maestro",
+      "args": ["mcp"]
     }
   }
 }

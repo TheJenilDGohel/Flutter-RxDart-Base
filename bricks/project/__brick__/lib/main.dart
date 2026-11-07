@@ -7,10 +7,10 @@ import 'package:toastification/toastification.dart';
 import 'package:redux/redux.dart';
 import 'package:{{project_name}}/redux/app_state.dart';
 import 'package:{{project_name}}/redux/app_store.dart';
+import 'package:{{project_name}}/resources/app_breakpoints.dart';
 import 'package:{{project_name}}/resources/res_colors.dart';
 import 'package:{{project_name}}/resources/app_typography.dart';
 import 'package:{{project_name}}/utils/router/app_router.dart';
-import 'package:{{project_name}}/utils/router/routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,32 +35,40 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return StoreProvider<AppState>(
       store: store,
-      child: StoreConnector<AppState, String>(
-        converter: (store) => store.state.locale,
-        builder: (context, locale) {
-          return ScreenUtilInit(
-            designSize: const Size(375, 812),
-            minTextAdapt: true,
-            builder: (_, _) => ToastificationWrapper(
-              child: MaterialApp(
-                debugShowCheckedModeBanner: false,
-                navigatorKey: AppRouter.navigatorKey,
-                initialRoute: Routes.showcase,
-                onGenerateRoute: AppRouter.onGenerateRoute,
-                locale: Locale(locale),
-                localizationsDelegates: AppLocalizations.localizationsDelegates,
-                supportedLocales: AppLocalizations.supportedLocales,
-                theme: ThemeData(
-                  colorScheme: ColorScheme.fromSeed(
-                    seedColor: ResColors.primary,
+      // Rebuilds on window resize (rotation, fold/unfold, split screen), so
+      // the design size below follows the window class.
+      child: MediaQuery.fromView(
+        view: View.of(context),
+        child: StoreConnector<AppState, String>(
+          converter: (store) => store.state.locale,
+          builder: (context, locale) {
+            return ScreenUtilInit(
+              // Phone design on compact widths; 1:1 (no scaling) from 600dp,
+              // where screens lay out with WindowSize instead.
+              designSize: AppBreakpoints.designSizeFor(
+                MediaQuery.sizeOf(context),
+              ),
+              minTextAdapt: true,
+              builder: (_, _) => ToastificationWrapper(
+                child: MaterialApp.router(
+                  debugShowCheckedModeBanner: false,
+                  routerConfig: AppRouter.router,
+                  locale: Locale(locale),
+                  localizationsDelegates:
+                      AppLocalizations.localizationsDelegates,
+                  supportedLocales: AppLocalizations.supportedLocales,
+                  theme: ThemeData(
+                    colorScheme: ColorScheme.fromSeed(
+                      seedColor: ResColors.primary,
+                    ),
+                    textTheme: AppTypography.textTheme,
+                    useMaterial3: true,
                   ),
-                  textTheme: AppTypography.textTheme,
-                  useMaterial3: true,
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

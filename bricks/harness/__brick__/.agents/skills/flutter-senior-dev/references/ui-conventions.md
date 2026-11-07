@@ -8,8 +8,10 @@
   wired to ScreenUtil `.sp`. Access via `context.textTheme`, not by constructing `TextStyle`
   directly.
 - Sizing: `flutter_screenutil` — `.w` (width), `.h` (height), `.r` (radius), `.sp` (font size).
-  A hardcoded pixel value in a new widget is a review flag, not a style nit — it breaks on other
-  screen sizes. Only use these in **public** widgets: a private `_Foo` widget is not rebuilt on
+  They scale the 375×812 design below 600dp and run 1:1 above it, where layouts branch on
+  `WindowSize.of(context)` and wrap content in `AppContentWidth`. A raw pixel value is a review
+  flag on phone layouts; plain dp is fine in shared widgets meant to outlive ScreenUtil
+  (unreleased since 2024). Only use the units in **public** widgets: a private `_Foo` widget is not rebuilt on
   resize, and `no_screenutil_in_private_widget` fails the gate (rule 13).
 
 ## Shared state widgets (`lib/utils/widgets/ui/`)
@@ -25,7 +27,8 @@ to both ARB files in the same change — don't ship an English-only string and l
 up later.
 
 ## Navigation
-Routes are registered in `lib/utils/router/routes.dart` and resolved through `AppRouter` — don't
-use raw `Navigator.push(MaterialPageRoute(...))` for a screen that other features might need to
-link to; register it as a named route. Use `dart run scripts/agent/wire_route.dart <name>` to
-automate this.
+Paths live in `lib/utils/router/routes.dart` and resolve through `AppRouter` (one `GoRouter`, so
+deep links, App Links and web URLs open the same screens). Navigate with `context.push` /
+`context.go`; carry ids in the path or query, not `extra`, so the screen also opens from a link.
+Never `Navigator.push(MaterialPageRoute(...))` a screen other features might link to. Use
+`dart run scripts/agent/wire_route.dart <name>` to add the constant and the `GoRoute`.

@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.0.0
+
+- **Flutter 3.47.8 / Dart 3.13.7 minimum** (breaking, security). Older SDKs build Android, Windows and Linux apps whose `dart:io` TLS trusts the compromised eMudhra intermediate CAs ([GHSA-frr6-h895-5pxp](https://github.com/dart-lang/sdk/security/advisories/GHSA-frr6-h895-5pxp)), and they skip the `redux_rxdart_lints` git plugin. On a machine with another Flutter, pin the project with FVM: `fvm use 3.47.9`. CI tests 3.47.8 and the latest stable.
+- **Routing: `go_router`** (breaking). `MaterialApp.router` on `AppRouter.router`: one `GoRoute` per path, so deep links, Android App Links, iOS Universal Links, web URLs and predictive back resolve the same paths. Unknown links open the start screen (`errorBuilder`); `AppRouter.navigatorKey` stays for navigation from outside the tree. `go_router: ^18.1.3`. `wire_route.dart` (harness 2.6.0) adds `GoRoute` entries above the `// wire_route:routes` marker.
+- **Default `dart:io` adapter**: `Http2Adapter` and `dio_http2_adapter` removed. `Http2Adapter` forced a `dart:io`-only client (no web build) through an extra dependency; Dio's default adapter uses `dart:io` on devices and the browser on web, streams uploads (real `onSendProgress`) and supports certificate pinning. The platform's native stack (`native_dio_adapter`: HTTP/3, system VPN/proxy, user certificates) is an opt-in recipe in the harness, with its costs: uploads buffered in memory, pinning and proxy settings ignored, iOS 15 minimum, Google Play services on Android, and a Kotlin Gradle Plugin dependency that future Flutter versions will refuse.
+- **No connectivity pre-check**: `ConnectivityInterceptor` and `connectivity_plus` removed. The chain is Auth → PlatformInjector → Retry → ErrorMapping; a request that cannot connect is `NoInternetException`. The pre-check cost a platform call per request and misreported captive portals and VPNs.
+- **Large screens**: `lib/resources/app_breakpoints.dart` (`WindowSize`, the Material 3 window size classes, and `AppBreakpoints`) and `AppContentWidth` (max 840dp column, exported from `ui_components.dart`). ScreenUtil keeps the 375×812 design below 600dp and runs 1:1 above it; `MediaQuery.fromView` in `main.dart` re-picks the design size on rotation, fold/unfold and split screen (Android 16 ignores orientation and resize locks on large screens). `test/widget_test.dart` covers both.
+- **Lints pinned**: the `redux_rxdart_lints` plugin `ref` is the 0.5.0 commit instead of `main`, so a new upstream rule cannot turn an app's gate red overnight.
+- **Migration for existing apps** (optional; harness 2.6.0 still wires `onGenerateRoute` apps):
+  1. `pubspec.yaml`: raise `environment` to `sdk: ">=3.13.7 <4.0.0"` / `flutter: ">=3.47.8"`, add `go_router: ^18.1.3`, remove `dio_http2_adapter` and, if nothing else uses it, `connectivity_plus`.
+  2. Replace `lib/utils/router/app_router.dart` with the 2.0.0 version, move each `case` to a `GoRoute`, and use `MaterialApp.router(routerConfig: AppRouter.router)`. `Navigator.pushNamed(context, Routes.x)` becomes `context.push(Routes.x)`; `RouteSettings.arguments` become path or query parameters.
+  3. In `dio_client.dart`, remove the `Http2Adapter` line (Dio's default adapter remains) and drop `ConnectivityInterceptor`.
+  4. In `analysis_options.yaml`, pin `ref:` to a commit or tag.
+
 ## 1.5.0
 
 - **Native analyzer plugin migration**: `redux_rxdart_lints` ported to Dart native analyzer plugin (`analysis_server_plugin`).

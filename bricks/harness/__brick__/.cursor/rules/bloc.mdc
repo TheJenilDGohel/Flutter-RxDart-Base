@@ -1,6 +1,6 @@
 ---
 description: BLoC architecture, reactive streams, and subject lifecycle rules
-globs: lib/**/bloc/*_bloc.dart, lib/**/bloc/*_event.dart, lib/**/bloc/*_state.dart
+globs: lib/**/bloc/*_bloc.dart
 alwaysApply: false
 ---
 

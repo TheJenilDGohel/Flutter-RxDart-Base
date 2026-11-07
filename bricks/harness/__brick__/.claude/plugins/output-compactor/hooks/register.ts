@@ -66,12 +66,20 @@ const compactFlutterTest = (raw: string): string => {
   return `[Flutter Test Failure Summary]\n${kept.slice(0, 20).join('\n')}`
 }
 
-const compactDartAnalyze = (raw: string): string => {
+// Keeps every issue line, errors first. `--fatal-infos` fails on info-level
+// lints too (most golden-rule lints), so dropping them would hide the cause.
+export const ISSUE = /^\s*(error|warning|info)\s+-\s/i
+const hasIssues = (out: string): boolean => out.split('\n').some(l => ISSUE.test(stripAnsi(l)))
+
+export const compactDartAnalyze = (raw: string): string => {
   const clean = stripAnsi(raw)
-  const lines = clean.split('\n')
-  const errors = lines.filter(l => /^\s*error\b|^\s*error\s+-/i.test(l))
-  if (errors.length === 0) return clean
-  return `[Dart Analyze Errors (${errors.length})]\n${errors.slice(0, 25).join('\n')}`
+  const issues = clean.split('\n').filter(l => ISSUE.test(l)).map(l => l.trim())
+  if (issues.length === 0) return clean
+  const rank = (l: string) => (/^error/i.test(l) ? 0 : /^warning/i.test(l) ? 1 : 2)
+  const sorted = [...issues].sort((a, b) => rank(a) - rank(b))
+  const count = (r: number) => issues.filter(l => rank(l) === r).length
+  const more = sorted.length > 25 ? `\n...and ${sorted.length - 25} more` : ''
+  return `[Dart Analyze: ${count(0)} errors, ${count(1)} warnings, ${count(2)} infos]\n${sorted.slice(0, 25).join('\n')}${more}`
 }
 
 export const register: Register = on => {
@@ -95,7 +103,7 @@ export const register: Register = on => {
           res.stdout = compactMaestro(res.stdout)
         } else if (isFlutterTest && /\[E\]|Some tests failed/i.test(res.stdout)) {
           res.stdout = compactFlutterTest(res.stdout)
-        } else if (isDartAnalyze && /error\b/i.test(res.stdout)) {
+        } else if (isDartAnalyze && hasIssues(res.stdout)) {
           res.stdout = compactDartAnalyze(res.stdout)
         }
       }
@@ -104,7 +112,7 @@ export const register: Register = on => {
           res.stderr = compactMaestro(res.stderr)
         } else if (isFlutterTest && /\[E\]/i.test(res.stderr)) {
           res.stderr = compactFlutterTest(res.stderr)
-        } else if (isDartAnalyze && /error\b/i.test(res.stderr)) {
+        } else if (isDartAnalyze && hasIssues(res.stderr)) {
           res.stderr = compactDartAnalyze(res.stderr)
         }
       }

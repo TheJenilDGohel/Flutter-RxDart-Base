@@ -2,26 +2,29 @@
 
 import 'dart:io';
 
-/// The harness learning loop: lessons agents record while working, so the
-/// next session — and the next agent — doesn't repeat a mistake. The store
-/// is `.harness/lessons.md`, plain Markdown any agent can read without this
-/// script. The `evolve-harness` skill describes when to use each command.
+/// The harness learning loop, one loop and no archive:
+/// lesson → seen twice → a rule line or a lint → the lesson is deleted.
+/// The store is `.harness/lessons.md`, plain Markdown any agent can read
+/// without this script. The `evolve-harness` skill says when to use each
+/// command.
 ///
 /// ```
 /// dart run scripts/agent/learn.dart list [scope]      # start of a task
 /// dart run scripts/agent/learn.dart add <scope> <lesson...> [--proof <ref>] [--force]
 /// dart run scripts/agent/learn.dart hit <id> [--proof <ref>]
-/// dart run scripts/agent/learn.dart promote <id> <target>...
+/// dart run scripts/agent/learn.dart promote <id> <target>...   # deletes the lesson
 /// dart run scripts/agent/learn.dart retire <id>
+/// dart run scripts/agent/learn.dart prune             # deletes stale one-offs
 /// dart run scripts/agent/learn.dart review            # what to promote or prune
-/// dart run scripts/agent/learn.dart upstream          # proposals for the base repo
 /// dart run scripts/agent/learn.dart check             # format check (verify.dart)
 /// ```
 ///
 /// `<scope>` is a skill in `.agents/skills/` or `general`. A `<target>` is
-/// `upstream` or a file that now carries the lesson (`AGENTS.md`,
-/// `.harness/skills/<skill>.md`, a skill's `SKILL.md`). Promoting a lesson
-/// that later happens again reopens it: the rule it became did not work.
+/// `upstream` (printed as a proposal for the base repo) or the file that now
+/// carries the rule (`AGENTS.md`, `.claude/rules/<domain>.md`, a skill's
+/// `SKILL.md`). Promote only after the rule or lint exists: the lesson is
+/// deleted, git keeps it. A repeat of a deleted lesson is a new lesson, and
+/// its rule needs a lint.
 ///
 /// Lessons are committed and loaded into future agents' context, so `add`
 /// refuses (and `check` fails on) text that looks like a secret or an
@@ -45,10 +48,10 @@ void main(List<String> args) {
       _promote(rest);
     case 'retire':
       _retire(rest);
+    case 'prune':
+      _prune();
     case 'review':
       _review();
-    case 'upstream':
-      _upstream();
     case 'check':
       _check();
     default:
@@ -66,7 +69,7 @@ const _promoteAt = 2;
 const _staleDays = 90;
 
 /// More active lessons than this means the loop isn't promoting or pruning.
-const _activeCap = 40;
+const _activeCap = 30;
 
 const _maxLength = 240;
 
@@ -75,10 +78,10 @@ Usage: dart run scripts/agent/learn.dart <command>
   list [scope]                       lessons for a skill (plus `general`)
   add <scope> <lesson...> [--proof <ref>] [--force]
   hit <id> [--proof <ref>]           the same lesson happened again
-  promote <id> <target>...           now lives in AGENTS.md, an overlay, a skill or upstream
-  retire <id>                        wrong or obsolete
+  promote <id> <target>...           the rule or lint exists: delete the lesson
+  retire <id>                        wrong or obsolete: delete it
+  prune                              delete lessons seen once and not in 90 days
   review                             what to promote, merge or prune
-  upstream                           lessons proposed for the base repository
   check                              validate .harness/lessons.md''';
 
 const _template = '''
@@ -87,9 +90,8 @@ const _template = '''
 <!-- Recorded by agents with scripts/agent/learn.dart (see the evolve-harness skill).
   One line per lesson:
     - [L<id>] <scope> (<hits>x, <YYYY-MM-DD>): <lesson> Proof: <ref>, <ref>
-    - [L<id>] <scope> (<hits>x, <YYYY-MM-DD>): <lesson> Promoted to: <target>, <target>
   Scope is a skill in .agents/skills/ or `general`. Prefer the CLI; hand edits
-  must keep the format (verify.dart checks it). Seen twice = ready to promote.
+  must keep the format (verify.dart checks it). Seen twice = write the rule or lint, then promote (deletes it).
 -->
 ''';
 
@@ -152,6 +154,12 @@ void _add(List<String> rest, _Args cli) {
   }
 
   final book = _Book.load();
+  if (book.active.length >= _activeCap) {
+    _fail(
+      '${book.active.length} active lessons (cap $_activeCap). Promote the '
+      'ones seen twice (`learn.dart review`) or `learn.dart prune` first.',
+    );
+  }
   if (!cli.force) {
     for (final l in book.active) {
       if (_similarity(l.text, text) >= 0.6) {
@@ -180,74 +188,49 @@ void _hit(List<String> rest, _Args cli) {
   if (rest.isEmpty) _fail('usage: learn.dart hit <id> [--proof <ref>]');
   final book = _Book.load();
   final id = _parseId(rest.first);
-  final active = book.find(book.active, id);
-  if (active != null) {
-    active
-      ..hits += 1
-      ..date = _today()
-      ..refs = _lastRefs([...active.refs, ...cli.proofs]);
-    book.save();
-    final ready = active.hits >= _promoteAt
-        ? ' Ready to promote — see `learn.dart review`.'
-        : '';
-    print('L$id seen ${active.hits} times.$ready');
-    return;
+  final lesson = book.find(book.active, id);
+  if (lesson == null) {
+    _fail('No lesson L$id (a promoted lesson is deleted: record it again).');
   }
-  final promoted = book.find(book.promoted, id);
-  if (promoted == null) _fail('No lesson L$id.');
-  // A promoted lesson that recurs means its rule didn't prevent it.
-  final targets = promoted.refs;
-  book.promoted.remove(promoted);
-  promoted
+  lesson
     ..hits += 1
     ..date = _today()
-    ..refs = _lastRefs([for (final t in targets) 'reopened:$t', ...cli.proofs]);
-  book.active.add(promoted);
+    ..refs = _lastRefs([...lesson.refs, ...cli.proofs]);
   book.save();
-  print(
-    'L$id was promoted to ${targets.join(', ')} but happened again, so it '
-    'is active again (${promoted.hits}x).\n'
-    'Strengthen that rule — clearer wording, an earlier step in the skill, '
-    'or an upstream lint proposal — then promote it again.',
-  );
+  final ready = lesson.hits >= _promoteAt
+      ? ' Ready to promote — write the rule line or lint, then '
+            '`learn.dart promote L$id <target>`.'
+      : '';
+  print('L$id seen ${lesson.hits} times.$ready');
 }
 
 void _promote(List<String> rest) {
   if (rest.length < 2) {
     _fail(
-      'usage: learn.dart promote <id> <target>...  (target: upstream or a '
-      'file such as AGENTS.md or .harness/skills/<skill>.md)',
+      'usage: learn.dart promote <id> <target>...  (target: upstream or the '
+      'file that now carries the rule, such as AGENTS.md or '
+      '.claude/rules/<domain>.md)',
     );
   }
   final book = _Book.load();
   final id = _parseId(rest.first);
   final lesson = book.find(book.active, id);
-  if (lesson == null) {
-    _fail(
-      book.find(book.promoted, id) == null
-          ? 'No lesson L$id.'
-          : 'L$id is already promoted.',
-    );
-  }
+  if (lesson == null) _fail('No lesson L$id.');
   final targets = rest.skip(1).toList();
   for (final target in targets) {
     final file = target.split('#').first;
     if (target != 'upstream' && !File(file).existsSync()) {
       _fail(
-        'Target $target does not exist. Write the lesson into it first '
-        '(an overlay is created by hand: .harness/skills/<skill>.md).',
+        'Target $target does not exist. Write the rule into it first, then '
+        'promote: the lesson is deleted.',
       );
     }
   }
   book.active.remove(lesson);
-  lesson
-    ..date = _today()
-    ..refs = targets;
-  book.promoted.add(lesson);
   book.save();
-  print('Promoted L$id → ${targets.join(', ')}.');
+  print('Promoted L$id → ${targets.join(', ')}; the lesson is deleted.');
   if (targets.contains('upstream')) {
-    print('`learn.dart upstream` prints it for the base repository.');
+    print('Proposal for the base repository: [${lesson.scope}] ${lesson.text}');
   }
 }
 
@@ -255,12 +238,32 @@ void _retire(List<String> rest) {
   if (rest.isEmpty) _fail('usage: learn.dart retire <id>');
   final book = _Book.load();
   final id = _parseId(rest.first);
-  final lesson = book.find(book.active, id) ?? book.find(book.promoted, id);
+  final lesson = book.find(book.active, id);
   if (lesson == null) _fail('No lesson L$id.');
   book.active.remove(lesson);
-  book.promoted.remove(lesson);
   book.save();
   print('Retired L$id.');
+}
+
+void _prune() {
+  final book = _Book.load();
+  final today = DateTime.parse(_today());
+  final stale = book.active.where((l) => _isStale(l, today)).toList();
+  if (stale.isEmpty) {
+    print('Nothing to prune.');
+    return;
+  }
+  book.active.removeWhere(stale.contains);
+  book.save();
+  for (final l in stale) {
+    print('Pruned L${l.id} (${l.date}) ${l.scope}: ${l.text}');
+  }
+}
+
+/// Seen once and not since: a one-off, not a pattern.
+bool _isStale(_Lesson l, DateTime today) {
+  final seen = DateTime.tryParse(l.date);
+  return l.hits == 1 && seen != null && today.difference(seen).inDays > _staleDays;
 }
 
 void _review() {
@@ -269,10 +272,7 @@ void _review() {
   final today = DateTime.parse(_today());
   var todo = 0;
 
-  print(
-    'Lessons: ${book.active.length} active, '
-    '${book.promoted.length} promoted.',
-  );
+  print('Lessons: ${book.active.length} active (cap $_activeCap).');
 
   final ready = book.active.where((l) => l.hits >= _promoteAt).toList()
     ..sort(_byHits);
@@ -287,17 +287,6 @@ void _review() {
         '  L${l.id} (${l.hits}x) ${l.scope}: ${l.text}\n'
         '      → $target',
       );
-    }
-  }
-
-  final reopened = book.active
-      .where((l) => l.refs.any((r) => r.startsWith('reopened:')))
-      .toList();
-  if (reopened.isNotEmpty) {
-    todo++;
-    print('\nReopened (the promoted rule did not prevent a repeat):');
-    for (final l in reopened) {
-      print('  L${l.id} ${l.scope}: ${l.text}');
     }
   }
 
@@ -316,15 +305,13 @@ void _review() {
     pairs.forEach(print);
   }
 
-  final stale = book.active.where((l) {
-    final seen = DateTime.tryParse(l.date);
-    return l.hits == 1 &&
-        seen != null &&
-        today.difference(seen).inDays > _staleDays;
-  }).toList();
+  final stale = book.active.where((l) => _isStale(l, today)).toList();
   if (stale.isNotEmpty) {
     todo++;
-    print('\nSeen once, not in $_staleDays days (retire unless still true):');
+    print(
+      '\nSeen once, not in $_staleDays days (`learn.dart prune` deletes '
+      'them):',
+    );
     for (final l in stale) {
       print('  L${l.id} (${l.date}) ${l.scope}: ${l.text}');
     }
@@ -348,7 +335,7 @@ void _review() {
     todo++;
     print(
       '\n${book.active.length} active lessons (cap $_activeCap): '
-      'promote or retire before adding more.',
+      '`add` is refused until you promote or prune.',
     );
   }
 
@@ -357,35 +344,6 @@ void _review() {
         ? '\nNothing to promote or prune.'
         : '\nNext: follow the evolve-harness skill for each item.',
   );
-}
-
-void _upstream() {
-  final book = _Book.load();
-  final proposals = book.promoted
-      .where((l) => l.refs.contains('upstream'))
-      .toList();
-  if (proposals.isEmpty) {
-    print('No lessons promoted to upstream.');
-    return;
-  }
-  final name =
-      RegExp(
-        r'^name:\s*(\S+)',
-        multiLine: true,
-      ).firstMatch(_readOrEmpty('pubspec.yaml'))?.group(1) ??
-      'this project';
-  final version =
-      RegExp(
-        r'"version":\s*"([^"]+)"',
-      ).firstMatch(_readOrEmpty('.harness/version.json'))?.group(1) ??
-      'unknown';
-  print(
-    'Harness lessons from $name (harness $version) proposed for the '
-    'base repository:\n',
-  );
-  for (final l in proposals) {
-    print('- [${l.scope}] ${l.text} (seen ${l.hits}x)');
-  }
 }
 
 void _check() {
@@ -407,18 +365,13 @@ void _check() {
   final book = _Book.parse(file.readAsStringSync());
   final errors = [...book.errors];
   final seen = <int>{};
-  for (final l in [...book.active, ...book.promoted]) {
+  for (final l in book.active) {
     if (!seen.add(l.id)) errors.add('$_path: duplicate id L${l.id}');
     if (DateTime.tryParse(l.date) == null) {
       errors.add('$_path: L${l.id} has an invalid date ${l.date}');
     }
   }
-  for (final l in book.promoted) {
-    if (l.refs.isEmpty) {
-      errors.add('$_path: promoted L${l.id} has no "Promoted to:" target');
-    }
-  }
-  for (final l in [...book.active, ...book.promoted]) {
+  for (final l in book.active) {
     final unsafe = _unsafe('${l.text} ${l.refs.join(' ')}');
     if (unsafe != null) {
       errors.add('$_path: L${l.id} $unsafe; remove it (git history too)');
@@ -443,8 +396,7 @@ void _check() {
     if (book.active.length > _activeCap) 'over the cap of $_activeCap',
   ];
   print(
-    'Lessons OK: ${book.active.length} active, ${book.promoted.length} '
-    'promoted.'
+    'Lessons OK: ${book.active.length} active.'
     '${notes.isEmpty ? '' : ' ${notes.join(', ')} — run `dart run '
               'scripts/agent/learn.dart review`.'}',
   );
@@ -468,12 +420,10 @@ class _Lesson {
   String date;
   final String text;
 
-  /// Proofs while active, targets once promoted.
   List<String> refs;
 
-  String format({required bool promoted}) {
-    final label = promoted ? 'Promoted to' : 'Proof';
-    final tail = refs.isEmpty ? '' : ' $label: ${refs.join(', ')}';
+  String format() {
+    final tail = refs.isEmpty ? '' : ' Proof: ${refs.join(', ')}';
     return '- [L$id] $scope (${hits}x, $date): $text$tail';
   }
 }
@@ -484,6 +434,8 @@ class _Book {
   final String header;
   final String tail;
   final active = <_Lesson>[];
+
+  /// Legacy `## Promoted` section: read, never written back.
   final promoted = <_Lesson>[];
   final errors = <String>[];
 
@@ -569,21 +521,14 @@ class _Book {
   }
 
   void save() {
-    String section(String title, List<_Lesson> lessons, bool promoted) {
-      final body = lessons.isEmpty
-          ? '_None yet._'
-          : ([...lessons]..sort((a, b) => a.id.compareTo(b.id)))
-                .map((l) => l.format(promoted: promoted))
-                .join('\n');
-      return '## $title\n$body\n';
-    }
-
+    final body = active.isEmpty
+        ? '_None yet._'
+        : ([...active]..sort((a, b) => a.id.compareTo(b.id)))
+              .map((l) => l.format())
+              .join('\n');
     final out = StringBuffer();
     if (header.isNotEmpty) out.write('$header\n');
-    out
-      ..write(section('Active', active, false))
-      ..write('\n')
-      ..write(section('Promoted', promoted, true));
+    out.write('## Active\n$body\n');
     if (tail.isNotEmpty) out.write('\n$tail\n');
     File(_path)
       ..parent.createSync(recursive: true)
@@ -775,11 +720,6 @@ String _today() {
   final now = DateTime.now();
   String two(int n) => n.toString().padLeft(2, '0');
   return '${now.year}-${two(now.month)}-${two(now.day)}';
-}
-
-String _readOrEmpty(String path) {
-  final file = File(path);
-  return file.existsSync() ? file.readAsStringSync() : '';
 }
 
 Never _fail(String message) {

@@ -20,6 +20,12 @@ constraint on pub.dev. Never set them to the toolchain you happened to test on: 
 too high breaks `mason upgrade` for everyone one Flutter release behind. CI runs the smoke test on
 the minimum supported Flutter to catch this.
 
+The one exception is security: the generated app's floor may sit above what dependencies need when
+older SDKs ship a known vulnerability into every app built with them. Project 2.0.0 requires Flutter
+3.47.8 / Dart 3.13.7 for that reason (GHSA-frr6-h895-5pxp, `dart:io` trusted compromised eMudhra
+CAs). Name the advisory in the CHANGELOG, and point developers on another Flutter at FVM
+(`fvm use <version>`) rather than lowering the floor.
+
 ## 2. README is documentation, not a changelog — but it must not go stale
 
 Every README (`README.md`, `bricks/*/README.md`, `packages/*/README.md`) documents *current*
@@ -98,7 +104,7 @@ don't guess.
 ### Temporary exception: fork URLs until upstream merges
 
 Development currently happens in the fork `jenilseawind-glitch/Flutter-RxDart-Base`, which is
-ahead of upstream (fork: project 1.5.0, bloc 1.2.1, harness 1.8.0, `redux_rxdart_lints` 0.4.0 as a native
+ahead of upstream (fork: project 2.0.0, bloc 1.2.1, harness 2.6.0, `redux_rxdart_lints` 0.5.0 as a native
 analyzer plugin; upstream: project 1.1.0, bloc 1.0.0, harness 1.4.1). Upstream `main` still ships `redux_rxdart_lints` 0.1.0 on analyzer 7 /
 `custom_lint_builder ^0.7`, which conflicts with the template and crashes
 on Flutter 3.47. Pointing generated apps at upstream today would break `flutter pub get` in

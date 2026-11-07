@@ -123,14 +123,15 @@ The following major milestones track architectural enhancements, enterprise capa
 - [ ] **Dynamic Dark Mode & Theme Persistence**:
   - Add `ThemeMode` (light, dark, system) to Redux `AppState` and persist to storage.
   - Introduce dark color tokens in `ResColors` and configure `darkTheme` + `themeMode` in `MaterialApp`.
-- [ ] **Adaptive Form Factors & Multi-Screen Support**:
-  - Upgrade responsive layout utilities beyond phone dimensions (`Size(375, 812)`).
-  - Add responsive layout builders and breakpoint tokens for foldables, tablets, and desktop/web.
+- [x] **Adaptive Form Factors & Multi-Screen Support** *(project 2.0.0)*:
+  - `WindowSize` (Material 3 classes) and `AppContentWidth`; ScreenUtil runs 1:1 from 600dp and follows resizes.
+- [ ] **Retire `flutter_screenutil`** (no release since May 2024):
+  - Move shared widgets and `AppTypography` to plain dp, then drop rule 13 and `no_screenutil_in_private_widget` in a major release.
 - [ ] **Offline-First Mutation Queue**:
   - Integrate local storage abstraction (Drift/Hive) in `lib/services/`.
   - Introduce an offline write queue that serializes mutations during network loss and replays them when connectivity resumes.
-- [ ] **Declarative Routing / GoRouter Integration**:
-  - Add declarative routing support or migration guide for `go_router` deep-linking and web URL synchronization while retaining automated feature wiring capabilities.
+- [x] **Declarative Routing / GoRouter Integration** *(project 2.0.0, harness 2.6.0)*:
+  - `go_router` is the base router; `wire_route.dart` adds `GoRoute` entries and still wires older `onGenerateRoute` apps.
 
 ---
 

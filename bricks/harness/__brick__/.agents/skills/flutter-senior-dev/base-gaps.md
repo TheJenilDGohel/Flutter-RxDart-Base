@@ -19,7 +19,7 @@ These are the places where the base, as shipped, does not cover what larger LMS/
 
 ## 3. Offline
 
-`ConnectivityInterceptor` rejects requests when offline, which is right for reads and wrong for queued writes. For offline-first features such as attendance: add a local store (sqflite or Drift) and a queue service in `lib/services/`, let the BLoC write to the queue and the service replay it when connectivity returns, define conflict rules per entity (last write wins vs server wins with a review), and show queued and failed items in the UI. Decide the store at the start of the phase that needs it, not earlier.
+Offline requests fail with `NoInternetException`, which is right for reads and wrong for queued writes. For offline-first features such as attendance: add a local store (sqflite or Drift) and a queue service in `lib/services/`, let the BLoC write to the queue and the service replay it when connectivity returns, define conflict rules per entity (last write wins vs server wins with a review), and show queued and failed items in the UI. Decide the store at the start of the phase that needs it, not earlier.
 
 ## 4. Permissions and modules
 
@@ -33,7 +33,7 @@ These are the places where the base, as shipped, does not cover what larger LMS/
 
 ## 6. Devices and form factors
 
-`flutter_screenutil` is set up for phones. Kiosk and tablet screens (POS, invigilator) need their own design size or adaptive layout, and dense desktop tables are a poor fit; treat a web admin console as a separate decision. Background GPS and scanners need real-device testing (battery optimization, permissions) and live in `lib/services/`.
+`flutter_screenutil` scales the 375×812 phone design on compact widths and runs 1:1 from 600dp (`AppBreakpoints.designSizeFor`), so tablets get unscaled phone layouts until a screen branches on `WindowSize`. Kiosk and tablet-first screens (POS, invigilator) need their own `medium`/`expanded` layouts; dense desktop tables are a poor fit; treat a web admin console as a separate decision. `flutter_screenutil` has had no release since May 2024: prefer plain dp in new shared widgets so dropping it later stays cheap. Background GPS and scanners need real-device testing (battery optimization, permissions) and live in `lib/services/`.
 
 ## 7. Streaming and AI
 

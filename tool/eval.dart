@@ -12,6 +12,7 @@ import 'package:path/path.dart' as p;
 /// 4. Cross-IDE Cursor rule portability (.cursor/rules/*.mdc).
 /// 5. Agent instruction grounding & anti-ceremony standards.
 /// 6. Contract ingestion CLI tool (scripts/agent/ingest_contract.dart).
+/// 7. Token budget and bundled mods (budget.dart, marketplace, enabledPlugins).
 ///
 /// Run from the repository root:
 ///   dart run tool/eval.dart
@@ -31,7 +32,7 @@ Future<void> main() async {
   }
 
   // ── 1. Golden Rule Lint Fixtures ──────────────────────────────
-  print('\n[1/5] Evaluating Golden Rule Lint Package Fixtures...');
+  print('\n[1/7] Evaluating Golden Rule Lint Package Fixtures...');
   final lintDir = Directory('packages/redux_rxdart_lints');
   if (!lintDir.existsSync()) {
     check('Lint package directory exists', false,
@@ -52,7 +53,7 @@ Future<void> main() async {
   }
 
   // ── 2. Circuit Breaker Loop Guard ────────────────────────────
-  print('\n[2/5] Evaluating Anti-Loop Circuit Breaker in on_edit.dart...');
+  print('\n[2/7] Evaluating Anti-Loop Circuit Breaker in on_edit.dart...');
   final tempDir = Directory('temp_eval_circuit_breaker');
   if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
   tempDir.createSync(recursive: true);
@@ -135,7 +136,7 @@ Future<void> main() async {
   }
 
   // ── 3. Token Compaction & Error Stripping ────────────────────
-  print('\n[3/5] Evaluating Token Compression & Stack Trace Pruning...');
+  print('\n[3/7] Evaluating Token Compression & Stack Trace Pruning...');
   // Check framework stack trace pruning logic
   final rawStackTraces = [
     'FAIL: test/feature_test.dart',
@@ -199,7 +200,7 @@ Analyzing /project...
           prunedAnalyzer.first.contains('Undefined name'));
 
   // ── 4. Cross-IDE Cursor Rule Portability ──────────────────────
-  print('\n[4/5] Evaluating Cursor Path-Scoped Rules (.cursor/rules/*.mdc)...');
+  print('\n[4/7] Evaluating Cursor Path-Scoped Rules (.cursor/rules/*.mdc)...');
   final cursorDir = Directory('bricks/harness/__brick__/.cursor/rules');
   check(
       'Cursor rules directory exists in harness brick', cursorDir.existsSync());
@@ -225,7 +226,7 @@ Analyzing /project...
   }
 
   // ── 5. Agent Instructions Grounding & Compaction ──────────────
-  print('\n[5/6] Evaluating Agent Instructions Grounding (AGENTS.md)...');
+  print('\n[5/7] Evaluating Agent Instructions Grounding (AGENTS.md)...');
   final agentsMd =
       File('bricks/harness/__brick__/AGENTS.md').readAsStringSync();
 
@@ -249,7 +250,7 @@ Analyzing /project...
 
   // ── 6. Contract Ingestion Tool ────────────────────────────────
   print(
-      '\n[6/6] Evaluating Contract Ingestion CLI (scripts/agent/ingest_contract.dart)...');
+      '\n[6/7] Evaluating Contract Ingestion CLI (scripts/agent/ingest_contract.dart)...');
   final ingestScript =
       File('bricks/harness/__brick__/scripts/agent/ingest_contract.dart');
   check('ingest_contract.dart script exists in harness brick',
@@ -268,6 +269,45 @@ Analyzing /project...
         ingestOutput.contains('--fixtures'),
     ingestOutput.trim(),
   );
+
+  // ── 7. Token Budget & Bundled Mods ───────────────────────────
+  print('\n[7/7] Evaluating token budget and bundled mods...');
+  const brick = 'bricks/harness/__brick__';
+  final budgetRun = await Process.run(
+    'dart',
+    ['run', '$brick/scripts/agent/budget.dart', brick],
+    runInShell: true,
+  );
+  check(
+    'Brick always-loaded files and rules are within budget.dart limits',
+    budgetRun.exitCode == 0,
+    '${budgetRun.stdout}${budgetRun.stderr}'.trim(),
+  );
+
+  final market = jsonDecode(
+    File('$brick/.claude/plugins/.claude-plugin/marketplace.json')
+        .readAsStringSync(),
+  ) as Map<String, dynamic>;
+  final settings =
+      jsonDecode(File('$brick/.claude/settings.json').readAsStringSync())
+          as Map<String, dynamic>;
+  final enabled =
+      (settings['enabledPlugins'] as Map<String, dynamic>? ?? {}).keys.toSet();
+  for (final plugin in market['plugins'] as List) {
+    final name = plugin['name'] as String;
+    // Sources resolve against the marketplace root (.claude/plugins).
+    final dir = p.join('$brick/.claude/plugins', plugin['source'] as String);
+    check(
+      'Mod $name: source resolves to a plugin with hooks',
+      File(p.join(dir, '.claude-plugin', 'plugin.json')).existsSync() &&
+          File(p.join(dir, 'hooks', 'hooks.json')).existsSync(),
+      'missing plugin.json or hooks/hooks.json under $dir',
+    );
+    check(
+      'Mod $name: enabled in .claude/settings.json',
+      enabled.contains('$name@${market['name']}'),
+    );
+  }
 
   // ── Summary ──────────────────────────────────────────────────
   print('\n===========================================================');

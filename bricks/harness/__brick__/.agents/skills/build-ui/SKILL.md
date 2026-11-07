@@ -5,59 +5,39 @@ description: Builds or changes Flutter UI in this Redux + RxDart app the house w
 
 # Build UI
 
-Widgets render state; they don't own it. Pages wire a BLoC to the screen, content widgets draw plain data, and everything visual comes from tokens, so a design change touches one file instead of fifty.
-
-> [!TIP]
-> **Token-Saving Input Boundary:** When implementing UI, inspect only the public `Stream<ApiResponse<T>>` / `data$` contract, parsed model fields, and required UI states. Never pull raw JSON schemas or BLoC test output logs into your UI context.
+Widgets render state, they don't own it (rules 3, 4, 13 in `AGENTS.md` §2 are linted). Everything visual comes from tokens, so a design change touches one file. Work from the BLoC's public stream contract and model fields only, never raw JSON or test logs.
 
 ## 0. Load what this project learned
-1. Read `.harness/skills/build-ui.md` if it exists (design decisions, custom tokens, components added here). It wins over this file.
-2. Check the Knowledge Graph (`search_nodes` / `read_graph`) or run `dart run scripts/agent/learn.dart list build-ui`.
-3. Check `lib/utils/widgets/ui/` before building anything: the widget may already exist.
+Read `.harness/skills/build-ui.md` if it exists (it wins over this file), run `dart run scripts/agent/learn.dart list build-ui`, and check `lib/utils/widgets/ui/` first: the widget may exist.
 
 ## 1. Structure
-- **Page** (`<name>_page.dart`, a `StatefulWidget`): creates and disposes the BLoC and any Flutter controllers, subscribes to one-off events, binds streams. Standard `Scaffold` by default; `AppScaffold` when the shared chrome is wanted (rule 6).
-- **Content widget** (`widgets/`): a `StatelessWidget` that takes parsed models and callbacks. Never the BLoC, never a `Stream`. That keeps it trivially testable.
-- **State binding**: `AppResponseBuilder<T>(stream: _bloc.data$, builder: ...)` handles initial, loading and error (with retry) for you. Use a raw `StreamBuilder` only for non-`ApiResponse` streams (a toggle, a tab), with `initialData` from the BLoC's sync getter.
-- No `setState` in features (rule 3 🔒) and no `rxdart` import in widgets (rule 4 🔒).
+- **Page** (`<name>_page.dart`, `StatefulWidget`): creates and disposes the BLoC and controllers, subscribes to one-off events, binds streams (rules 6, 7, 9).
+- **Content widget** (`widgets/`): `StatelessWidget` taking parsed models and callbacks, never the BLoC or a `Stream`.
+- **Binding**: `AppResponseBuilder<T>(stream: _bloc.data$, builder: ...)` does initial, loading and error + retry. Raw `StreamBuilder` only for non-`ApiResponse` streams, with `initialData` from the BLoC's sync getter.
 
-## 2. Visual tokens
-- **Colors**: `ResColors` only (`lib/resources/res_colors.dart`). Need a color that isn't there? Add a token, never an inline `Color(0x...)`. Opacity: `.withValues(alpha: 0.5)`, never the deprecated `withOpacity`.
-- **Text**: `context.textTheme.<style>` (`AppTypography`, already ScreenUtil-scaled), adjusted with `copyWith`. Don't build `TextStyle`s from scratch.
-- **Sizes**: `flutter_screenutil`: `.w` widths and horizontal padding, `.h` heights and vertical gaps, `.r` radii, `.sp` font sizes. Design size 375×812. These work only in **public** widgets: a private `_Foo` isn't rebuilt on resize, and `no_screenutil_in_private_widget` fails the gate (rule 13 🔒). Make the widget public, or compute the size in a public parent and pass it down.
+## 2. Tokens
+- **Colors**: `ResColors` (`lib/resources/res_colors.dart`); a missing color becomes a token, never inline `Color(0x...)`.
+- **Text**: `context.textTheme.<style>` (`AppTypography`, already scaled) + `copyWith`; no `TextStyle` from scratch.
+- **Sizes**: `.w` widths and horizontal padding, `.h` heights and vertical gaps, `.r` radii, `.sp` fonts; design size 375×812 on phones. In a private widget, make it public or compute in a public parent.
+- **Large screens**: from 600dp ScreenUtil runs 1:1, so a phone layout is not blown up but is not adapted either. Branch on `WindowSize.of(context)` (Material 3 size classes, `lib/resources/app_breakpoints.dart`): one column on `compact`, list + detail or a grid from `medium`. Wrap forms, lists and text in `AppContentWidth`. `flutter_screenutil` has had no release since 2024: new shared widgets may use plain dp.
 
-## 3. States every screen needs
-| State | Widget |
-|---|---|
-| Loading | `AppLoadingState` (automatic in `AppResponseBuilder`) |
-| Error + retry | `AppErrorState` (automatic, using `userFacingMessage(context)`) |
-| Empty | `AppEmptyState(message: context.l10n.<key>)`. Its default message is English, so always pass one. |
-| Inline action error | `Text(error.userFacingMessage(context))`, never `e.toString()` (rule 2) |
+## 3. States
+Loading and error + retry come from `AppResponseBuilder` (`AppLoadingState`, `AppErrorState`). Empty: `AppEmptyState(message: context.l10n.<key>)`, always with a message (the default is English). Inline action error: `Text(error.userFacingMessage(context))`.
 
-## 4. Strings (l10n)
-1. Add the key to `lib/l10n/app_en.arb` with an `@key` description, and the same key to `lib/l10n/app_hi.arb`. A missing Hindi key is a bug, not a follow-up.
-2. Placeholders and plurals use ICU syntax: `"itemsCount": "{count, plural, =0{No items} =1{1 item} other{{count} items}}"`, with `"@itemsCount": {"placeholders": {"count": {"type": "int"}}}`.
-3. `generate: true` regenerates `AppLocalizations` on `flutter pub get` / `flutter run`. To refresh it right away, run `flutter gen-l10n`.
-4. Use it: `Text(context.l10n.key)`. Never a string literal in a feature widget.
+## 4. Strings
+Key in `lib/l10n/app_en.arb` (with `@key` description) and `lib/l10n/app_hi.arb`; a missing Hindi key is a bug. ICU plurals: `"{count, plural, =0{No items} =1{1 item} other{{count} items}}"` with a typed placeholder. `flutter gen-l10n` refreshes right away. No string literals in feature widgets.
 
-## 5. Reuse (rule 5, the Rule of 2)
-- Second use of a widget → move it to `lib/utils/widgets/ui/`, parameterize the differences, export it from `lib/utils/widgets/ui/ui_components.dart`, and update both call sites.
-- A reusable widget with its own behavior (like `AppTextFormField` or `AppDialog`) goes in `lib/utils/widgets/view/<component>/` with a small BLoC next to it.
-- Only design-system primitives in `lib/utils/widgets/ui/` may hold purely visual state with `setState`.
+## 5. Reuse (rule 5)
+Second use → move to `lib/utils/widgets/ui/`, parameterize, export from `lib/utils/widgets/ui/ui_components.dart`, update both call sites. A shared widget with behavior (like `AppTextFormField`, `AppDialog`) goes in `lib/utils/widgets/view/<component>/` with its own small BLoC.
 
 ## 6. Feedback and actions
-- Buttons: `CommonButton(text: ..., onPressed: ..., loading: state is LoadingResponse<T>)`. It already shows a spinner and disables itself.
-- Toasts: `ShowMessage.success/error/info/warning(...)`, triggered from a BLoC event (`.agents/skills/manage-state/bloc-recipes.md` recipe D), never from `build`.
-- Dialogs: `AppDialog.showConfirmation(...)` (returns `bool?`), `AppDialog.showStatus(...)`, `AppDialog.showAsyncConfirm(...)` (runs the async call with its own spinner). Pass l10n strings for the labels; the defaults are English.
-- Navigation: named routes through `Routes` (`Navigator.pushNamed`). After an `await`, check `mounted` before using `context`.
+- `CommonButton(text: ..., onPressed: ..., loading: state is LoadingResponse<T>)` spins and disables itself.
+- Toasts `ShowMessage.success/error/info/warning(...)` from a BLoC event (recipe D of `.agents/skills/manage-state/bloc-recipes.md`), never from `build`.
+- `AppDialog.showConfirmation` (`bool?`), `showStatus`, `showAsyncConfirm` (own spinner); pass l10n labels.
+- Navigation via `Routes` + `context.push` / `context.go` (`Navigator.pushNamed` in apps still on `onGenerateRoute`); check `mounted` after an `await`.
 
 ## 7. Accessibility and resilience
-- Icon-only buttons get a `tooltip` or `Semantics(label: ...)`. Tap targets are at least 48×48.
-- Text must survive 1.3× system scaling and Hindi strings about 30% longer than English: use `Flexible`/`Expanded`, `maxLines` + `TextOverflow.ellipsis`, and no fixed-height text boxes.
-- Lists use `ListView.builder` (lazy). Pull to refresh needs a scrollable child even when the list is empty.
+Icon-only buttons get a `tooltip` or `Semantics(label: ...)`; tap targets ≥ 48×48. Survive 1.3× text scale, ~30% longer Hindi and a resize to tablet width (Android 16 ignores orientation and resize locks there): `Flexible`/`Expanded`, `maxLines` + ellipsis, no fixed-height text boxes. `ListView.builder` for lists; pull to refresh needs a scrollable child even when empty.
 
-## 8. See it running
-When a debug app is running and the `dart` MCP server is connected: `hot_reload` after edits, `get_runtime_errors` for overflows and exceptions, `widget_inspector` to check the tree. No running app → say the UI was verified by analyzer and tests only.
-
-## 9. Verify and close out
-Run `dart run scripts/agent/on_edit.dart` on touched files for sub-second feedback, then `dart run scripts/agent/verify.dart`. Add a widget test for content widgets with conditional UI (`.agents/skills/write-tests/SKILL.md`). For device flows, run `maestro test .maestro/flows/smoke_launch.yaml`. Close out per `AGENTS.md` §6. Record design decisions the next UI change must follow in `.claude/rules/ui.md` or `.harness/skills/build-ui.md`.
+## 8. Verify
+With a running debug app and the `dart` MCP: `hot_reload`, `get_runtime_errors` (overflows), `widget_inspector`; otherwise say it was verified by analyzer and tests only. Widget test for conditional content (`.agents/skills/write-tests/SKILL.md`), then `verify.dart`. Design decisions the next change must follow go in `.claude/rules/ui.md` or `.harness/skills/build-ui.md`.

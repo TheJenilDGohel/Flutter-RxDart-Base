@@ -20,20 +20,20 @@ The brick has no hooks and does not edit `pubspec.yaml`. `project` adds the `red
 | `.agents/skills/` | Eight skills, one per kind of work (table below). Claude Code reads the entry points in `.claude/skills/`. |
 | `.claude/rules/` | Path-scoped rules loaded on-demand: `bloc.md`, `ui.md`, `endpoints.md`, `testing.md`. |
 | `.cursor/rules/` | Cursor path-scoped rules with glob frontmatter: `bloc.mdc`, `ui.mdc`, `endpoints.mdc`, `testing.mdc`. |
-| `.claude/plugins/` | Pre-bundled Claude Code mods (v2.4.x): `golden-guard` (stop-time golden rules gate + `/audit`), `session-flow` (statusline + `/pickup` & `/handoff`), and `output-compactor` (failure trace compactor). |
+| `.claude/plugins/` | Pre-bundled Claude Code mods: `golden-guard` (stop-time golden rules gate + `/audit`), `session-flow` (git status line), `output-compactor` (failure trace compactor), `read-guard` (refuses generated/build/oversized Reads without a range) and `shot-shrink` (big screenshots read as an 800px copy). |
 | `.claude/agents/` | Specialist subagent swarm: `@bloc-specialist`, `@ui-artisan`, `@device-qa`, `@flutter-qa`, `@skeptic`, `@docs-scout`. |
-| `scripts/agent/on_edit.dart` | Fast (<1.5s) in-flight format/analyze check with compact error stripping and anti-loop circuit breaker. |
+| `scripts/agent/on_edit.dart` | Format/analyze check of changed files, golden-rule lints included (~20 s cold; the warm `mcp__dart` analyze tool takes milliseconds but skips analyzer-plugin lints) with compact error stripping and anti-loop circuit breaker. |
+| `scripts/agent/affected_tests.dart` | Runs only the tests that mirror the changed `lib/` files and prints failures only; the per-change test step (full `verify.dart` stays for shared-code commits and milestones). |
 | `scripts/agent/watch.dart` | Background incremental diagnostics watcher updating `.harness/diagnostics.json` with zero token overhead. |
 | `scripts/agent/ingest_contract.dart` | Ingests OpenAPI/Postman JSON contracts to generate models with defensive parsing (Rule 12), mock fixtures, and endpoint constants. |
-| `scripts/team/` | Distributed swarm coordination: `task_handoff.dart` (messaging & human blockers), `heartbeat.dart`, and `worktree.dart` (`.harness/team-protocol.md`). |
 | `.maestro/` | Declarative E2E mobile testing flows (`flows/smoke_launch.yaml`). |
 | `scripts/agent/verify.dart` | The quality gate: format → analyze (including architecture lints) → tests → lessons → snapshot with framework stack trace pruning. |
 | `scripts/agent/wire_route.dart` | Scaffolds a feature with `mason make bloc` if missing, then adds its route. |
 | `scripts/agent/learn.dart` | The lessons loop (below). |
 | `scripts/agent/upgrade.dart` | Upgrades the harness without touching your work (below). |
 | `.claude/` | Settings (Token Shield, 1h cache TTL, multiplexing), skill entry points, specialist subagents. |
-| `.mcp.json`, `.cursor/mcp.json` | Dart MCP server, Maestro device automation, and Anthropic Knowledge Graph memory server. |
-| `.harness/` | Memory: `active-context.md`, `progress.md`, `lessons.md`, `team-protocol.md`, generated `system-snapshot.md`, `version.json`. Agents add skill overlays (`skills/<skill>.md`) and specs (`specs/<feature>.md`). |
+| `.mcp.json`, `.cursor/mcp.json` | Dart MCP server and Maestro device automation. |
+| `.harness/` | Memory: `active-context.md`, `progress.md`, `lessons.md`, generated `system-snapshot.md`, `version.json`. Agents add skill overlays (`skills/<skill>.md`) and specs (`specs/<feature>.md`). |
 
 ### Skills & Production Recipes
 
@@ -45,7 +45,7 @@ The brick has no hooks and does not edit `pubspec.yaml`. `project` adds the `red
 | `build-ui` | Page/content split, tokens, ScreenUtil, l10n, shared widgets, dialogs, accessibility |
 | `write-tests` | BLoC, model, widget, reducer, regression tests, and Maestro device journeys |
 | `fix-bug` | Symptom → layer table, every gate step and lint rule |
-| `evolve-harness` | Tiered memory, Knowledge Graph observations, path rules, and project skills |
+| `evolve-harness` | One learning loop: lesson, seen twice, rule or lint, delete |
 | `flutter-senior-dev` | Planning, architecture decisions, review |
 
 Codex, Gemini CLI and OpenCode read `.agents/skills/`. Claude Code reads `.claude/skills/`. Cursor reads both. Production repository recipes (CRUD filters, capability mixins, multipart upload, unpaginated fetch, binary streaming, cache-aside) are detailed in `.agents/skills/add-endpoint/repo-recipes.md`.
@@ -60,16 +60,16 @@ Tasks multiplex across lean, role-bounded subagents in `.claude/agents/` configu
 - `@skeptic`: Adversarial plan reviewer attacking reactive designs before coding begins.
 - `@docs-scout`: Token-efficient package and documentation researcher (<200 words).
 
-Coordination works across single-terminal in-process handoffs and concurrent multi-session Git worktrees (`.worktreeinclude`) via `scripts/team/task_handoff.dart`, `scripts/team/heartbeat.dart`, and `scripts/team/worktree.dart` (`.harness/team-protocol.md`).
+One session is the default; the harness ships no multi-session tooling. For owner-approved parallel work, use one session per `git worktree` (`.worktreeinclude`) on disjoint files.
 
-### Pre-Bundled Claude Code Plugins & Interactive Commands (v2.4.x)
+### Pre-Bundled Claude Code Plugins & Interactive Commands
 
-Harness v2.4.x bundles three native Anthropic Claude Code plugins located in `.claude/plugins/`:
-- **`golden-guard`**: A stop-time verification hook (`classic.Stop`) enforcing Golden Rules (R1, R2, R3, R4, R13) and design tokens before finishing any turn, plus the on-demand `/audit` command.
-- **`session-flow`**: Real-time terminal status line (`$.ui.status`) showing current branch, dirty files, unpushed commits, and worktree count. Provides deterministic session bookends:
-  - `/pickup [task]`: Resumes work by auto-detecting uncommitted WIP and parsed `- [ ]` checklist items from `.harness/active-context.md`, presenting an interactive selection menu.
-  - `/handoff`: Performs pre-commit hygiene, verifies gates, and saves clean task hand-off notes.
+The harness bundles five native Anthropic Claude Code plugins located in `.claude/plugins/`:
+- **`golden-guard`**: A stop-time verification hook (`classic.Stop`) enforcing Golden Rules (R1, R2, R3, R4, R13, R14, plus golden-rule lints from the analyzer, warnings included) and colour tokens before finishing any turn, plus the on-demand `/audit` command.
+- **`session-flow`**: Real-time terminal status line (`$.ui.status`) showing current branch, dirty files, unpushed commits, and worktree count. (`/pickup` and `/handoff` were removed in 2.6.0: `active-context.md` already loads every session, and their prompts cost more than they saved.)
 - **`output-compactor`**: Intercepts `Bash` command failures (`maestro test`, `flutter test`, `dart analyze`), stripping verbose framework stack traces while preserving root-cause error banners and line numbers.
+- **`read-guard`**: Refuses `Read` of `*.g.dart`, `*.freezed.dart`, `build/`, `.dart_tool/` and files over 30k chars without `offset`/`limit` (AGENTS.md §4).
+- **`shot-shrink`**: A `Read` of a screenshot over 1000px reads an 800px copy in a `.small` folder (git-ignored), so the image costs fewer tokens on every later turn. Windows (System.Drawing), macOS (`sips`) and Linux (ImageMagick, when installed).
 
 ### Universal Foundation vs IDE Enhancements
 
@@ -77,7 +77,7 @@ Harness v2.4.x bundles three native Anthropic Claude Code plugins located in `.c
 |---|---|---|
 | **Universal Foundation** | Cursor, Codex, Gemini CLI, Claude Code | `AGENTS.md` locked Golden Rules, `redux_rxdart_lints`, `.agents/skills/`, and pre-commit verification (`scripts/agent/verify.dart`, `wire_route.dart`). |
 | **Cursor Path Rules** | Cursor IDE | `.cursor/rules/*.mdc` glob-frontmatter rules (`bloc.mdc`, `ui.mdc`, `endpoints.mdc`, `testing.mdc`) and `.cursor/mcp.json`. |
-| **Claude Code Enhancements** | Claude Code CLI | Pre-bundled plugins (`.claude/plugins/`), 1h prompt caching (`promptCacheTtl: "1h"`), specialist swarm (`.claude/agents/`), and `/pickup` session flows. |
+| **Claude Code Enhancements** | Claude Code CLI | Pre-bundled plugins (`.claude/plugins/`), 1h prompt caching (`promptCacheTtl: "1h"`), specialist swarm (`.claude/agents/`). |
 
 
 ### Token Conservation & High-Efficiency Operations

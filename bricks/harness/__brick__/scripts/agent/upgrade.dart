@@ -278,6 +278,13 @@ const _retiredFiles = [
   '.cursor/skills/flutter-senior-dev/references/planning-checklist.md',
   '.cursor/skills/flutter-senior-dev/references/redux-vs-rxdart.md',
   '.cursor/skills/flutter-senior-dev/references/ui-conventions.md',
+  // 2.6.0: one session by default; multi-session coordination retired.
+  '.harness/team-protocol.md',
+  'scripts/team/heartbeat.dart',
+  'scripts/team/task_handoff.dart',
+  'scripts/team/worktree.dart',
+  // 2.6.0: folded into evolve-harness/SKILL.md.
+  '.agents/skills/evolve-harness/authoring-skills.md',
 ];
 
 void _apply(
@@ -322,7 +329,6 @@ void _apply(
   final kept = [
     for (final dir in [
       'scripts/agent',
-      'scripts/team',
       '.claude/agents',
       '.claude/plugins',
       '.claude/rules',
@@ -339,9 +345,6 @@ void _apply(
       File('$staged/.worktreeinclude').existsSync()) {
     _copyFile('$staged/.worktreeinclude', '.worktreeinclude');
   }
-  if (File('$staged/.harness/team-protocol.md').existsSync()) {
-    _copyFile('$staged/.harness/team-protocol.md', '.harness/team-protocol.md');
-  }
   if (kept.isNotEmpty) {
     print(
       'Kept files the harness does not ship (yours):\n'
@@ -354,6 +357,8 @@ void _apply(
     '.harness/active-context.md',
     '.harness/progress.md',
     '.harness/lessons.md',
+    '.harness/.gitignore',
+    '.harness/guard-rules.json',
   ]) {
     if (!File(f).existsSync()) _copyFile('$staged/$f', f);
   }

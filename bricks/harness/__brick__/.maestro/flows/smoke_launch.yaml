@@ -1,8 +1,15 @@
 # Maestro smoke launch flow
 # Usage: maestro test .maestro/flows/smoke_launch.yaml
-appId: com.example.app
+# appId is the Android package; for iOS run with --app-id {{ios_bundle_id}}.
+appId: {{android_package_name}}
 ---
 - launchApp:
     clearState: true
+- waitForAnimationToEnd
+# Flutter's error screen (red in debug, grey in release) must not appear.
+- assertNotVisible:
+    text: ".*(Exception|Error):.*"
+# Something rendered. upgrade.dart replaces this file: put your own
+# journeys in new flows next to it.
 - assertVisible:
-    text: ".*"
+    text: ".+"

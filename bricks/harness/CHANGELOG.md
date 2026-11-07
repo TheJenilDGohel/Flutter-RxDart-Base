@@ -1,5 +1,43 @@
 # Changelog
 
+## 2.6.0
+
+- **Token budget by default** (from a project that burned its weekly limit on a PM + builder + helper setup):
+  - `.claude/settings.json`: `model: sonnet`, `crossSessionInbound: hold` (an idle session no longer wakes and re-sends its whole context for each peer message), `subagentPromptCacheTtl: 5m` (short subagents don't pay 1h cache writes), and `teammateMode` removed (agent teams stay off).
+  - New `scripts/agent/affected_tests.dart`: runs only the tests mirroring the changed `lib/` files, prints failures only, and detects failures from output because `fvm` on Windows can exit 0 on a failed run. Full `verify.dart` moves to shared-code commits and milestones.
+  - `CLAUDE.md` template cut to the essentials: one session, tests per change, Maestro at milestones, short always-loaded files.
+  - `AGENTS.md` §4: one session by default; parallel work only on request, one `git worktree` per session; device testing runs Maestro flows as commands, never screenshot-driven passes.
+  - **Removed** `scripts/team/` (`task_handoff`, `heartbeat`, `worktree`) and `.harness/team-protocol.md`; `upgrade.dart` deletes them from existing projects. Adversarial check 5 (team mailbox) removed with them.
+- **Harness diet** (always-loaded context is paid on every turn):
+  - New `scripts/agent/budget.dart`, run as a `verify.dart` step and in CI: fails when the always-loaded files pass 12k chars or a path-scoped rules file passes 2k, naming the file and the overshoot.
+  - `learn.dart`: one loop (lesson, seen twice, rule line or lint, delete the lesson); `promote` deletes the lesson, `prune` deletes lessons seen once and not in 90 days, `lessons.md` is capped at 30 active lessons.
+  - `evolve-harness` skill rewritten around that loop; `authoring-skills.md` folded in and removed by `upgrade.dart`. `AGENTS.md` golden rules trimmed to one example pair each.
+  - `memory` MCP server removed from `.mcp.json` (Auto-Memory and `.claude/rules/` cover it without loading a tool schema every session).
+  - `session-flow` 0.2.0: `/handoff` and `/pickup` removed (each injected a prompt over 400 chars and duplicated `active-context.md`); the git status line stays.
+  - New mods `read-guard` (refuses Reads of `*.g.dart`, `*.freezed.dart`, `build/`, `.dart_tool/` and files over 30k chars without `offset`/`limit`) and `shot-shrink` (screenshot Reads over 1000px use an 800px copy). Both are enabled in `.claude/settings.json`.
+  - Fixed `marketplace.json` plugin sources: they are relative to `.claude/plugins`, so `./golden-guard`, not `./plugins/golden-guard` (the mods never loaded before).
+  - `golden-guard` R13 no longer flags the `State` class of a public widget.
+  - `tool/eval.dart` section 7: the brick passes `budget.dart`, and every marketplace mod resolves to a plugin with hooks and is enabled.
+- **Contract matches the code** (architecture review):
+  - `AGENTS.md` rule 11, `fix-bug` and `.claude/rules/endpoints.md` (+ Cursor) said a 401 triggers a silent refresh; the base logs out on any 401 while signed in. They now say so, with silent refresh as opt-in recipe H.
+  - Lints that silently do not run: a git-sourced analyzer plugin needs Dart 3.13 / Flutter 3.47, and older SDKs skip it without an error. `verify.dart` now prints a warning up front (pin a newer SDK with FVM, or upgrade) and ends with "passed WITHOUT the golden-rule lints"; `AGENTS.md` says the 🔒 rules then need a manual check.
+  - Path-scoped rules that never loaded: `ui.md` matched `views/` but not `*_page.dart`, `endpoints.md` matched `models/` but the bloc brick writes `model/`, `bloc.md` matched `*_event.dart` / `*_state.dart` that this architecture never creates. Globs fixed in `.claude/rules/` and `.cursor/rules/`; `tool/harness_check.dart` now fails when a glob matches no generated file or the Claude and Cursor globs differ.
+  - `AGENTS.md` no longer calls `on_edit.dart` "the edit hook" (nothing runs it as one) and points at the warm `mcp__dart` analyze first; `on_edit.dart` no longer claims "<1.5s".
+  - `affected_tests.dart` treats `lib/main.dart`, `lib/redux/`, `lib/networking/`, `lib/services/`, `lib/resources/`, `lib/l10n/` and `lib/utils/` as shared code (it listed `lib/core/` and `lib/config/`, which the bricks never generate, and missed Redux).
+- **Mods**:
+  - `golden-guard` 0.2.0: dropped rules from another app (`lib/storage/`, `AuthSession.signOut`, `AppDateFormat`, `gu` ARB, `Future.delayed`, BLoC text and file-name literals) that blocked Stop on base code; R4 uses the same allow-list as `no_rxdart_in_ui`; new R14 `withOpacity`; the Stop gate keeps warning-level golden lints from the analyzer (`no_fetch_without_token`, `no_unclosed_subject`, `no_with_opacity` were dropped with every non-error); `fvm` only when the project uses it; `/audit` diffs against origin's default branch instead of `main`. It also no longer reads `process.platform`, which is undefined in a hooks module, so the analyzer step used to fail silently and return nothing.
+  - `output-compactor` 0.2.0: compacted `dart analyze` output keeps warnings and infos (errors first) instead of errors only, since `--fatal-infos` fails on them.
+  - `shot-shrink` works on macOS (`sips`) and Linux (ImageMagick), not only Windows, and writes a `*` `.gitignore` into each `.small/` folder.
+  - Every mod manifest has an `author`, so `claude plugin validate --strict` passes.
+- **Navigation**: `wire_route.dart` wires go_router (project 2.0.0) by adding a `GoRoute` above `// wire_route:routes`, and still wires `onGenerateRoute` routers; it refuses only `auto_route`. Skills, `architecture.md` and recipe D use `context.push` / `context.go`, with the `Navigator.pushNamed` form named for older apps.
+- **Networking and large screens** (project 2.0.0): skills and references describe the 4-interceptor chain without a connectivity pre-check, `WindowSize` / `AppContentWidth`, and ScreenUtil running 1:1 from 600dp. New repo recipe I: the native HTTP stack (`native_dio_adapter`) as an opt-in, with its measured costs (buffered uploads and progress, pinning and proxy ignored, iOS 15, Play services, Kotlin Gradle Plugin) and the `ClientException` mapping it needs.
+- **Rule 12 parsed defensively only against null** (from testing generated models): `(json['id'] as num?)?.toInt() ?? 0` and `(json['items'] as List? ?? [])` throw on a wrong wire type (`"42"`, `{}`), which `write-tests` asks to survive. `AGENTS.md` rule 12, `add-endpoint`, `fix-bug/gate-failures.md`, `.claude/rules/endpoints.md` (+ Cursor) and recipes B/C now use switch expressions that fall back (`switch (json['id']) { final num v => v.toInt(), final String v => num.tryParse(v)?.toInt() ?? 0, _ => 0 }`), clean under `strict-casts`, `strict-raw-types` and `prefer_final_locals`.
+- **`ingest_contract.dart`** generated wrong code: nested objects became `String` (`"{id: 7}"`), lists became `List<dynamic>`, `/orders/{id}` became a const with a literal `{id}`, an endpoint without an example got an invented `id`/`name` model, and `--scaffold` with no match silently scaffolded the first endpoint. Now: one model class per nested object, typed lists, `Object?` for fields null in the example, `ApiConstants` entries in the base's style (`static String get x => '$baseUrl/...'`, a function for path params), no model without an example (exit 2), an error listing the endpoints when the name matches none or several (exit 1). Output verified in a generated app under `flutter analyze --fatal-infos` with a parse test of the example and of wrong-typed input.
+- **Faster Stop gate**: a CLI `dart analyze` of one file measured ~23 s (8 s analyzer + 15 s lint plugin start). `golden-guard` asks the warm `dart` MCP server's `analyze_files` first (milliseconds once warm; errors in the changed files only) and falls back to the CLI. That server does not run analyzer plugins, so the golden rules stay with the regex scan; `AGENTS.md` and `on_edit.dart` now say the warm `mcp__dart` analyze skips the 🔒 lints.
+- **Reading recipes by section**: `AGENTS.md` §4 tells agents to grep `^## ` in `*-recipes.md` and read one section (`bloc-recipes.md` is ~4.5k tokens whole).
+- **TLS advisory**: `verify.dart` warns on Dart < 3.13.7 (Flutter < 3.47.8), whose `dart:io` trusts the compromised eMudhra CAs (GHSA-frr6-h895-5pxp), with the FVM fix.
+- **Smaller fixes**: the Maestro smoke flow uses the app's package (`appId` was hardcoded to `com.example.app`) and asserts Flutter's error screen is absent; `.cursor/mcp.json` gains `maestro`; new `.harness/.gitignore` (`.loop_guard.json`, `diagnostics.json`, added to existing apps by `upgrade.dart`); the `flutter-qa` reviewer runs on Sonnet.
+
 ## 2.5.0
 
 - **API Contract Ingestion Tool (`scripts/agent/ingest_contract.dart`)**:

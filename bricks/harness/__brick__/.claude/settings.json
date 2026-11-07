@@ -1,14 +1,14 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "model": "sonnet",
+  "crossSessionInbound": "hold",
   "promptCacheTtl": "1h",
-  "subagentPromptCacheTtl": "1h",
+  "subagentPromptCacheTtl": "5m",
   "bashOutputMaxChars": 3000,
-  "teammateMode": "auto",
   "permissions": {
     "allow": [
       "mcp__dart",
       "mcp__maestro",
-      "mcp__memory",
       "Bash(dart format:*)",
       "Bash(fvm dart format:*)",
       "Bash(dart analyze:*)",
@@ -23,6 +23,8 @@
       "Bash(fvm dart run scripts/agent/on_edit.dart:*)",
       "Bash(dart run scripts/agent/watch.dart:*)",
       "Bash(fvm dart run scripts/agent/watch.dart:*)",
+      "Bash(dart run scripts/agent/affected_tests.dart:*)",
+      "Bash(fvm dart run scripts/agent/affected_tests.dart:*)",
       "Bash(dart run scripts/agent/verify.dart:*)",
       "Bash(fvm dart run scripts/agent/verify.dart:*)",
       "Bash(dart run scripts/agent/snapshot.dart)",
@@ -31,12 +33,6 @@
       "Bash(fvm dart run scripts/agent/wire_route.dart:*)",
       "Bash(dart run scripts/agent/learn.dart:*)",
       "Bash(fvm dart run scripts/agent/learn.dart:*)",
-      "Bash(dart run scripts/team/task_handoff.dart:*)",
-      "Bash(fvm dart run scripts/team/task_handoff.dart:*)",
-      "Bash(dart run scripts/team/heartbeat.dart:*)",
-      "Bash(fvm dart run scripts/team/heartbeat.dart:*)",
-      "Bash(dart run scripts/team/worktree.dart:*)",
-      "Bash(fvm dart run scripts/team/worktree.dart:*)",
       "Bash(maestro test:*)",
       "Bash(mason make bloc:*)",
       "Bash(fvm exec mason make bloc:*)",
@@ -69,6 +65,8 @@
   "enabledPlugins": {
     "golden-guard@harness-mods": true,
     "session-flow@harness-mods": true,
-    "output-compactor@harness-mods": true
+    "output-compactor@harness-mods": true,
+    "read-guard@harness-mods": true,
+    "shot-shrink@harness-mods": true
   }
 }
