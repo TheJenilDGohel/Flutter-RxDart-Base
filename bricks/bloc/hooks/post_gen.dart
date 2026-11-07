@@ -33,10 +33,10 @@ Future<void> run(HookContext context) async {
   context.logger.info(
     '\nNext steps:\n'
     '  1. Wire the route (constant + router case) in one step:\n'
-    '       dart run scripts/agent/wire_route.dart $feature\n'
+    '       dart scripts/agent/wire_route.dart $feature\n'
     '     (or add it by hand to lib/utils/router/routes.dart and '
     'app_router.dart: Routes.${feature.camelCase} → ${feature.pascalCase}Page)\n'
     '  2. Point ${feature.pascalCase}Repo at the real endpoint.\n'
-    '  3. Run the quality gate: dart run scripts/agent/verify.dart\n',
+    '  3. Run the quality gate: dart scripts/agent/verify.dart\n',
   );
 }

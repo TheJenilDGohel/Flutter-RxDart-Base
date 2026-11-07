@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.2
+
+- The next-steps message prints `dart scripts/agent/wire_route.dart` and `dart scripts/agent/verify.dart` (harness 2.6.0): `dart run` runs the app's native-asset build hooks first and fails in apps with such a dependency and no C compiler.
+
 ## 1.2.1
 
 - **Fix:** hook SDK floor lowered to Dart ≥ 3.5 (what `mason` needs). 1.2.0 required Dart ≥ 3.13, which broke `mason upgrade` on Flutter ≤ 3.44.

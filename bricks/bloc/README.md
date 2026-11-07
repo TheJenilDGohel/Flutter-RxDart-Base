@@ -55,7 +55,7 @@ If the [`harness` brick](../harness/README.md) is installed, skip `mason make bl
 run one command instead — it scaffolds the feature (if missing) *and* wires the route:
 
 ```bash
-dart run scripts/agent/wire_route.dart <feature_name> [route_path]
+dart scripts/agent/wire_route.dart <feature_name> [route_path]
 ```
 
 ---
